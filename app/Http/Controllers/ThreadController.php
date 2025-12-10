@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Thread;
+use App\Models\Subforum;
+use App\Http\Requests\StoreThreadRequest;
+use App\Http\Requests\UpdateThreadRequest;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class ThreadController extends Controller
 {
@@ -13,46 +17,186 @@ class ThreadController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Fetch all threads and eager load the user (author)
-        // Order by latest post/update or simply latest creation for now
-        $threads = Thread::with('user')
-            ->latest() // Order by creation date descending
-            ->get();
+        // Fetch all subforums with their threads
+        $subforums = Subforum::with(['threads' => function ($query) {
+            $query->with('user')
+                  ->withCount('posts')
+                  ->latest()
+                  ->take(10); // Limit threads per subforum for performance
+        }])->get();
 
-        // 2. Define the subforum groups (These should ideally come from a DB table)
-        // I'll assume your Thread model has a 'subforum' column for this grouping.
-        // For the example, I'll group all existing threads under 'General Discussion'
-        // and add some empty conceptual subforums.
+        // Transform subforums data for the frontend
+        $subforumsData = $subforums->mapWithKeys(function ($subforum) {
+            return [
+                $subforum->name => [
+                    'id' => $subforum->id,
+                    'slug' => $subforum->slug,
+                    'description' => $subforum->description,
+                    'threads' => $subforum->threads->map(function ($thread) {
+                        return [
+                            'id' => $thread->id,
+                            'title' => $thread->title,
+                            'slug' => $thread->slug,
+                            'user' => [
+                                'id' => $thread->user->id,
+                                'name' => $thread->user->name,
+                            ],
+                            'posts_count' => $thread->posts_count,
+                            'created_at' => $thread->created_at,
+                            'updated_at' => $thread->updated_at,
+                        ];
+                    }),
+                ],
+            ];
+        })->toArray();
 
-        $subforums = [
-            'General Discussion' => [
-                'description' => 'Discussions that don\'t fit anywhere else.',
-                'threads' => collect(), // Initial empty collection
-            ],
-            'Sports Talk' => [
-                'description' => 'Basketball, Volleyball, and other sports news.',
-                'threads' => collect(),
-            ],
-            'Gaming Corner' => [
-                'description' => 'Latest news and discussions about games.',
-                'threads' => collect(),
-            ],
-            'Homework Help' => [
-                'description' => 'Ask questions and help others with studies.',
-                'threads' => collect(),
-            ],
-        ];
-
-        // 3. Populate the 'General Discussion' subforum with all threads for this initial step
-        // In a proper setup, you would filter the threads based on a 'subforum_id' or 'category' column.
-        $subforums['General Discussion']['threads'] = $threads;
-
-
-        // 4. Render the Inertia page and pass the grouped data
         return Inertia::render('Forum/Index', [
+            'subforums' => $subforumsData,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new thread.
+     */
+    public function create()
+    {
+        $subforums = Subforum::all(['id', 'name', 'slug']);
+        
+        return Inertia::render('Forum/CreateThread', [
             'subforums' => $subforums,
         ]);
     }
 
-    // ... other methods (store, show, edit, update, destroy)
+    /**
+     * Store a newly created thread in storage.
+     */
+    public function store(StoreThreadRequest $request)
+    {
+        $thread = Thread::create([
+            'title' => $request->title,
+            'body' => $request->body,
+            'user_id' => $request->user()->id,
+            'subforum_id' => $request->subforum_id,
+        ]);
+
+        return Redirect::route('threads.show', $thread->slug)
+            ->with('success', 'Thread created successfully!');
+    }
+
+    /**
+     * Display the specified thread with its posts.
+     */
+    public function show(string $slug)
+    {
+        $thread = Thread::where('slug', $slug)
+            ->with(['user', 'subforum', 'posts.user'])
+            ->withCount('posts')
+            ->firstOrFail();
+
+        return Inertia::render('Forum/ShowThread', [
+            'thread' => [
+                'id' => $thread->id,
+                'title' => $thread->title,
+                'body' => $thread->body,
+                'slug' => $thread->slug,
+                'user' => [
+                    'id' => $thread->user->id,
+                    'name' => $thread->user->name,
+                ],
+                'subforum' => [
+                    'id' => $thread->subforum->id,
+                    'name' => $thread->subforum->name,
+                    'slug' => $thread->subforum->slug,
+                ],
+                'posts_count' => $thread->posts_count,
+                'created_at' => $thread->created_at,
+                'updated_at' => $thread->updated_at,
+                'posts' => $thread->posts->map(function ($post) {
+                    return [
+                        'id' => $post->id,
+                        'body' => $post->body,
+                        'user' => [
+                            'id' => $post->user->id,
+                            'name' => $post->user->name,
+                        ],
+                        'created_at' => $post->created_at,
+                        'updated_at' => $post->updated_at,
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified thread.
+     */
+    public function edit(string $slug)
+    {
+        $thread = Thread::where('slug', $slug)->firstOrFail();
+        
+        // Check authorization
+        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $subforums = Subforum::all(['id', 'name', 'slug']);
+
+        return Inertia::render('Forum/EditThread', [
+            'thread' => [
+                'id' => $thread->id,
+                'title' => $thread->title,
+                'body' => $thread->body,
+                'slug' => $thread->slug,
+                'subforum_id' => $thread->subforum_id,
+            ],
+            'subforums' => $subforums,
+        ]);
+    }
+
+    /**
+     * Update the specified thread in storage.
+     */
+    public function update(UpdateThreadRequest $request, string $slug)
+    {
+        $thread = Thread::where('slug', $slug)->firstOrFail();
+
+        // Check authorization
+        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $thread->update([
+            'title' => $request->title,
+            'body' => $request->body,
+            'subforum_id' => $request->subforum_id,
+        ]);
+
+        // Regenerate slug if title changed
+        if ($thread->wasChanged('title')) {
+            $thread->slug = Thread::generateSlug($request->title);
+            $thread->save();
+        }
+
+        return Redirect::route('threads.show', $thread->slug)
+            ->with('success', 'Thread updated successfully!');
+    }
+
+    /**
+     * Remove the specified thread from storage.
+     */
+    public function destroy(string $slug)
+    {
+        $thread = Thread::where('slug', $slug)->firstOrFail();
+
+        // Check authorization - only author or admin can delete
+        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $subforumSlug = $thread->subforum->slug;
+        $thread->delete();
+
+        return Redirect::route('subforums.show', $subforumSlug)
+            ->with('success', 'Thread deleted successfully!');
+    }
 }
