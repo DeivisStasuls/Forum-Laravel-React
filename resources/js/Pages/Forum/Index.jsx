@@ -21,9 +21,8 @@ export default function ForumIndex({ auth, subforums }) {
 
                             {/* Link to create a new thread */}
                             <div className="flex justify-end mb-4">
-                                {/* Create a placeholder link for now */}
                                 <Link
-                                    href={route('forum.create')}
+                                    href={route('threads.create')}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150"
                                 >
                                     + Create New Thread
@@ -59,8 +58,7 @@ export default function ForumIndex({ auth, subforums }) {
                                                     {subforumData.threads.map((thread) => (
                                                         <tr key={thread.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100">
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                                {/* Placeholder link for the thread details page */}
-                                                                <Link href={`/threads/${thread.id}`} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
+                                                                <Link href={route('threads.show', thread.slug)} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
                                                                     {thread.title}
                                                                 </Link>
                                                             </td>
