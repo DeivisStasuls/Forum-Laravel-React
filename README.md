@@ -1,59 +1,211 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Forum Laravel React
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern forum application built with Laravel 12 and React (Inertia.js), featuring full CRUD operations for threads, subforums, and posts.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **User Authentication** - Laravel Breeze authentication system
+- **Thread Management** - Create, read, update, and delete discussion threads
+- **Subforum System** - Organize threads into categories (subforums)
+- **Post/Reply System** - Users can reply to threads
+- **Role-Based Access** - Admin and user roles with proper authorization
+- **Slug-Based URLs** - SEO-friendly URLs for threads and subforums
+- **Modern UI** - Built with React, Tailwind CSS, and Inertia.js
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.2
+- Composer
+- Node.js >= 18.x and npm
+- SQLite (default) or MySQL/PostgreSQL
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/Forum-Laravel-React.git
+   cd Forum-Laravel-React
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-## Laravel Sponsors
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-### Premium Partners
+5. **Configure database**
+   
+   For SQLite (default):
+   ```bash
+   touch database/database.sqlite
+   ```
+   
+   Or update `.env` for MySQL/PostgreSQL:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=forum
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Build assets**
+   ```bash
+   npm run build
+   ```
+
+8. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+   
+   In another terminal:
+   ```bash
+   npm run dev
+   ```
+
+9. **Visit the application**
+   - Open http://localhost:8000 in your browser
+   - Register a new account or use existing credentials
+
+## Creating an Admin User
+
+To create an admin user, you can use Laravel Tinker:
+
+```bash
+php artisan tinker
+```
+
+Then run:
+```php
+$user = App\Models\User::create([
+    'name' => 'Admin',
+    'email' => 'admin@example.com',
+    'password' => bcrypt('password'),
+    'role' => 'admin'
+]);
+```
+
+## Project Structure
+
+```
+Forum-Laravel-React/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── ThreadController.php      # Thread CRUD operations
+│   │   │   ├── SubforumController.php    # Subforum CRUD operations
+│   │   │   └── PostController.php        # Post/Reply CRUD operations
+│   │   └── Requests/
+│   │       ├── StoreThreadRequest.php    # Thread validation
+│   │       ├── UpdateThreadRequest.php
+│   │       ├── StoreSubforumRequest.php
+│   │       ├── UpdateSubforumRequest.php
+│   │       ├── StorePostRequest.php
+│   │       └── UpdatePostRequest.php
+│   └── Models/
+│       ├── Thread.php                    # Thread model
+│       ├── Subforum.php                  # Subforum model
+│       ├── Post.php                      # Post/Reply model
+│       └── User.php                      # User model with roles
+├── database/
+│   └── migrations/                       # Database migrations
+├── resources/
+│   └── js/
+│       ├── Pages/Forum/                  # React/Inertia pages
+│       └── Components/                   # Reusable React components
+└── routes/
+    └── web.php                           # Application routes
+```
+
+## CRUD Operations
+
+### Threads
+- **Create**: `GET /threads/create` → `POST /threads`
+- **Read**: `GET /threads/{slug}`
+- **Update**: `GET /threads/{slug}/edit` → `PATCH /threads/{slug}`
+- **Delete**: `DELETE /threads/{slug}`
+
+### Subforums
+- **Create**: `GET /subforums/create` → `POST /subforums` (Admin only)
+- **Read**: `GET /subforums/{slug}`
+- **Update**: `GET /subforums/{slug}/edit` → `PATCH /subforums/{slug}` (Admin only)
+- **Delete**: `DELETE /subforums/{slug}` (Admin only)
+
+### Posts (Replies)
+- **Create**: `POST /threads/{threadSlug}/posts`
+- **Update**: `GET /threads/{threadSlug}/posts/{post}/edit` → `PATCH /threads/{threadSlug}/posts/{post}`
+- **Delete**: `DELETE /threads/{threadSlug}/posts/{post}`
+
+## Authorization
+
+- **Threads**: Only the author or admin can edit/delete
+- **Posts**: Only the author or admin can edit/delete
+- **Subforums**: Only admins can create/edit/delete
+
+## Testing
+
+Run the test suite:
+
+```bash
+php artisan test
+```
+
+## Technologies Used
+
+- **Backend**: Laravel 12
+- **Frontend**: React 18, Inertia.js
+- **Styling**: Tailwind CSS
+- **Authentication**: Laravel Breeze
+- **Database**: SQLite (default, configurable)
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Author
+
+- GitHub: [@DeivisStasuls](https://github.com/DeivisStasuls/Forum-Laravel-React)
+
+##  Acknowledgments
+
+- Laravel Framework
+- Inertia.js
+- React Community
+- Tailwind CSS
+
+---
+
+**Note**: This is a learning project. For production use, posible additional features like:
+- Pagination
+- Search functionality
+- Email notifications
+- Image uploads
+- Rich text editor
+- Rate limiting
