@@ -23,7 +23,7 @@ A modern forum application built with Laravel 12 and React (Inertia.js), featuri
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Forum-Laravel-React.git
+   git clone https://github.com/DeivisStasuls/Forum-Laravel-React.git
    cd Forum-Laravel-React
    ```
 
@@ -191,7 +191,7 @@ This project is open-sourced software licensed under the [MIT license](https://o
 
 ## Author
 
-- GitHub: [@DeivisStasuls](https://github.com/DeivisStasuls/Forum-Laravel-React)
+- GitHub: [@DeivisStasuls](https://github.com/DeivisStasuls/)
 
 ##  Acknowledgments
 
