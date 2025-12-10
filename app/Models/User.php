@@ -56,4 +56,20 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Get the threads created by the user.
+     */
+    public function threads()
+    {
+        return $this->hasMany(Thread::class);
+    }
+
+    /**
+     * Get the posts created by the user.
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }
