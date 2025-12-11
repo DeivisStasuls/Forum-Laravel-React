@@ -30,74 +30,70 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified post.
      */
+
     public function edit(string $threadSlug, int $postId)
-    {
-        $thread = Thread::findThread($threadSlug, true);
-        $post = Post::where('id', $postId)
-            ->where('thread_id', $thread->id)
-            ->firstOrFail();
+{
+    [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-        // Check authorization
-        if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        return Inertia::render('Forum/EditPost', [
-            'thread' => [
-                'id' => $thread->id,
-                'title' => $thread->title,
-                'slug' => $thread->slug,
-            ],
-            'post' => [
-                'id' => $post->id,
-                'body' => $post->body,
-            ],
-        ]);
+    // Authorization
+    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        abort(403, 'Unauthorized action.');
     }
+
+    return Inertia::render('Forum/EditPost', [
+        'thread' => [
+            'id' => $thread->id,
+            'title' => $thread->title,
+            'slug' => $thread->slug,
+        ],
+        'post' => [
+            'id' => $post->id,
+            'body' => $post->body,
+        ],
+    ]);
+}
+
 
     /**
      * Update the specified post in storage.
      */
     public function update(UpdatePostRequest $request, string $threadSlug, int $postId)
-    {
-        $thread = Thread::findThread($threadSlug, true);
-        $post = Post::where('id', $postId)
-            ->where('thread_id', $thread->id)
-            ->firstOrFail();
+{
+    [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-        // Check authorization
-        if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $post->update([
-            'body' => $request->body,
-        ]);
-
-        return Redirect::route('threads.show', $thread->slug)
-            ->with('success', 'Reply updated successfully!');
+    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        abort(403, 'Unauthorized action.');
     }
 
-    /**
-     * Remove the specified post from storage.
-     */
-    public function destroy(string $threadSlug, int $postId)
-    {
-        $thread = Thread::findThread($threadSlug, true);
-        $post = Post::where('id', $postId)
-            ->where('thread_id', $thread->id)
-            ->firstOrFail();
+    $post->update(['body' => $request->body]);
 
-        // Check authorization - only author or admin can delete
-        if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
+    return Redirect::route('threads.show', $thread->slug)
+        ->with('success', 'Reply updated successfully!');
+}
 
-        $post->delete();
+public function destroy(string $threadSlug, int $postId)
+{
+    [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-        return Redirect::route('threads.show', $thread->slug)
-            ->with('success', 'Reply deleted successfully!');
+    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+        abort(403, 'Unauthorized action.');
     }
+
+    $post->delete();
+
+    return Redirect::route('threads.show', $thread->slug)
+        ->with('success', 'Reply deleted successfully!');
+}
+
+    private function getPost(string $threadSlug, int $postId)
+{
+    $thread = Thread::findThread($threadSlug, true);
+    $post = Post::where('id', $postId)
+        ->where('thread_id', $thread->id)
+        ->firstOrFail();
+    return [$thread, $post];
+}
+
 }
 
 
