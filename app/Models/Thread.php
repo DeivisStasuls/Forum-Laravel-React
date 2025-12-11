@@ -65,4 +65,16 @@ class Thread extends Model
             }
         });
     }
+    public static function findThread(string $slug, bool $withRelations = false): Thread
+{
+    $query = static::where('slug', $slug);
+
+    if ($withRelations) {
+        $query->with(['user', 'subforum', 'posts.user'])
+              ->withCount('posts');
+    }
+
+    return $query->firstOrFail();
+}
+
 }

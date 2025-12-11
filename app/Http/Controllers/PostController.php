@@ -16,8 +16,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request, string $threadSlug)
     {
-        $thread = Thread::where('slug', $threadSlug)->firstOrFail();
-
+        $thread = Thread::findThread($threadSlug, true);
         $post = Post::create([
             'body' => $request->body,
             'user_id' => $request->user()->id,
@@ -33,7 +32,7 @@ class PostController extends Controller
      */
     public function edit(string $threadSlug, int $postId)
     {
-        $thread = Thread::where('slug', $threadSlug)->firstOrFail();
+        $thread = Thread::findThread($threadSlug, true);
         $post = Post::where('id', $postId)
             ->where('thread_id', $thread->id)
             ->firstOrFail();
@@ -61,7 +60,7 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, string $threadSlug, int $postId)
     {
-        $thread = Thread::where('slug', $threadSlug)->firstOrFail();
+        $thread = Thread::findThread($threadSlug, true);
         $post = Post::where('id', $postId)
             ->where('thread_id', $thread->id)
             ->firstOrFail();
@@ -84,7 +83,7 @@ class PostController extends Controller
      */
     public function destroy(string $threadSlug, int $postId)
     {
-        $thread = Thread::where('slug', $threadSlug)->firstOrFail();
+        $thread = Thread::findThread($threadSlug, true);
         $post = Post::where('id', $postId)
             ->where('thread_id', $thread->id)
             ->firstOrFail();

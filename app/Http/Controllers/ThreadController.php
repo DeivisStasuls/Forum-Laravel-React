@@ -61,7 +61,7 @@ class ThreadController extends Controller
     public function create()
     {
         $subforums = Subforum::all(['id', 'name', 'slug']);
-        
+
         return Inertia::render('Forum/CreateThread', [
             'subforums' => $subforums,
         ]);
@@ -132,8 +132,9 @@ class ThreadController extends Controller
      */
     public function edit(string $slug)
     {
-        $thread = Thread::where('slug', $slug)->firstOrFail();
-        
+        $thread = Thread::findThread($slug, true);
+
+
         // Check authorization
         if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
@@ -158,8 +159,7 @@ class ThreadController extends Controller
      */
     public function update(UpdateThreadRequest $request, string $slug)
     {
-        $thread = Thread::where('slug', $slug)->firstOrFail();
-
+        $thread = Thread::findThread($slug, true);
         // Check authorization
         if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
@@ -186,7 +186,7 @@ class ThreadController extends Controller
      */
     public function destroy(string $slug)
     {
-        $thread = Thread::where('slug', $slug)->firstOrFail();
+        $thread = Thread::findThread($slug, true);
 
         // Check authorization - only author or admin can delete
         if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
@@ -199,4 +199,5 @@ class ThreadController extends Controller
         return Redirect::route('subforums.show', $subforumSlug)
             ->with('success', 'Thread deleted successfully!');
     }
+
 }
