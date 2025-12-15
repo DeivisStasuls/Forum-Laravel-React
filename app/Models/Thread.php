@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,11 @@ use Illuminate\Support\Str;
 class Thread extends Model
 {
     use HasFactory;
+
+    /**
+     * Generate a unique slug from the title
+     */
+    use HasSlug;
 
     protected $fillable = [
         'title',
@@ -33,23 +39,6 @@ class Thread extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
-    }
-
-    /**
-     * Generate a unique slug from the title
-     */
-    public static function generateSlug(string $title): string
-    {
-        $slug = Str::slug($title);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (static::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 
     /**

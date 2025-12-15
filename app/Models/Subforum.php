@@ -2,14 +2,23 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Subforum extends Model
+
 {
     use HasFactory;
+
+
+      /**
+     * Generate a unique slug from the title
+     */
+    use HasSlug;
+
 
     protected $fillable = ['name', 'description', 'slug'];
 
@@ -19,23 +28,6 @@ class Subforum extends Model
     public function threads(): HasMany
     {
         return $this->hasMany(Thread::class);
-    }
-
-    /**
-     * Generate a unique slug from the name
-     */
-    public static function generateSlug(string $name): string
-    {
-        $slug = Str::slug($name);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (static::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 
     /**
