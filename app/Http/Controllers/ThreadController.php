@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Thread;
 use App\Models\Subforum;
+use App\Models\Post;
+use App\Models\User;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 class ThreadController extends Controller
 {
@@ -17,41 +20,78 @@ class ThreadController extends Controller
      */
     public function index(Request $request)
     {
-        // Fetch all subforums with their threads
-        $subforums = Subforum::with(['threads' => function ($query) {
-            $query->with('user')
-                  ->withCount('posts')
-                  ->latest()
-                  ->take(10); // Limit threads per subforum for performance
-        }])->get();
+        // Fetch all subforums for left sidebar
+        $subforums = Subforum::withCount('threads')
+            ->orderBy('name')
+            ->get();
 
-        // Transform subforums data for the frontend
-        $subforumsData = $subforums->mapWithKeys(function ($subforum) {
-            return [
-                $subforum->name => [
-                    'id' => $subforum->id,
-                    'slug' => $subforum->slug,
-                    'description' => $subforum->description,
-                    'threads' => $subforum->threads->map(function ($thread) {
-                        return [
-                            'id' => $thread->id,
-                            'title' => $thread->title,
-                            'slug' => $thread->slug,
-                            'user' => [
-                                'id' => $thread->user->id,
-                                'name' => $thread->user->name,
-                            ],
-                            'posts_count' => $thread->posts_count,
-                            'created_at' => $thread->created_at,
-                            'updated_at' => $thread->updated_at,
-                        ];
-                    }),
-                ],
-            ];
-        })->toArray();
+        // Fetch recent threads for main content
+        $recentThreads = Thread::with(['user', 'subforum'])
+            ->withCount('posts')
+            ->latest()
+            ->take(20)
+            ->get();
+
+        // Fetch recent posts for right sidebar
+        $recentPosts = Post::with(['user', 'thread'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Calculate forum statistics
+        $stats = [
+            'total_threads' => Thread::count(),
+            'total_posts' => Post::count(),
+            'total_subforums' => Subforum::count(),
+            'total_users' => User::count(),
+        ];
 
         return Inertia::render('Forum/Index', [
-            'subforums' => $subforumsData,
+            'subforums' => $subforums->map(function ($subforum) {
+                return [
+                    'id' => $subforum->id,
+                    'name' => $subforum->name,
+                    'slug' => $subforum->slug,
+                    'description' => $subforum->description,
+                    'threads_count' => $subforum->threads_count,
+                ];
+            }),
+            'recentThreads' => $recentThreads->map(function ($thread) {
+                return [
+                    'id' => $thread->id,
+                    'title' => $thread->title,
+                    'slug' => $thread->slug,
+                    'user' => [
+                        'id' => $thread->user->id,
+                        'name' => $thread->user->name,
+                    ],
+                    'subforum' => [
+                        'id' => $thread->subforum->id,
+                        'name' => $thread->subforum->name,
+                        'slug' => $thread->subforum->slug,
+                    ],
+                    'posts_count' => $thread->posts_count,
+                    'created_at' => $thread->created_at,
+                    'updated_at' => $thread->updated_at,
+                ];
+            }),
+            'recentPosts' => $recentPosts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'body' => \Str::limit($post->body, 100),
+                    'user' => [
+                        'id' => $post->user->id,
+                        'name' => $post->user->name,
+                    ],
+                    'thread' => [
+                        'id' => $post->thread->id,
+                        'title' => $post->thread->title,
+                        'slug' => $post->thread->slug,
+                    ],
+                    'created_at' => $post->created_at,
+                ];
+            }),
+            'stats' => $stats,
         ]);
     }
 
