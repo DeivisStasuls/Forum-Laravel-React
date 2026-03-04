@@ -17,7 +17,7 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                         href={route('threads.create')}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150"
                     >
-                        + New Thread
+                        + New Discussion
                     </Link>
                 </div>
             }
