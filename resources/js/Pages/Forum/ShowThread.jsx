@@ -1,13 +1,15 @@
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useState } from 'react';
 
 export default function ShowThread({ auth, thread }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
     });
+    const [deleteTarget, setDeleteTarget] = useState(null);
 
     const submit = (e) => {
         e.preventDefault();
@@ -15,6 +17,27 @@ export default function ShowThread({ auth, thread }) {
         post(route('posts.store', thread.slug), {
             preserveScroll: true,
             onSuccess: () => reset('body'),
+        });
+    };
+
+    const confirmDelete = () => {
+        if (!deleteTarget) {
+            return;
+        }
+
+        const target = deleteTarget;
+        setDeleteTarget(null);
+
+        if (target.type === 'discussion') {
+            router.delete(route('threads.destroy', thread.slug), {
+                onFinish: () => setDeleteTarget(null),
+            });
+            return;
+        }
+
+        router.delete(route('posts.destroy', [thread.slug, target.replyId]), {
+            preserveScroll: true,
+            onFinish: () => setDeleteTarget(null),
         });
     };
 
@@ -45,12 +68,27 @@ export default function ShowThread({ auth, thread }) {
             <div className="min-h-screen bg-gray-100 py-6 dark:bg-gray-900">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
-                        <Link
-                            href={route('subforums.show', thread.subforum.slug)}
-                            className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
-                        >
-                            ← Back to {thread.subforum.name}
-                        </Link>
+                        <div className="flex items-center justify-between gap-4">
+                            <Link
+                                href={route('subforums.show', thread.subforum.slug)}
+                                className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                ← Back to {thread.subforum.name}
+                            </Link>
+
+                            {(auth.user.id === thread.user.id ||
+                                auth.user.role === 'admin') && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setDeleteTarget({ type: 'discussion' })
+                                    }
+                                    className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                >
+                                    Delete Discussion
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <article className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
@@ -100,20 +138,18 @@ export default function ShowThread({ auth, thread }) {
                                             </div>
                                             {(auth.user.id === reply.user.id ||
                                                 auth.user.role === 'admin') && (
-                                                <Link
-                                                    href={route(
-                                                        'posts.destroy',
-                                                        [
-                                                            thread.slug,
-                                                            reply.id,
-                                                        ],
-                                                    )}
-                                                    method="delete"
-                                                    as="button"
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setDeleteTarget({
+                                                            type: 'comment',
+                                                            replyId: reply.id,
+                                                        })
+                                                    }
                                                     className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                                                 >
                                                     Delete
-                                                </Link>
+                                                </button>
                                             )}
                                         </div>
                                         <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
@@ -152,6 +188,38 @@ export default function ShowThread({ auth, thread }) {
                     </div>
                 </div>
             </div>
+
+            {deleteTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Confirm Deletion
+                        </h4>
+                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                            {deleteTarget.type === 'discussion'
+                                ? 'Are you sure you want to delete this discussion? This action cannot be undone.'
+                                : 'Are you sure you want to delete this comment? This action cannot be undone.'}
+                        </p>
+
+                        <div className="mt-6 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteTarget(null)}
+                                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmDelete}
+                                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

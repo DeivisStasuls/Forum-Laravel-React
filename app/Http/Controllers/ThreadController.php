@@ -112,14 +112,14 @@ class ThreadController extends Controller
      */
     public function store(StoreThreadRequest $request)
     {
-        Thread::create([
+        $thread = Thread::create([
             'title' => $request->title,
             'body' => $request->body,
             'user_id' => $request->user()->id,
             'subforum_id' => $request->subforum_id,
         ]);
 
-        return Redirect::route('forum.index')
+        return Redirect::route('threads.show', $thread->slug)
             ->with('success', 'Thread created successfully!');
     }
 
