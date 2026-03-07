@@ -4,22 +4,7 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\SubforumController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,7 +15,8 @@ Route::middleware('auth')->group(function () {
 // Forum Routes - All require authentication
 Route::middleware(['auth', 'verified'])->group(function () {
     // Forum Index
-    Route::get('/forum', [ThreadController::class, 'index'])->name('forum.index');
+    Route::get('/', [ThreadController::class, 'index'])->name('forum.index');
+    Route::get('/forum', [ThreadController::class, 'index']);
     
     // Subforum Routes
     Route::get('/subforums', [SubforumController::class, 'index'])->name('subforums.index');
