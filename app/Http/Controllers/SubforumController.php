@@ -45,7 +45,7 @@ class SubforumController extends Controller
         ]);
 
         return Redirect::route('subforums.show', $subforum->slug)
-            ->with('success', 'Subforum created successfully!');
+            ->with('success', 'Category created successfully!');
     }
 
     /**
@@ -121,7 +121,7 @@ class SubforumController extends Controller
         }
 
         return Redirect::route('subforums.show', $subforum->slug)
-            ->with('success', 'Subforum updated successfully!');
+            ->with('success', 'Category updated successfully!');
     }
 
     /**
@@ -133,7 +133,7 @@ class SubforumController extends Controller
         $subforum->delete();
 
         return Redirect::route('forum.index')
-            ->with('success', 'Subforum deleted successfully!');
+            ->with('success', 'Category deleted successfully!');
     }
 }
 

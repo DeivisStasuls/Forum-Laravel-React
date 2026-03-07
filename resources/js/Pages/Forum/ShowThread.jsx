@@ -114,7 +114,7 @@ export default function ShowThread({ auth, thread }) {
 
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                Replies ({thread.posts_count})
+                                Comments ({thread.posts_count})
                             </h3>
                         </div>
 

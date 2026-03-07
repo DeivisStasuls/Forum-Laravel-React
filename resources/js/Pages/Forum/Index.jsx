@@ -46,7 +46,10 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                                                 {subforum.name}
                                             </div>
                                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                {subforum.threads_count} {subforum.threads_count === 1 ? 'thread' : 'threads'}
+                                                {subforum.threads_count}{' '}
+                                                {subforum.threads_count === 1
+                                                    ? 'discussion'
+                                                    : 'discussions'}
                                             </div>
                                             {subforum.description && (
                                                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -112,7 +115,9 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                                     </div>
                                 ) : (
                                     <div className="p-12 text-center text-gray-500 dark:text-gray-400">
-                                        <p className="text-lg mb-2">No threads yet</p>
+                                        <p className="text-lg mb-2">
+                                            No discussions yet
+                                        </p>
                                         <p className="text-sm">Be the first to start a discussion!</p>
                                     </div>
                                 )}
@@ -128,19 +133,25 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                                 </h3>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-600 dark:text-gray-400">Threads</span>
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Discussions
+                                        </span>
                                         <span className="font-bold text-gray-900 dark:text-gray-100">
                                             {stats.total_threads.toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-600 dark:text-gray-400">Posts</span>
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Comments
+                                        </span>
                                         <span className="font-bold text-gray-900 dark:text-gray-100">
                                             {stats.total_posts.toLocaleString()}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-600 dark:text-gray-400">Subforums</span>
+                                        <span className="text-gray-600 dark:text-gray-400">
+                                            Categories
+                                        </span>
                                         <span className="font-bold text-gray-900 dark:text-gray-100">
                                             {stats.total_subforums.toLocaleString()}
                                         </span>

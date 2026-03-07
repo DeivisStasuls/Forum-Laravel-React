@@ -24,7 +24,7 @@ class PostController extends Controller
         ]);
 
         return Redirect::route('threads.show', $thread->slug)
-            ->with('success', 'Reply posted successfully!');
+            ->with('success', 'Comment posted successfully!');
     }
 
     /**
@@ -68,7 +68,7 @@ class PostController extends Controller
     $post->update(['body' => $request->body]);
 
     return Redirect::route('threads.show', $thread->slug)
-        ->with('success', 'Reply updated successfully!');
+        ->with('success', 'Comment updated successfully!');
 }
 
 public function destroy(string $threadSlug, int $postId)
@@ -82,7 +82,7 @@ public function destroy(string $threadSlug, int $postId)
     $post->delete();
 
     return Redirect::route('threads.show', $thread->slug)
-        ->with('success', 'Reply deleted successfully!');
+        ->with('success', 'Comment deleted successfully!');
 }
 
     private function getPost(string $threadSlug, int $postId)

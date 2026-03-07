@@ -70,8 +70,8 @@ export default function ShowSubforum({ auth, subforum }) {
                                             <span>
                                                 {thread.posts_count}{' '}
                                                 {thread.posts_count === 1
-                                                    ? 'reply'
-                                                    : 'replies'}
+                                                    ? 'comment'
+                                                    : 'comments'}
                                             </span>
                                             <span>
                                                 {formatDistanceToNow(

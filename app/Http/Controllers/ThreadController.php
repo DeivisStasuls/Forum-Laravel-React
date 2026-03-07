@@ -120,7 +120,7 @@ class ThreadController extends Controller
         ]);
 
         return Redirect::route('threads.show', $thread->slug)
-            ->with('success', 'Thread created successfully!');
+            ->with('success', 'Discussion created successfully!');
     }
 
     /**
@@ -218,7 +218,7 @@ class ThreadController extends Controller
         }
 
         return Redirect::route('threads.show', $thread->slug)
-            ->with('success', 'Thread updated successfully!');
+            ->with('success', 'Discussion updated successfully!');
     }
 
     /**
@@ -237,7 +237,7 @@ class ThreadController extends Controller
         $thread->delete();
 
         return Redirect::route('subforums.show', $subforumSlug)
-            ->with('success', 'Thread deleted successfully!');
+            ->with('success', 'Discussion deleted successfully!');
     }
 
 }
