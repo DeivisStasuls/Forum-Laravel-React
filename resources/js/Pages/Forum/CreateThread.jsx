@@ -27,7 +27,7 @@ export default function CreateThread({ auth, subforums }) {
         >
             <Head title="New Discussion" />
 
-            <div className="py-6">
+            <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg dark:bg-gray-800">
                         {subforums.length === 0 ? (

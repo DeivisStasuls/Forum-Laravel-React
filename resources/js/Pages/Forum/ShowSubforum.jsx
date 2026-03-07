@@ -29,7 +29,7 @@ export default function ShowSubforum({ auth, subforum }) {
         >
             <Head title={subforum.name} />
 
-            <div className="min-h-screen bg-gray-100 py-6 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <Link

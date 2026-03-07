@@ -65,7 +65,7 @@ export default function ShowThread({ auth, thread }) {
         >
             <Head title={thread.title} />
 
-            <div className="min-h-screen bg-gray-100 py-6 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <div className="flex items-center justify-between gap-4">

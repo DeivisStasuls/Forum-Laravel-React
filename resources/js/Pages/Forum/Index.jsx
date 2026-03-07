@@ -25,7 +25,7 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
             <Head title="Forum" />
 
             {/* Holy Grail Layout */}
-            <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-200">
                 <div className="container mx-auto px-4 py-6">
                     {/* Holy Grail Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
