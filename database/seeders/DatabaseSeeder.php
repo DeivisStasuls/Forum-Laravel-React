@@ -17,32 +17,11 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        User::firstOrCreate([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-        Subforum::create([
-            'name' => 'Basketball',
-            'description' => 'Discussions about the NBA, NCAA, and local hoops.',
-            'slug' => 'basketball',
-        ]);
 
-        Subforum::create([
-            'name' => 'Volleyball',
-            'description' => 'Everything from beach volleyball to indoor leagues.',
-            'slug' => 'volleyball',
-        ]);
-
-        Subforum::create([
-            'name' => 'Gaming Corner',
-            'description' => 'The latest on new releases, hardware, and e-sports.',
-            'slug' => 'gaming-corner',
-        ]);
-
-        Subforum::create([
-            'name' => 'Homework Help',
-            'description' => 'Collaborate on school assignments and study tips.',
-            'slug' => 'homework-help',
-        ]);
+        $this->call(SubforumSeeder::class);
     }
 }
