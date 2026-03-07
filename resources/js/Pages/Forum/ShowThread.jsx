@@ -84,16 +84,37 @@ export default function ShowThread({ auth, thread }) {
                             <div className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {thread.posts.map((reply) => (
                                     <div key={reply.id} className="p-6">
-                                        <div className="mb-2 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                            <span className="font-medium text-gray-700 dark:text-gray-300">
-                                                {reply.user.name}
-                                            </span>
-                                            <span>
-                                                {formatDistanceToNow(
-                                                    new Date(reply.created_at),
-                                                    { addSuffix: true },
-                                                )}
-                                            </span>
+                                        <div className="mb-2 flex items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                    {reply.user.name}
+                                                </span>
+                                                <span>
+                                                    {formatDistanceToNow(
+                                                        new Date(
+                                                            reply.created_at,
+                                                        ),
+                                                        { addSuffix: true },
+                                                    )}
+                                                </span>
+                                            </div>
+                                            {(auth.user.id === reply.user.id ||
+                                                auth.user.role === 'admin') && (
+                                                <Link
+                                                    href={route(
+                                                        'posts.destroy',
+                                                        [
+                                                            thread.slug,
+                                                            reply.id,
+                                                        ],
+                                                    )}
+                                                    method="delete"
+                                                    as="button"
+                                                    className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                >
+                                                    Delete
+                                                </Link>
+                                            )}
                                         </div>
                                         <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
                                             {reply.body}
