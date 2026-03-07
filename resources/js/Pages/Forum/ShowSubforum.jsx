@@ -54,9 +54,12 @@ export default function ShowSubforum({ auth, subforum }) {
                                         key={thread.id}
                                         className="p-6 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                                     >
-                                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                        <Link
+                                            href={route('threads.show', thread.slug)}
+                                            className="text-lg font-semibold text-gray-900 hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400"
+                                        >
                                             {thread.title}
-                                        </h4>
+                                        </Link>
                                         <div className="mt-2 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                             <span>
                                                 by{' '}
