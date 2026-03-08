@@ -3,13 +3,14 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function PrivateDiscussionShow({ auth, group }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
     });
     const [messages, setMessages] = useState(group.messages);
+    const messagesContainerRef = useRef(null);
     const lastMessageId = useMemo(
         () => (messages.length > 0 ? messages[messages.length - 1].id : 0),
         [messages],
@@ -57,6 +58,15 @@ export default function PrivateDiscussionShow({ auth, group }) {
         };
     }, [group.id, lastMessageId]);
 
+    useEffect(() => {
+        if (!messagesContainerRef.current) {
+            return;
+        }
+
+        messagesContainerRef.current.scrollTop =
+            messagesContainerRef.current.scrollHeight;
+    }, [messages.length]);
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -91,38 +101,42 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                 Messages
                             </h3>
                         </div>
-
-                        {messages.length > 0 ? (
-                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {messages.map((message) => (
-                                    <div
-                                        key={message.id}
-                                        className="p-6"
-                                    >
-                                        <div className="mb-1 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                            <span className="font-medium text-gray-700 dark:text-gray-300">
-                                                {message.user.name}
-                                            </span>
-                                            <span>
-                                                {formatDistanceToNow(
-                                                    new Date(
-                                                        message.created_at,
-                                                    ),
-                                                    { addSuffix: true },
-                                                )}
-                                            </span>
+                        <div
+                            ref={messagesContainerRef}
+                            className="max-h-[55vh] overflow-y-auto"
+                        >
+                            {messages.length > 0 ? (
+                                <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                    {messages.map((message) => (
+                                        <div
+                                            key={message.id}
+                                            className="p-6"
+                                        >
+                                            <div className="mb-1 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                                                <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                    {message.user.name}
+                                                </span>
+                                                <span>
+                                                    {formatDistanceToNow(
+                                                        new Date(
+                                                            message.created_at,
+                                                        ),
+                                                        { addSuffix: true },
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                                                {message.body}
+                                            </p>
                                         </div>
-                                        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                                            {message.body}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                                No messages yet. Start the conversation.
-                            </div>
-                        )}
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                                    No messages yet. Start the conversation.
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="mt-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
