@@ -10,6 +10,8 @@ export default function ShowThread({ auth, thread }) {
         body: '',
     });
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const canComment =
+        !thread.creator_only_comments || auth.user.id === thread.user.id;
 
     const submit = (e) => {
         e.preventDefault();
@@ -169,22 +171,34 @@ export default function ShowThread({ auth, thread }) {
                         <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
                             Add a Comment
                         </h3>
-                        <form onSubmit={submit}>
-                            <textarea
-                                value={data.body}
-                                onChange={(e) => setData('body', e.target.value)}
-                                rows={5}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                placeholder="Write your comment..."
-                            />
-                            <InputError message={errors.body} className="mt-2" />
+                        {canComment ? (
+                            <form onSubmit={submit}>
+                                <textarea
+                                    value={data.body}
+                                    onChange={(e) =>
+                                        setData('body', e.target.value)
+                                    }
+                                    rows={5}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                    placeholder="Write your comment..."
+                                />
+                                <InputError
+                                    message={errors.body}
+                                    className="mt-2"
+                                />
 
-                            <div className="mt-4 flex justify-end">
-                                <PrimaryButton disabled={processing}>
-                                    Post Comment
-                                </PrimaryButton>
-                            </div>
-                        </form>
+                                <div className="mt-4 flex justify-end">
+                                    <PrimaryButton disabled={processing}>
+                                        Post Comment
+                                    </PrimaryButton>
+                                </div>
+                            </form>
+                        ) : (
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                This discussion is creator-only. Only{' '}
+                                {thread.user.name} can comment.
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

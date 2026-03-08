@@ -26,6 +26,7 @@ class StoreThreadRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string', 'min:10'],
             'subforum_id' => ['required', 'exists:subforums,id'],
+            'creator_only_comments' => ['nullable', 'boolean'],
         ];
     }
 

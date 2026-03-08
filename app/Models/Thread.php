@@ -21,9 +21,14 @@ class Thread extends Model
     protected $fillable = [
         'title',
         'body',
+        'creator_only_comments',
         'slug',
         'user_id',
         'subforum_id',
+    ];
+
+    protected $casts = [
+        'creator_only_comments' => 'boolean',
     ];
 
     public function user(): BelongsTo

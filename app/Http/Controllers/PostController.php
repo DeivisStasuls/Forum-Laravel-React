@@ -17,7 +17,14 @@ class PostController extends Controller
     public function store(StorePostRequest $request, string $threadSlug)
     {
         $thread = Thread::findThread($threadSlug, true);
-        $post = Post::create([
+
+        if ($thread->creator_only_comments && $request->user()->id !== $thread->user_id) {
+            return Redirect::route('threads.show', $thread->slug)->withErrors([
+                'body' => 'Only the discussion creator can comment on this discussion.',
+            ]);
+        }
+
+        Post::create([
             'body' => $request->body,
             'user_id' => $request->user()->id,
             'thread_id' => $thread->id,

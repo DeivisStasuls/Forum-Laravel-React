@@ -115,6 +115,7 @@ class ThreadController extends Controller
         $thread = Thread::create([
             'title' => $request->title,
             'body' => $request->body,
+            'creator_only_comments' => $request->boolean('creator_only_comments'),
             'user_id' => $request->user()->id,
             'subforum_id' => $request->subforum_id,
         ]);
@@ -149,6 +150,7 @@ class ThreadController extends Controller
                     'slug' => $thread->subforum->slug,
                 ],
                 'posts_count' => $thread->posts_count,
+                'creator_only_comments' => $thread->creator_only_comments,
                 'created_at' => $thread->created_at,
                 'updated_at' => $thread->updated_at,
                 'posts' => $thread->posts->map(function ($post) {

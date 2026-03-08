@@ -9,6 +9,7 @@ export default function CreateThread({ auth, subforums }) {
         title: '',
         subforum_id: subforums.length > 0 ? String(subforums[0].id) : '',
         body: '',
+        creator_only_comments: false,
     });
 
     const submit = (e) => {
@@ -108,6 +109,26 @@ export default function CreateThread({ auth, subforums }) {
                                         message={errors.body}
                                         className="mt-2"
                                     />
+                                </div>
+
+                                <div className="mt-4">
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={data.creator_only_comments}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'creator_only_comments',
+                                                    e.target.checked,
+                                                )
+                                            }
+                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        />
+                                        <span className="text-sm text-gray-700 dark:text-gray-200">
+                                            Only I can comment on this
+                                            discussion
+                                        </span>
+                                    </label>
                                 </div>
 
                                 <div className="mt-6 flex items-center justify-end gap-3">
