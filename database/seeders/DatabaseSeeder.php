@@ -17,9 +17,22 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::firstOrCreate([
-            'name' => 'Test User',
+        User::updateOrCreate([
             'email' => 'test@example.com',
+        ], [
+            'name' => 'Test User',
+            'password' => 'password',
+            'role' => 'user',
+            'email_verified_at' => now(),
+        ]);
+
+        User::updateOrCreate([
+            'email' => 'admin@forum.local',
+        ], [
+            'name' => 'Default Admin',
+            'password' => 'password',
+            'role' => 'admin',
+            'email_verified_at' => now(),
         ]);
 
         $this->call(SubforumSeeder::class);
