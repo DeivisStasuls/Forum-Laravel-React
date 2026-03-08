@@ -13,7 +13,7 @@ const Dropdown = ({ children }) => {
 
     return (
         <DropDownContext.Provider value={{ open, setOpen, toggleOpen }}>
-            <div className="relative">{children}</div>
+            <div className="relative inline-flex items-center">{children}</div>
         </DropDownContext.Provider>
     );
 };
@@ -23,7 +23,9 @@ const Trigger = ({ children }) => {
 
     return (
         <>
-            <div onClick={toggleOpen}>{children}</div>
+            <div className="inline-flex h-full items-center" onClick={toggleOpen}>
+                {children}
+            </div>
 
             {open && (
                 <div

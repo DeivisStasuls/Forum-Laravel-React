@@ -76,6 +76,8 @@ class SubforumController extends Controller
             }])
             ->firstOrFail();
 
+        $this->rememberRecentSubforum($request, $subforum);
+
         return Inertia::render('Forum/ShowSubforum', [
             'subforums' => $subforums->map(function ($item) {
                 return [
@@ -110,6 +112,25 @@ class SubforumController extends Controller
                 'search' => $search,
             ],
         ]);
+    }
+
+    private function rememberRecentSubforum(Request $request, Subforum $subforum): void
+    {
+        $existing = collect($request->session()->get('recent_subforums', []))
+            ->reject(fn ($item) => (int) ($item['id'] ?? 0) === $subforum->id)
+            ->values();
+
+        $updated = $existing
+            ->prepend([
+                'id' => $subforum->id,
+                'name' => $subforum->name,
+                'slug' => $subforum->slug,
+            ])
+            ->take(5)
+            ->values()
+            ->all();
+
+        $request->session()->put('recent_subforums', $updated);
     }
 
     /**
