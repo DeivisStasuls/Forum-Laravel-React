@@ -13,12 +13,22 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                     <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                         Forum
                     </h2>
-                    <Link
-                        href={route('threads.create')}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150"
-                    >
-                        + New Discussion
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        {auth.user.role === 'admin' && (
+                            <Link
+                                href={route('subforums.create')}
+                                className="rounded bg-emerald-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-emerald-700"
+                            >
+                                + New Category
+                            </Link>
+                        )}
+                        <Link
+                            href={route('threads.create')}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150"
+                        >
+                            + New Discussion
+                        </Link>
+                    </div>
                 </div>
             }
         >

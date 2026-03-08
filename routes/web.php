@@ -20,7 +20,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Subforum Routes
     Route::get('/subforums', [SubforumController::class, 'index'])->name('subforums.index');
-    Route::get('/subforums/{slug}', [SubforumController::class, 'show'])->name('subforums.show');
     
     // Admin-only subforum management routes
     // Note: Authorization is also checked in the controller
@@ -29,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/subforums/{slug}/edit', [SubforumController::class, 'edit'])->name('subforums.edit');
     Route::patch('/subforums/{slug}', [SubforumController::class, 'update'])->name('subforums.update');
     Route::delete('/subforums/{slug}', [SubforumController::class, 'destroy'])->name('subforums.destroy');
+    Route::get('/subforums/{slug}', [SubforumController::class, 'show'])->name('subforums.show');
     
     // Thread Routes
     Route::get('/threads/create', [ThreadController::class, 'create'])->name('threads.create');

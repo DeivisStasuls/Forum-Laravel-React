@@ -30,7 +30,10 @@ class SubforumController extends Controller
      */
     public function create()
     {
-        // Only admins can create subforums (handled by middleware)
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return Inertia::render('Forum/CreateSubforum');
     }
 
