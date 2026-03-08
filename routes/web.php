@@ -4,16 +4,17 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\SubforumController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not_banned'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Forum Routes - All require authentication
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     // Forum Index
     Route::get('/', [ThreadController::class, 'index'])->name('forum.index');
     Route::get('/forum', [ThreadController::class, 'index']);
@@ -43,6 +44,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/threads/{threadSlug}/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::patch('/threads/{threadSlug}/posts/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('/threads/{threadSlug}/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    // Admin user management
+    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::patch('/admin/users/{user}/promote', [AdminUserController::class, 'promote'])->name('admin.users.promote');
+    Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demote'])->name('admin.users.demote');
+    Route::patch('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->name('admin.users.ban');
+    Route::patch('/admin/users/{user}/unban', [AdminUserController::class, 'unban'])->name('admin.users.unban');
 });
     
 require __DIR__.'/auth.php';

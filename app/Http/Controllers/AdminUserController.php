@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AdminUserController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $this->authorizeAdmin($request);
+
+        $users = User::query()
+            ->orderByDesc('created_at')
+            ->get(['id', 'name', 'email', 'role', 'banned_at', 'created_at']);
+
+        return Inertia::render('Admin/Users', [
+            'users' => $users,
+        ]);
+    }
+
+    public function promote(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $user->update(['role' => 'admin']);
+
+        return back()->with('success', 'User promoted to admin.');
+    }
+
+    public function demote(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        if ($request->user()->id === $user->id) {
+            return back()->withErrors(['email' => 'You cannot demote yourself.']);
+        }
+
+        $user->update(['role' => 'user']);
+
+        return back()->with('success', 'Admin privileges removed.');
+    }
+
+    public function ban(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        if ($request->user()->id === $user->id) {
+            return back()->withErrors(['email' => 'You cannot ban yourself.']);
+        }
+
+        $user->update(['banned_at' => now()]);
+
+        return back()->with('success', 'User banned successfully.');
+    }
+
+    public function unban(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $user->update(['banned_at' => null]);
+
+        return back()->with('success', 'User unbanned successfully.');
+    }
+
+    private function authorizeAdmin(Request $request): void
+    {
+        if (! $request->user() || ! $request->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+}

@@ -49,6 +49,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (Auth::user()?->isBanned()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account has been banned.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
