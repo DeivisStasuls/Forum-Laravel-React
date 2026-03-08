@@ -81,6 +81,13 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4 flex items-center justify-end gap-4">
+                    <Link
+                        href={route('login.mykoob')}
+                        className="inline-flex items-center rounded-md border border-indigo-300 bg-indigo-50 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-indigo-700 shadow-sm transition duration-150 ease-in-out hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        Login with Mykoob
+                    </Link>
+
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}

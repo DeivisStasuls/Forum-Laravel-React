@@ -24,6 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'mykoob_user_id',
         'password',
         'role', // Added the new role field
         'banned_at',

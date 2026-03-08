@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    'mykoob' => [
+        'login_url' => env('MYKOOB_LOGIN_URL', 'https://login.mykoob.lv/#/lv/permissions'),
+        'auth_url' => env('MYKOOB_AUTH_URL', 'https://www.mykoob.lv/?oauth2/authorizeDevice'),
+        'resource_url' => env('MYKOOB_RESOURCE_URL', 'https://www.mykoob.lv/?api/resource'),
+        'client' => env('MYKOOB_CLIENT', 'MykoobMobile'),
+        'oauth' => [
+            'authorize_url' => env('MYKOOB_OAUTH_AUTHORIZE_URL'),
+            'token_url' => env('MYKOOB_OAUTH_TOKEN_URL'),
+            'userinfo_url' => env('MYKOOB_OAUTH_USERINFO_URL'),
+            'client_id' => env('MYKOOB_OAUTH_CLIENT_ID'),
+            'client_secret' => env('MYKOOB_OAUTH_CLIENT_SECRET'),
+            'redirect_uri' => env('MYKOOB_OAUTH_REDIRECT_URI'),
+            'scopes' => env('MYKOOB_OAUTH_SCOPES', 'openid profile email'),
+        ],
+    ],
+
 ];
