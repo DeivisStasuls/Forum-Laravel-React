@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
@@ -82,5 +83,16 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function privateGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(PrivateGroup::class, 'private_group_user')
+            ->withTimestamps();
+    }
+
+    public function privateMessages(): HasMany
+    {
+        return $this->hasMany(PrivateMessage::class);
     }
 }

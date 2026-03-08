@@ -30,6 +30,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Forum
                                 </NavLink>
+                                <NavLink
+                                    href={route('private-discussions.index')}
+                                    active={route().current('private-discussions.*')}
+                                >
+                                    Private Discussions
+                                </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('admin.users.index')}
@@ -141,6 +147,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('forum.index')}
                         >
                             Forum
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('private-discussions.index')}
+                            active={route().current('private-discussions.*')}
+                        >
+                            Private Discussions
                         </ResponsiveNavLink>
                         {user.role === 'admin' && (
                             <ResponsiveNavLink

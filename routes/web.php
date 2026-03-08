@@ -5,6 +5,7 @@ use App\Http\Controllers\SubforumController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\PrivateDiscussionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'not_banned'])->group(function () {
@@ -51,6 +52,12 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demote'])->name('admin.users.demote');
     Route::patch('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->name('admin.users.ban');
     Route::patch('/admin/users/{user}/unban', [AdminUserController::class, 'unban'])->name('admin.users.unban');
+
+    // Private discussion groups
+    Route::get('/private-discussions', [PrivateDiscussionController::class, 'index'])->name('private-discussions.index');
+    Route::post('/private-discussions', [PrivateDiscussionController::class, 'store'])->name('private-discussions.store');
+    Route::get('/private-discussions/{privateGroup}', [PrivateDiscussionController::class, 'show'])->name('private-discussions.show');
+    Route::post('/private-discussions/{privateGroup}/messages', [PrivateDiscussionController::class, 'storeMessage'])->name('private-discussions.messages.store');
 });
     
 require __DIR__.'/auth.php';
