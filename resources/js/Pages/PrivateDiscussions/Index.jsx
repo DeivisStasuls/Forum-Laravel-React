@@ -3,12 +3,14 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useMemo, useState } from 'react';
 
 export default function PrivateDiscussionsIndex({ auth, groups, users }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         member_ids: [],
     });
+    const [search, setSearch] = useState('');
 
     const toggleMember = (userId) => {
         if (data.member_ids.includes(userId)) {
@@ -26,6 +28,27 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
         e.preventDefault();
         post(route('private-discussions.store'));
     };
+
+    const filteredUsers = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) {
+            return users;
+        }
+
+        return users.filter((user) => {
+            return (
+                user.name.toLowerCase().includes(term) ||
+                user.email.toLowerCase().includes(term)
+            );
+        });
+    }, [users, search]);
+
+    const categorizedUsers = useMemo(() => {
+        const admins = filteredUsers.filter((user) => user.role === 'admin');
+        const members = filteredUsers.filter((user) => user.role !== 'admin');
+
+        return { admins, members };
+    }, [filteredUsers]);
 
     return (
         <AuthenticatedLayout
@@ -69,32 +92,109 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                     <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                         Add Members
                                     </p>
+                                    <input
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) =>
+                                            setSearch(e.target.value)
+                                        }
+                                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                        placeholder="Search users by name or email..."
+                                    />
                                     <div className="mt-2 max-h-64 space-y-2 overflow-y-auto rounded border border-gray-200 p-3 dark:border-gray-700">
-                                        {users.length > 0 ? (
-                                            users.map((user) => (
-                                                <label
-                                                    key={user.id}
-                                                    className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={data.member_ids.includes(
-                                                            user.id,
-                                                        )}
-                                                        onChange={() =>
-                                                            toggleMember(user.id)
-                                                        }
-                                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                                                    />
-                                                    <span>
-                                                        {user.name} ({user.email}
-                                                        )
-                                                    </span>
-                                                </label>
-                                            ))
+                                        {filteredUsers.length > 0 ? (
+                                            <>
+                                                {categorizedUsers.admins.length >
+                                                    0 && (
+                                                    <div>
+                                                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-purple-600">
+                                                            Admins
+                                                        </p>
+                                                        <div className="space-y-2">
+                                                            {categorizedUsers.admins.map(
+                                                                (user) => (
+                                                                    <label
+                                                                        key={
+                                                                            user.id
+                                                                        }
+                                                                        className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={data.member_ids.includes(
+                                                                                user.id,
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                toggleMember(
+                                                                                    user.id,
+                                                                                )
+                                                                            }
+                                                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                user.name
+                                                                            }{' '}
+                                                                            (
+                                                                            {
+                                                                                user.email
+                                                                            }
+                                                                            )
+                                                                        </span>
+                                                                    </label>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {categorizedUsers.members
+                                                    .length > 0 && (
+                                                    <div className="pt-2">
+                                                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                            Members
+                                                        </p>
+                                                        <div className="space-y-2">
+                                                            {categorizedUsers.members.map(
+                                                                (user) => (
+                                                                    <label
+                                                                        key={
+                                                                            user.id
+                                                                        }
+                                                                        className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
+                                                                    >
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={data.member_ids.includes(
+                                                                                user.id,
+                                                                            )}
+                                                                            onChange={() =>
+                                                                                toggleMember(
+                                                                                    user.id,
+                                                                                )
+                                                                            }
+                                                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                                        />
+                                                                        <span>
+                                                                            {
+                                                                                user.name
+                                                                            }{' '}
+                                                                            (
+                                                                            {
+                                                                                user.email
+                                                                            }
+                                                                            )
+                                                                        </span>
+                                                                    </label>
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
                                         ) : (
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                No users available to add.
+                                                No users match your search.
                                             </p>
                                         )}
                                     </div>

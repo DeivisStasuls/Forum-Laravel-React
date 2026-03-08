@@ -31,8 +31,9 @@ class PrivateDiscussionController extends Controller
         $users = User::query()
             ->where('id', '!=', $user->id)
             ->whereNull('banned_at')
+            ->orderByRaw("CASE WHEN role = 'admin' THEN 0 ELSE 1 END")
             ->orderBy('name')
-            ->get(['id', 'name', 'email']);
+            ->get(['id', 'name', 'email', 'role']);
 
         return Inertia::render('PrivateDiscussions/Index', [
             'groups' => $groups->map(function ($group) {

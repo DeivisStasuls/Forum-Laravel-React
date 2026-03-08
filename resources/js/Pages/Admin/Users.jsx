@@ -1,29 +1,59 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useMemo, useState } from 'react';
 
 export default function AdminUsers({ auth, users }) {
+    const [search, setSearch] = useState('');
+
+    const filteredUsers = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) {
+            return users;
+        }
+
+        return users.filter((user) => {
+            const status = user.banned_at ? 'banned' : 'active';
+
+            return (
+                user.name.toLowerCase().includes(term) ||
+                user.email.toLowerCase().includes(term) ||
+                user.role.toLowerCase().includes(term) ||
+                status.includes(term)
+            );
+        });
+    }, [users, search]);
+
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    User Management
+                    Administration
                 </h2>
             }
         >
-            <Head title="Manage Users" />
+            <Head title="Administration" />
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                Users
+                                User Administration
                             </h3>
                             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                 Promote users to admin and ban/unban accounts.
                             </p>
+                            <div className="mt-4">
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                    placeholder="Search users by name, email, role, or status..."
+                                />
+                            </div>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -48,7 +78,7 @@ export default function AdminUsers({ auth, users }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                    {users.map((user) => (
+                                    {filteredUsers.map((user) => (
                                         <tr key={user.id}>
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-gray-900 dark:text-gray-100">
@@ -147,6 +177,16 @@ export default function AdminUsers({ auth, users }) {
                                             </td>
                                         </tr>
                                     ))}
+                                    {filteredUsers.length === 0 && (
+                                        <tr>
+                                            <td
+                                                colSpan={5}
+                                                className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
+                                            >
+                                                No users match your search.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
