@@ -7,6 +7,7 @@ use App\Models\PrivateMessage;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -107,6 +108,34 @@ class PrivateDiscussionController extends Controller
                     'created_at' => $message->created_at,
                 ]),
             ],
+        ]);
+    }
+
+    public function messages(Request $request, PrivateGroup $privateGroup): JsonResponse
+    {
+        $this->authorizeMember($request, $privateGroup);
+
+        $afterId = (int) $request->query('after_id', 0);
+
+        $messages = $privateGroup->messages()
+            ->with('user:id,name')
+            ->when($afterId > 0, function ($query) use ($afterId) {
+                $query->where('id', '>', $afterId);
+            })
+            ->orderBy('id')
+            ->get()
+            ->map(fn ($message) => [
+                'id' => $message->id,
+                'body' => $message->body,
+                'user' => [
+                    'id' => $message->user->id,
+                    'name' => $message->user->name,
+                ],
+                'created_at' => $message->created_at,
+            ]);
+
+        return response()->json([
+            'messages' => $messages,
         ]);
     }
 

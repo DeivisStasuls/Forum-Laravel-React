@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::get('/private-discussions', [PrivateDiscussionController::class, 'index'])->name('private-discussions.index');
     Route::post('/private-discussions', [PrivateDiscussionController::class, 'store'])->name('private-discussions.store');
     Route::get('/private-discussions/{privateGroup}', [PrivateDiscussionController::class, 'show'])->name('private-discussions.show');
+    Route::get('/private-discussions/{privateGroup}/messages', [PrivateDiscussionController::class, 'messages'])->name('private-discussions.messages.index');
     Route::post('/private-discussions/{privateGroup}/messages', [PrivateDiscussionController::class, 'storeMessage'])->name('private-discussions.messages.store');
 });
     

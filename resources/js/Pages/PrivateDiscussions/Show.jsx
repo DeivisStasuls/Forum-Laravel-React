@@ -3,11 +3,17 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function PrivateDiscussionShow({ auth, group }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
     });
+    const [messages, setMessages] = useState(group.messages);
+    const lastMessageId = useMemo(
+        () => (messages.length > 0 ? messages[messages.length - 1].id : 0),
+        [messages],
+    );
 
     const submit = (e) => {
         e.preventDefault();
@@ -17,6 +23,39 @@ export default function PrivateDiscussionShow({ auth, group }) {
             onSuccess: () => reset('body'),
         });
     };
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const pollMessages = async () => {
+            try {
+                const response = await window.axios.get(
+                    route('private-discussions.messages.index', group.id),
+                    {
+                        params: {
+                            after_id: lastMessageId,
+                        },
+                    },
+                );
+
+                const newMessages = response?.data?.messages ?? [];
+                if (!isMounted || newMessages.length === 0) {
+                    return;
+                }
+
+                setMessages((previous) => [...previous, ...newMessages]);
+            } catch (error) {
+                // Silent failure during polling to avoid interrupting chat UX.
+            }
+        };
+
+        const interval = window.setInterval(pollMessages, 3000);
+
+        return () => {
+            isMounted = false;
+            window.clearInterval(interval);
+        };
+    }, [group.id, lastMessageId]);
 
     return (
         <AuthenticatedLayout
@@ -53,9 +92,9 @@ export default function PrivateDiscussionShow({ auth, group }) {
                             </h3>
                         </div>
 
-                        {group.messages.length > 0 ? (
+                        {messages.length > 0 ? (
                             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {group.messages.map((message) => (
+                                {messages.map((message) => (
                                     <div
                                         key={message.id}
                                         className="p-6"
