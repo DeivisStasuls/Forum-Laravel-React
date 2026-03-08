@@ -1,10 +1,42 @@
 // resources/js/Pages/Forum/Index.jsx
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
+import { useEffect, useRef, useState } from 'react';
 
-export default function ForumIndex({ auth, subforums, recentThreads, recentPosts, stats }) {
+export default function ForumIndex({
+    auth,
+    subforums,
+    recentThreads,
+    recentPosts,
+    stats,
+    filters,
+}) {
+    const [search, setSearch] = useState(filters?.search ?? '');
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.get(
+                route('forum.index'),
+                { search },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                },
+            );
+        }, 250);
+
+        return () => clearTimeout(timeout);
+    }, [search]);
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -76,9 +108,22 @@ export default function ForumIndex({ auth, subforums, recentThreads, recentPosts
                         <main className="lg:col-span-6">
                             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
                                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                        Recent Discussions
-                                    </h3>
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                                            Recent Discussions
+                                        </h3>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="text"
+                                                value={search}
+                                                onChange={(e) =>
+                                                    setSearch(e.target.value)
+                                                }
+                                                placeholder="Search discussions..."
+                                                className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 {recentThreads.length > 0 ? (

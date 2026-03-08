@@ -20,6 +20,8 @@ class ThreadController extends Controller
      */
     public function index(Request $request)
     {
+        $search = trim((string) $request->query('search', ''));
+
         // Fetch all subforums for left sidebar
         $subforums = Subforum::withCount('threads')
             ->orderBy('name')
@@ -28,6 +30,12 @@ class ThreadController extends Controller
         // Fetch recent threads for main content
         $recentThreads = Thread::with(['user', 'subforum'])
             ->withCount('posts')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('title', 'like', "%{$search}%")
+                        ->orWhere('body', 'like', "%{$search}%");
+                });
+            })
             ->latest()
             ->take(20)
             ->get();
@@ -92,6 +100,9 @@ class ThreadController extends Controller
                 ];
             }),
             'stats' => $stats,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 

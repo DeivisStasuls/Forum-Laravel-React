@@ -56,15 +56,36 @@ class SubforumController extends Controller
      */
     public function show(string $slug, Request $request)
     {
+        $search = trim((string) $request->query('search', ''));
+
+        $subforums = Subforum::withCount('threads')
+            ->orderBy('name')
+            ->get();
+
         $subforum = Subforum::where('slug', $slug)
-            ->with(['threads' => function ($query) {
+            ->with(['threads' => function ($query) use ($search) {
                 $query->with('user')
-                      ->withCount('posts')
-                      ->latest();
+                    ->withCount('posts')
+                    ->when($search !== '', function ($innerQuery) use ($search) {
+                        $innerQuery->where(function ($filterQuery) use ($search) {
+                            $filterQuery->where('title', 'like', "%{$search}%")
+                                ->orWhere('body', 'like', "%{$search}%");
+                        });
+                    })
+                    ->latest();
             }])
             ->firstOrFail();
 
         return Inertia::render('Forum/ShowSubforum', [
+            'subforums' => $subforums->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'slug' => $item->slug,
+                    'description' => $item->description,
+                    'threads_count' => $item->threads_count,
+                ];
+            }),
             'subforum' => [
                 'id' => $subforum->id,
                 'name' => $subforum->name,
@@ -84,6 +105,9 @@ class SubforumController extends Controller
                         'updated_at' => $thread->updated_at,
                     ];
                 }),
+            ],
+            'filters' => [
+                'search' => $search,
             ],
         ]);
     }
