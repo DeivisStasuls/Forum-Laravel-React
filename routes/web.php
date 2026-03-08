@@ -59,6 +59,11 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::get('/private-discussions/{privateGroup}', [PrivateDiscussionController::class, 'show'])->name('private-discussions.show');
     Route::get('/private-discussions/{privateGroup}/messages', [PrivateDiscussionController::class, 'messages'])->name('private-discussions.messages.index');
     Route::post('/private-discussions/{privateGroup}/messages', [PrivateDiscussionController::class, 'storeMessage'])->name('private-discussions.messages.store');
+    Route::patch('/private-discussions/{privateGroup}', [PrivateDiscussionController::class, 'update'])->name('private-discussions.update');
+    Route::post('/private-discussions/{privateGroup}/members', [PrivateDiscussionController::class, 'addMember'])->name('private-discussions.members.add');
+    Route::delete('/private-discussions/{privateGroup}/members/{user}', [PrivateDiscussionController::class, 'removeMember'])->name('private-discussions.members.remove');
+    Route::post('/private-discussions/{privateGroup}/leave', [PrivateDiscussionController::class, 'leave'])->name('private-discussions.leave');
+    Route::delete('/private-discussions/{privateGroup}', [PrivateDiscussionController::class, 'destroy'])->name('private-discussions.destroy');
 });
     
 require __DIR__.'/auth.php';

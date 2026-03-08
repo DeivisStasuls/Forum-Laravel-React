@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -91,10 +92,22 @@ class PrivateDiscussionController extends Controller
             'messages.user:id,name',
         ]);
 
+        $currentUser = $request->user();
+        $canManage = $currentUser->id === $privateGroup->created_by;
+
+        $availableUsers = User::query()
+            ->where('id', '!=', $currentUser->id)
+            ->whereNull('banned_at')
+            ->whereNotIn('id', $privateGroup->members->pluck('id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
         return Inertia::render('PrivateDiscussions/Show', [
             'group' => [
                 'id' => $privateGroup->id,
                 'name' => $privateGroup->name,
+                'created_by' => $privateGroup->created_by,
+                'can_manage' => $canManage,
                 'members' => $privateGroup->members->map(fn ($member) => [
                     'id' => $member->id,
                     'name' => $member->name,
@@ -108,6 +121,7 @@ class PrivateDiscussionController extends Controller
                     ],
                     'created_at' => $message->created_at,
                 ]),
+                'available_users' => $availableUsers,
             ],
         ]);
     }
@@ -157,9 +171,102 @@ class PrivateDiscussionController extends Controller
         return Redirect::route('private-discussions.show', $privateGroup->id);
     }
 
+    public function update(Request $request, PrivateGroup $privateGroup): RedirectResponse
+    {
+        $this->authorizeCreator($request, $privateGroup);
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $privateGroup->update([
+            'name' => $data['name'] ?? null,
+        ]);
+
+        return Redirect::route('private-discussions.show', $privateGroup->id)
+            ->with('success', 'Group updated successfully.');
+    }
+
+    public function addMember(Request $request, PrivateGroup $privateGroup): RedirectResponse
+    {
+        $this->authorizeCreator($request, $privateGroup);
+
+        $data = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::query()->whereNull('banned_at')->findOrFail($data['user_id']);
+        $privateGroup->members()->syncWithoutDetaching([$user->id]);
+
+        return Redirect::route('private-discussions.show', $privateGroup->id)
+            ->with('success', 'Member added successfully.');
+    }
+
+    public function removeMember(Request $request, PrivateGroup $privateGroup, User $user): RedirectResponse
+    {
+        $this->authorizeCreator($request, $privateGroup);
+
+        if ($user->id === $privateGroup->created_by) {
+            return back()->withErrors([
+                'group' => 'You cannot remove the group creator.',
+            ]);
+        }
+
+        $privateGroup->members()->detach($user->id);
+
+        return Redirect::route('private-discussions.show', $privateGroup->id)
+            ->with('success', 'Member removed successfully.');
+    }
+
+    public function leave(Request $request, PrivateGroup $privateGroup): RedirectResponse
+    {
+        $this->authorizeMember($request, $privateGroup);
+
+        $currentUserId = $request->user()->id;
+
+        DB::transaction(function () use ($privateGroup, $currentUserId) {
+            if ($privateGroup->created_by === $currentUserId) {
+                $newOwnerId = $privateGroup->members()
+                    ->where('users.id', '!=', $currentUserId)
+                    ->orderBy('users.id')
+                    ->value('users.id');
+
+                if ($newOwnerId) {
+                    $privateGroup->update(['created_by' => $newOwnerId]);
+                }
+            }
+
+            $privateGroup->members()->detach($currentUserId);
+
+            if (! $privateGroup->members()->exists()) {
+                $privateGroup->delete();
+            }
+        });
+
+        return Redirect::route('private-discussions.index')
+            ->with('success', 'You left the private discussion.');
+    }
+
+    public function destroy(Request $request, PrivateGroup $privateGroup): RedirectResponse
+    {
+        $this->authorizeCreator($request, $privateGroup);
+
+        $privateGroup->delete();
+
+        return Redirect::route('private-discussions.index')
+            ->with('success', 'Private discussion deleted.');
+    }
+
     private function authorizeMember(Request $request, PrivateGroup $privateGroup): void
     {
         if (! $privateGroup->members()->where('users.id', $request->user()->id)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    private function authorizeCreator(Request $request, PrivateGroup $privateGroup): void
+    {
+        if ($privateGroup->created_by !== $request->user()->id) {
             abort(403, 'Unauthorized action.');
         }
     }
