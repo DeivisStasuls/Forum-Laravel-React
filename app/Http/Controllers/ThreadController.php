@@ -138,12 +138,14 @@ class ThreadController extends Controller
     /**
      * Display the specified thread with its posts.
      */
-    public function show(string $slug)
+    public function show(string $slug, Request $request)
     {
         $thread = Thread::where('slug', $slug)
             ->with(['user', 'subforum', 'posts.user'])
             ->withCount('posts')
             ->firstOrFail();
+
+        $this->rememberRecentThread($request, $thread);
 
         return Inertia::render('Forum/ShowThread', [
             'thread' => [
@@ -178,6 +180,25 @@ class ThreadController extends Controller
                 }),
             ],
         ]);
+    }
+
+    private function rememberRecentThread(Request $request, Thread $thread): void
+    {
+        $existing = collect($request->session()->get('recent_threads', []))
+            ->reject(fn ($item) => (int) ($item['id'] ?? 0) === $thread->id)
+            ->values();
+
+        $updated = $existing
+            ->prepend([
+                'id' => $thread->id,
+                'title' => $thread->title,
+                'slug' => $thread->slug,
+            ])
+            ->take(5)
+            ->values()
+            ->all();
+
+        $request->session()->put('recent_threads', $updated);
     }
 
     /**

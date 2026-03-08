@@ -35,6 +35,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'recentSubforums' => $request->session()->get('recent_subforums', []),
+            'recentThreads' => $request->session()->get('recent_threads', []),
         ];
     }
 }
