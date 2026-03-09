@@ -25,9 +25,13 @@ const Trigger = ({ children }) => {
 
     return (
         <>
-            <div className="inline-flex h-full items-center" onClick={toggleOpen}>
-                {children}
-            </div>
+            <button
+  type="button"
+  className="inline-flex h-full items-center"
+  onClick={toggleOpen}
+>
+  {children}
+</button>
 
             {open && (
                 <div
