@@ -25,10 +25,13 @@ class Thread extends Model
         'slug',
         'user_id',
         'subforum_id',
+        'edited_by_user_id',
+        'edited_at',
     ];
 
     protected $casts = [
         'creator_only_comments' => 'boolean',
+        'edited_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -44,6 +47,11 @@ class Thread extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function editor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'edited_by_user_id');
     }
 
     /**

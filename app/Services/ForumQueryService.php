@@ -59,7 +59,7 @@ class ForumQueryService
     public function getThreadForShow(string $slug): Thread
     {
         return Thread::where('slug', $slug)
-            ->with(['user', 'subforum', 'posts.user', 'posts.editor'])
+            ->with(['user', 'editor', 'subforum', 'posts.user', 'posts.editor'])
             ->withCount('posts')
             ->firstOrFail();
     }
@@ -148,6 +148,12 @@ class ForumQueryService
                 'id' => $thread->user->id,
                 'name' => $thread->user->name,
             ],
+            'edited_by' => $thread->editor ? [
+                'id' => $thread->editor->id,
+                'name' => $thread->editor->name,
+                'role' => $thread->editor->role,
+            ] : null,
+            'edited_at' => $thread->edited_at,
             'subforum' => [
                 'id' => $thread->subforum->id,
                 'name' => $thread->subforum->name,

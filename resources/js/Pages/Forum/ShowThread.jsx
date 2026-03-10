@@ -122,6 +122,19 @@ export default function ShowThread({ auth, thread }) {
                             <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
                                 {thread.body}
                             </p>
+                            {thread.edited_at && (
+                                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                    Edited by{' '}
+                                    {thread.edited_by?.role === 'admin'
+                                        ? 'admin'
+                                        : 'user'}{' '}
+                                    {thread.edited_by?.name ?? 'unknown'}{' '}
+                                    {formatDistanceToNow(
+                                        new Date(thread.edited_at),
+                                        { addSuffix: true },
+                                    )}
+                                </p>
+                            )}
                         </div>
 
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">

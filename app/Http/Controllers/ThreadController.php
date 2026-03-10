@@ -143,6 +143,8 @@ class ThreadController extends Controller
             'title' => $request->title,
             'body' => $request->body,
             'subforum_id' => $request->subforum_id,
+            'edited_by_user_id' => $request->user()->id,
+            'edited_at' => now(),
         ]);
 
         // Regenerate slug if title changed
