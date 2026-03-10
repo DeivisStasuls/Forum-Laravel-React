@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdminUserResource;
 use App\Models\User;
 use App\Services\AdminUserQueryService;
 use Illuminate\Http\RedirectResponse;
@@ -19,9 +20,10 @@ class AdminUserController extends Controller
     public function index(Request $request): Response
     {
         $this->authorizeAdmin($request);
+        $users = $this->adminUserQueryService->getUsersForManagement();
 
         return Inertia::render('Admin/Users', [
-            'users' => $this->adminUserQueryService->getUsersForManagement(),
+            'users' => AdminUserResource::collection($users)->resolve(),
         ]);
     }
 

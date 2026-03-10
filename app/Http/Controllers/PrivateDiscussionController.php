@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PrivateDiscussions\PrivateDiscussionDetailResource;
+use App\Http\Resources\PrivateDiscussions\PrivateDiscussionGroupResource;
+use App\Http\Resources\PrivateDiscussions\PrivateDiscussionMessageResource;
+use App\Http\Resources\UserSummaryResource;
 use App\Models\PrivateGroup;
 use App\Models\PrivateMessage;
 use App\Models\User;
@@ -28,8 +32,8 @@ class PrivateDiscussionController extends Controller
         $users = $this->privateDiscussionQueryService->getAvailableUsersForIndex($user);
 
         return Inertia::render('PrivateDiscussions/Index', [
-            'groups' => $this->privateDiscussionQueryService->mapGroups($groups),
-            'users' => $users,
+            'groups' => PrivateDiscussionGroupResource::collection($groups)->resolve(),
+            'users' => UserSummaryResource::collection($users)->resolve(),
         ]);
     }
 
@@ -66,10 +70,13 @@ class PrivateDiscussionController extends Controller
             'messages.user:id,name',
         ]);
 
-        $currentUser = $request->user();
+        $availableUsers = $this->privateDiscussionQueryService
+            ->getAvailableUsersForGroup($request->user(), $privateGroup);
+        $group = (new PrivateDiscussionDetailResource($privateGroup))->resolve();
+        $group['available_users'] = UserSummaryResource::collection($availableUsers)->resolve();
 
         return Inertia::render('PrivateDiscussions/Show', [
-            'group' => $this->privateDiscussionQueryService->mapGroupDetails($privateGroup, $currentUser),
+            'group' => $group,
         ]);
     }
 
@@ -79,10 +86,10 @@ class PrivateDiscussionController extends Controller
 
         $afterId = (int) $request->query('after_id', 0);
 
-        $messages = $this->privateDiscussionQueryService->getMessagesPayload($privateGroup, $afterId);
+        $messages = $this->privateDiscussionQueryService->getMessagesForGroup($privateGroup, $afterId);
 
         return response()->json([
-            'messages' => $messages,
+            'messages' => PrivateDiscussionMessageResource::collection($messages)->resolve(),
         ]);
     }
 

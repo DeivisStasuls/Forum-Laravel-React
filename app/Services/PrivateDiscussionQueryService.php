@@ -41,56 +41,7 @@ class PrivateDiscussionQueryService
             ->get(['id', 'name', 'email']);
     }
 
-    public function mapGroups(Collection $groups): array
-    {
-        return $groups->map(function ($group) {
-            $latestMessage = $group->messages->first();
-
-            return [
-                'id' => $group->id,
-                'name' => $group->name,
-                'members' => $group->members->map(fn ($member) => [
-                    'id' => $member->id,
-                    'name' => $member->name,
-                ])->all(),
-                'latest_message' => $latestMessage ? [
-                    'body' => $latestMessage->body,
-                    'user_name' => $latestMessage->user?->name,
-                    'created_at' => $latestMessage->created_at,
-                ] : null,
-                'updated_at' => $group->updated_at,
-            ];
-        })->all();
-    }
-
-    public function mapGroupDetails(PrivateGroup $privateGroup, User $currentUser): array
-    {
-        $canManage = $currentUser->id === $privateGroup->created_by;
-        $availableUsers = $this->getAvailableUsersForGroup($currentUser, $privateGroup);
-
-        return [
-            'id' => $privateGroup->id,
-            'name' => $privateGroup->name,
-            'created_by' => $privateGroup->created_by,
-            'can_manage' => $canManage,
-            'members' => $privateGroup->members->map(fn ($member) => [
-                'id' => $member->id,
-                'name' => $member->name,
-            ])->all(),
-            'messages' => $privateGroup->messages->map(fn ($message) => [
-                'id' => $message->id,
-                'body' => $message->body,
-                'user' => [
-                    'id' => $message->user->id,
-                    'name' => $message->user->name,
-                ],
-                'created_at' => $message->created_at,
-            ])->all(),
-            'available_users' => $availableUsers,
-        ];
-    }
-
-    public function getMessagesPayload(PrivateGroup $privateGroup, int $afterId): array
+    public function getMessagesForGroup(PrivateGroup $privateGroup, int $afterId): Collection
     {
         return $privateGroup->messages()
             ->with('user:id,name')
@@ -98,16 +49,6 @@ class PrivateDiscussionQueryService
                 $query->where('id', '>', $afterId);
             })
             ->orderBy('id')
-            ->get()
-            ->map(fn ($message) => [
-                'id' => $message->id,
-                'body' => $message->body,
-                'user' => [
-                    'id' => $message->user->id,
-                    'name' => $message->user->name,
-                ],
-                'created_at' => $message->created_at,
-            ])
-            ->all();
+            ->get();
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Forum\RecentPostResource;
+use App\Http\Resources\Forum\RecentThreadResource;
+use App\Http\Resources\Forum\SubforumResource;
+use App\Http\Resources\Forum\ThreadDetailResource;
 use App\Models\Thread;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
@@ -29,9 +33,9 @@ class ThreadController extends Controller
         $stats = $this->forumQueryService->getForumStats();
 
         return Inertia::render('Forum/Index', [
-            'subforums' => $this->forumQueryService->mapSubforums($subforums),
-            'recentThreads' => $this->forumQueryService->mapRecentThreads($recentThreads),
-            'recentPosts' => $this->forumQueryService->mapRecentPosts($recentPosts),
+            'subforums' => SubforumResource::collection($subforums)->resolve(),
+            'recentThreads' => RecentThreadResource::collection($recentThreads)->resolve(),
+            'recentPosts' => RecentPostResource::collection($recentPosts)->resolve(),
             'stats' => $stats,
             'filters' => [
                 'search' => $search,
@@ -78,7 +82,7 @@ class ThreadController extends Controller
         $this->rememberRecentThread($request, $thread);
 
         return Inertia::render('Forum/ShowThread', [
-            'thread' => $this->forumQueryService->mapThread($thread),
+            'thread' => (new ThreadDetailResource($thread))->resolve(),
         ]);
     }
 

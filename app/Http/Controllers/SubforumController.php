@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Forum\SubforumDetailResource;
+use App\Http\Resources\Forum\SubforumResource;
 use App\Models\Subforum;
 use App\Http\Requests\StoreSubforumRequest;
 use App\Http\Requests\UpdateSubforumRequest;
@@ -25,7 +27,7 @@ class SubforumController extends Controller
         $subforums = $this->forumQueryService->getForumSubforums();
 
         return Inertia::render('Forum/Subforums', [
-            'subforums' => $this->forumQueryService->mapSubforums($subforums),
+            'subforums' => SubforumResource::collection($subforums)->resolve(),
         ]);
     }
 
@@ -67,8 +69,8 @@ class SubforumController extends Controller
         $this->rememberRecentSubforum($request, $subforum);
 
         return Inertia::render('Forum/ShowSubforum', [
-            'subforums' => $this->forumQueryService->mapSubforums($subforums),
-            'subforum' => $this->forumQueryService->mapSubforumForShow($subforum),
+            'subforums' => SubforumResource::collection($subforums)->resolve(),
+            'subforum' => (new SubforumDetailResource($subforum))->resolve(),
             'filters' => [
                 'search' => $search,
             ],
