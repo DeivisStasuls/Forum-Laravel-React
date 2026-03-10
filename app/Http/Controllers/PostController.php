@@ -73,7 +73,11 @@ class PostController extends Controller
         abort(403, 'Unauthorized action.');
     }
 
-    $post->update(['body' => $request->body]);
+    $post->update([
+        'body' => $request->body,
+        'edited_by_user_id' => $request->user()->id,
+        'edited_at' => now(),
+    ]);
 
     return Redirect::route('threads.show', $thread->slug)
         ->with('success', 'Comment updated successfully!');

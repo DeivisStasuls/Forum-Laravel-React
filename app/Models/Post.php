@@ -14,6 +14,12 @@ class Post extends Model
         'body',
         'user_id',
         'thread_id',
+        'edited_by_user_id',
+        'edited_at',
+    ];
+
+    protected $casts = [
+        'edited_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -24,6 +30,11 @@ class Post extends Model
     public function thread(): BelongsTo
     {
         return $this->belongsTo(Thread::class);
+    }
+
+    public function editor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'edited_by_user_id');
     }
 }
 

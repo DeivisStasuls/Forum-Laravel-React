@@ -181,6 +181,21 @@ export default function ShowThread({ auth, thread }) {
                                         <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
                                             {reply.body}
                                         </p>
+                                        {reply.edited_at && (
+                                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                Edited by{' '}
+                                                {reply.edited_by?.role ===
+                                                'admin'
+                                                    ? 'admin'
+                                                    : 'user'}{' '}
+                                                {reply.edited_by?.name ??
+                                                    'unknown'}{' '}
+                                                {formatDistanceToNow(
+                                                    new Date(reply.edited_at),
+                                                    { addSuffix: true },
+                                                )}
+                                            </p>
+                                        )}
                                     </div>
                                 ))}
                             </div>
