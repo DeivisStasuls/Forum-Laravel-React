@@ -80,15 +80,25 @@ export default function ShowThread({ auth, thread }) {
 
                             {(auth.user.id === thread.user.id ||
                                 auth.user.role === 'admin') && (
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setDeleteTarget({ type: 'discussion' })
-                                    }
-                                    className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
-                                >
-                                    Delete Discussion
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <Link
+                                        href={route('threads.edit', thread.slug)}
+                                        className="rounded-md px-3 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-300"
+                                    >
+                                        Edit Discussion
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setDeleteTarget({
+                                                type: 'discussion',
+                                            })
+                                        }
+                                        className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                    >
+                                        Delete Discussion
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -140,18 +150,32 @@ export default function ShowThread({ auth, thread }) {
                                             </div>
                                             {(auth.user.id === reply.user.id ||
                                                 auth.user.role === 'admin') && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setDeleteTarget({
-                                                            type: 'comment',
-                                                            replyId: reply.id,
-                                                        })
-                                                    }
-                                                    className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
-                                                >
-                                                    Delete
-                                                </button>
+                                                <div className="flex items-center gap-2">
+                                                    <Link
+                                                        href={route(
+                                                            'posts.edit',
+                                                            [
+                                                                thread.slug,
+                                                                reply.id,
+                                                            ],
+                                                        )}
+                                                        className="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-300"
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setDeleteTarget({
+                                                                type: 'comment',
+                                                                replyId: reply.id,
+                                                            })
+                                                        }
+                                                        className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                         <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">

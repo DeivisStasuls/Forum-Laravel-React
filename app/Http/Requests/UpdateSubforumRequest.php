@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Subforum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,14 +24,16 @@ class UpdateSubforumRequest extends FormRequest
      */
     public function rules(): array
     {
-        $subforum = $this->route('subforum');
-        
+        $subforum = Subforum::query()
+            ->where('slug', (string) $this->route('slug'))
+            ->first();
+
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('subforums', 'name')->ignore($subforum->id),
+                Rule::unique('subforums', 'name')->ignore($subforum?->id),
             ],
             'description' => ['nullable', 'string', 'max:1000'],
         ];

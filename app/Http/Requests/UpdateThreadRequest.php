@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Thread;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateThreadRequest extends FormRequest
@@ -11,9 +12,17 @@ class UpdateThreadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $thread = $this->route('thread');
-        // Only the thread author can update it
-        return $thread && $this->user()->id === $thread->user_id;
+        $user = $this->user();
+        if (! $user) {
+            return false;
+        }
+
+        $thread = Thread::query()
+            ->where('slug', (string) $this->route('slug'))
+            ->first();
+
+        return $thread
+            && ($user->id === $thread->user_id || $user->isAdmin());
     }
 
     /**

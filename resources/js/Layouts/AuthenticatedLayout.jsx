@@ -33,6 +33,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Forum
                                 </NavLink>
                                 <NavLink
+                                    href={route('subforums.index')}
+                                    active={route().current('subforums.index')}
+                                >
+                                    Categories
+                                </NavLink>
+                                <NavLink
                                     href={route('private-discussions.index')}
                                     active={route().current('private-discussions.*')}
                                 >
@@ -201,6 +207,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('forum.index')}
                         >
                             Forum
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('subforums.index')}
+                            active={route().current('subforums.index')}
+                        >
+                            Categories
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('private-discussions.index')}

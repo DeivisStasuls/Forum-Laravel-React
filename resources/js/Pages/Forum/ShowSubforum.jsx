@@ -43,12 +43,22 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             </p>
                         )}
                     </div>
-                    <Link
-                        href={route('threads.create')}
-                        className="rounded bg-indigo-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-indigo-700"
-                    >
-                        + New Discussion
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        {auth.user.role === 'admin' && (
+                            <Link
+                                href={route('subforums.edit', subforum.slug)}
+                                className="rounded bg-emerald-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-emerald-700"
+                            >
+                                Edit Category
+                            </Link>
+                        )}
+                        <Link
+                            href={route('threads.create')}
+                            className="rounded bg-indigo-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-indigo-700"
+                        >
+                            + New Discussion
+                        </Link>
+                    </div>
                 </div>
             }
         >
