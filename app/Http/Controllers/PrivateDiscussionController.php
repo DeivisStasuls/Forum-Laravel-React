@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PrivateGroup;
 use App\Models\PrivateMessage;
 use App\Models\User;
+use App\Services\PrivateDiscussionQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -15,46 +16,19 @@ use Inertia\Response;
 
 class PrivateDiscussionController extends Controller
 {
+    public function __construct(
+        private readonly PrivateDiscussionQueryService $privateDiscussionQueryService
+    ) {
+    }
+
     public function index(Request $request): Response
     {
         $user = $request->user();
-
-        $groups = PrivateGroup::query()
-            ->whereHas('members', function ($query) use ($user) {
-                $query->where('users.id', $user->id);
-            })
-            ->with(['members:id,name', 'messages' => function ($query) {
-                $query->latest()->limit(1)->with('user:id,name');
-            }])
-            ->latest()
-            ->get();
-
-        $users = User::query()
-            ->where('id', '!=', $user->id)
-            ->whereNull('banned_at')
-            ->orderByRaw("CASE WHEN role = 'admin' THEN 0 ELSE 1 END")
-            ->orderBy('name')
-            ->get(['id', 'name', 'email', 'role']);
+        $groups = $this->privateDiscussionQueryService->getGroupsForUser($user);
+        $users = $this->privateDiscussionQueryService->getAvailableUsersForIndex($user);
 
         return Inertia::render('PrivateDiscussions/Index', [
-            'groups' => $groups->map(function ($group) {
-                $latestMessage = $group->messages->first();
-
-                return [
-                    'id' => $group->id,
-                    'name' => $group->name,
-                    'members' => $group->members->map(fn ($member) => [
-                        'id' => $member->id,
-                        'name' => $member->name,
-                    ]),
-                    'latest_message' => $latestMessage ? [
-                        'body' => $latestMessage->body,
-                        'user_name' => $latestMessage->user?->name,
-                        'created_at' => $latestMessage->created_at,
-                    ] : null,
-                    'updated_at' => $group->updated_at,
-                ];
-            }),
+            'groups' => $this->privateDiscussionQueryService->mapGroups($groups),
             'users' => $users,
         ]);
     }
@@ -93,36 +67,9 @@ class PrivateDiscussionController extends Controller
         ]);
 
         $currentUser = $request->user();
-        $canManage = $currentUser->id === $privateGroup->created_by;
-
-        $availableUsers = User::query()
-            ->where('id', '!=', $currentUser->id)
-            ->whereNull('banned_at')
-            ->whereNotIn('id', $privateGroup->members->pluck('id'))
-            ->orderBy('name')
-            ->get(['id', 'name', 'email']);
 
         return Inertia::render('PrivateDiscussions/Show', [
-            'group' => [
-                'id' => $privateGroup->id,
-                'name' => $privateGroup->name,
-                'created_by' => $privateGroup->created_by,
-                'can_manage' => $canManage,
-                'members' => $privateGroup->members->map(fn ($member) => [
-                    'id' => $member->id,
-                    'name' => $member->name,
-                ]),
-                'messages' => $privateGroup->messages->map(fn ($message) => [
-                    'id' => $message->id,
-                    'body' => $message->body,
-                    'user' => [
-                        'id' => $message->user->id,
-                        'name' => $message->user->name,
-                    ],
-                    'created_at' => $message->created_at,
-                ]),
-                'available_users' => $availableUsers,
-            ],
+            'group' => $this->privateDiscussionQueryService->mapGroupDetails($privateGroup, $currentUser),
         ]);
     }
 
@@ -132,22 +79,7 @@ class PrivateDiscussionController extends Controller
 
         $afterId = (int) $request->query('after_id', 0);
 
-        $messages = $privateGroup->messages()
-            ->with('user:id,name')
-            ->when($afterId > 0, function ($query) use ($afterId) {
-                $query->where('id', '>', $afterId);
-            })
-            ->orderBy('id')
-            ->get()
-            ->map(fn ($message) => [
-                'id' => $message->id,
-                'body' => $message->body,
-                'user' => [
-                    'id' => $message->user->id,
-                    'name' => $message->user->name,
-                ],
-                'created_at' => $message->created_at,
-            ]);
+        $messages = $this->privateDiscussionQueryService->getMessagesPayload($privateGroup, $afterId);
 
         return response()->json([
             'messages' => $messages,

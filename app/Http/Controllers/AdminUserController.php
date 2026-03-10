@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AdminUserQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,16 +11,17 @@ use Inertia\Response;
 
 class AdminUserController extends Controller
 {
+    public function __construct(
+        private readonly AdminUserQueryService $adminUserQueryService
+    ) {
+    }
+
     public function index(Request $request): Response
     {
         $this->authorizeAdmin($request);
 
-        $users = User::query()
-            ->orderByDesc('created_at')
-            ->get(['id', 'name', 'email', 'role', 'banned_at', 'created_at']);
-
         return Inertia::render('Admin/Users', [
-            'users' => $users,
+            'users' => $this->adminUserQueryService->getUsersForManagement(),
         ]);
     }
 

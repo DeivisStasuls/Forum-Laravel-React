@@ -3,102 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Thread;
-use App\Models\Subforum;
-use App\Models\Post;
-use App\Models\User;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
+use App\Services\ForumQueryService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Str;
 
 class ThreadController extends Controller
 {
+    public function __construct(
+        private readonly ForumQueryService $forumQueryService
+    ) {
+    }
+
     /**
      * Display a listing of the threads, grouped by subforum.
      */
     public function index(Request $request)
     {
         $search = trim((string) $request->query('search', ''));
-
-        // Fetch all subforums for left sidebar
-        $subforums = Subforum::withCount('threads')
-            ->orderBy('name')
-            ->get();
-
-        // Fetch recent threads for main content
-        $recentThreads = Thread::with(['user', 'subforum'])
-            ->withCount('posts')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($innerQuery) use ($search) {
-                    $innerQuery->where('title', 'like', "%{$search}%")
-                        ->orWhere('body', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
-            ->take(20)
-            ->get();
-
-        // Fetch recent posts for right sidebar
-        $recentPosts = Post::with(['user', 'thread'])
-            ->latest()
-            ->take(10)
-            ->get();
-
-        // Calculate forum statistics
-        $stats = [
-            'total_threads' => Thread::count(),
-            'total_posts' => Post::count(),
-            'total_subforums' => Subforum::count(),
-            'total_users' => User::count(),
-        ];
+        $subforums = $this->forumQueryService->getForumSubforums();
+        $recentThreads = $this->forumQueryService->getRecentThreads($search);
+        $recentPosts = $this->forumQueryService->getRecentPosts();
+        $stats = $this->forumQueryService->getForumStats();
 
         return Inertia::render('Forum/Index', [
-            'subforums' => $subforums->map(function ($subforum) {
-                return [
-                    'id' => $subforum->id,
-                    'name' => $subforum->name,
-                    'slug' => $subforum->slug,
-                    'description' => $subforum->description,
-                    'threads_count' => $subforum->threads_count,
-                ];
-            }),
-            'recentThreads' => $recentThreads->map(function ($thread) {
-                return [
-                    'id' => $thread->id,
-                    'title' => $thread->title,
-                    'slug' => $thread->slug,
-                    'user' => [
-                        'id' => $thread->user->id,
-                        'name' => $thread->user->name,
-                    ],
-                    'subforum' => [
-                        'id' => $thread->subforum->id,
-                        'name' => $thread->subforum->name,
-                        'slug' => $thread->subforum->slug,
-                    ],
-                    'posts_count' => $thread->posts_count,
-                    'created_at' => $thread->created_at,
-                    'updated_at' => $thread->updated_at,
-                ];
-            }),
-            'recentPosts' => $recentPosts->map(function ($post) {
-                return [
-                    'id' => $post->id,
-                    'body' => \Str::limit($post->body, 100),
-                    'user' => [
-                        'id' => $post->user->id,
-                        'name' => $post->user->name,
-                    ],
-                    'thread' => [
-                        'id' => $post->thread->id,
-                        'title' => $post->thread->title,
-                        'slug' => $post->thread->slug,
-                    ],
-                    'created_at' => $post->created_at,
-                ];
-            }),
+            'subforums' => $this->forumQueryService->mapSubforums($subforums),
+            'recentThreads' => $this->forumQueryService->mapRecentThreads($recentThreads),
+            'recentPosts' => $this->forumQueryService->mapRecentPosts($recentPosts),
             'stats' => $stats,
             'filters' => [
                 'search' => $search,
@@ -111,7 +44,7 @@ class ThreadController extends Controller
      */
     public function create()
     {
-        $subforums = Subforum::all(['id', 'name', 'slug']);
+        $subforums = $this->forumQueryService->getThreadCreateSubforums();
 
         return Inertia::render('Forum/CreateThread', [
             'subforums' => $subforums,
@@ -140,45 +73,12 @@ class ThreadController extends Controller
      */
     public function show(string $slug, Request $request)
     {
-        $thread = Thread::where('slug', $slug)
-            ->with(['user', 'subforum', 'posts.user'])
-            ->withCount('posts')
-            ->firstOrFail();
+        $thread = $this->forumQueryService->getThreadForShow($slug);
 
         $this->rememberRecentThread($request, $thread);
 
         return Inertia::render('Forum/ShowThread', [
-            'thread' => [
-                'id' => $thread->id,
-                'title' => $thread->title,
-                'body' => $thread->body,
-                'slug' => $thread->slug,
-                'user' => [
-                    'id' => $thread->user->id,
-                    'name' => $thread->user->name,
-                ],
-                'subforum' => [
-                    'id' => $thread->subforum->id,
-                    'name' => $thread->subforum->name,
-                    'slug' => $thread->subforum->slug,
-                ],
-                'posts_count' => $thread->posts_count,
-                'creator_only_comments' => $thread->creator_only_comments,
-                'created_at' => $thread->created_at,
-                'updated_at' => $thread->updated_at,
-                'posts' => $thread->posts->map(function ($post) {
-                    return [
-                        'id' => $post->id,
-                        'body' => $post->body,
-                        'user' => [
-                            'id' => $post->user->id,
-                            'name' => $post->user->name,
-                        ],
-                        'created_at' => $post->created_at,
-                        'updated_at' => $post->updated_at,
-                    ];
-                }),
-            ],
+            'thread' => $this->forumQueryService->mapThread($thread),
         ]);
     }
 
@@ -214,7 +114,7 @@ class ThreadController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $subforums = Subforum::all(['id', 'name', 'slug']);
+        $subforums = $this->forumQueryService->getThreadCreateSubforums();
 
         return Inertia::render('Forum/EditThread', [
             'thread' => [
