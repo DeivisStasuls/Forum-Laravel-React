@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Votable;
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ class Thread extends Model
      * Generate a unique slug from the title
      */
     use HasSlug;
+    
+    use Votable;
 
     protected $fillable = [
         'title',

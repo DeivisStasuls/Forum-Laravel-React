@@ -85,15 +85,14 @@ class PostController extends Controller
 
 public function destroy(string $threadSlug, int $postId)
 {
-    [$thread, $post] = $this->getPost($threadSlug, $postId);
-
-    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-        abort(403, 'Unauthorized action.');
-    }
+    $post = Post::findOrFail($postId);
+    
+    // This automatically calls the 'delete' method in PostPolicy
+    $this->authorize('delete', $post);
 
     $post->delete();
 
-    return Redirect::route('threads.show', $thread->slug)
+    return Redirect::route('threads.show', $threadSlug)
         ->with('success', 'Comment deleted successfully!');
 }
 
