@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 class Thread extends Model
 {
     use HasFactory;
-
     /**
      * Generate a unique slug from the title
      */
@@ -31,6 +30,7 @@ class Thread extends Model
         'edited_by_user_id',
         'edited_at',
     ];
+    protected $appends = ['score', 'user_vote'];
 
     protected $casts = [
         'creator_only_comments' => 'boolean',
@@ -78,8 +78,13 @@ class Thread extends Model
         $query->with(['user', 'subforum', 'posts.user'])
               ->withCount('posts');
     }
+    
 
     return $query->firstOrFail();
 }
+public function getUserVoteAttribute() {
+        if (!auth()->check()) return null;
+        return $this->votes()->where('user_id', auth()->id())->value('value') ?? 0;
+    }
 
 }

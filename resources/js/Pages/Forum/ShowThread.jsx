@@ -110,12 +110,11 @@ export default function ShowThread({ auth, thread }) {
 
         {/* Votes */}
         <VoteButtons
-            votableType="thread"
-            votableId={thread.id}
-            votes={thread.votes_count}
-            userVote={thread.user_vote}
-        />
-
+    routeName="threads.vote"
+    routeParams={{ thread: thread.id }}  
+    initialScore={thread.score}
+    userVote={thread.user_vote}
+/>
         {/* Thread content */}
         <div className="flex-1">
 
@@ -170,11 +169,11 @@ export default function ShowThread({ auth, thread }) {
                                     <div key={reply.id} className="p-6 flex gap-4">
 
     <VoteButtons
-        votableType="post"
-        votableId={reply.id}
-        votes={reply.votes_count}
-        userVote={reply.user_vote}
-    />
+    routeName="posts.vote"
+    routeParams={{ thread: thread.slug, post: reply.id }}
+    initialScore={reply.score}
+    userVote={reply.user_vote}
+/>
 
     <div className="flex-1">
 

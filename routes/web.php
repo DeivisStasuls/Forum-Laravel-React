@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\VoteController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\SubforumController;
 use App\Http\Controllers\PostController;
@@ -17,9 +18,9 @@ Route::middleware(['auth', 'not_banned'])->group(function () {
 // Forum Routes - All require authentication
 Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     // Voting Routes
-Route::post('/threads/{thread}/vote', [App\Http\Controllers\VoteController::class, 'store'])->name('threads.vote');
-Route::post('/threads/{threadSlug}/posts/{post}/vote', [App\Http\Controllers\VoteController::class, 'storePost'])->name('posts.vote');
-
+    
+Route::post('/threads/{thread}/vote', [VoteController::class, 'store'])->name('threads.vote');
+Route::post('/threads/{thread}/posts/{post}/vote', [VoteController::class, 'storePost'])->name('posts.vote');
     // Forum Index
     Route::get('/', [ThreadController::class, 'index'])->name('forum.index');
     Route::get('/forum', [ThreadController::class, 'index']);

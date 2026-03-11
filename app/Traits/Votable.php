@@ -8,12 +8,15 @@ trait Votable
 {
     public function votes()
     {
-        return $this->morphMany(Vote::class, 'vottable');
+        return $this->morphMany(Vote::class, 'votable'); // note: 'votable' matches your morph field
     }
 
-    // Optional: A helper to get the total score
     public function getScoreAttribute()
     {
         return $this->votes()->sum('value');
+    }
+    public function userVote($user)
+    {
+        return $this->votes()->where('user_id', $user->id)->first()?->value ?? 0;
     }
 }

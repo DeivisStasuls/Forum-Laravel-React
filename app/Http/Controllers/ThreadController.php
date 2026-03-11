@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class ThreadController extends Controller
-{
+{ 
     public function __construct(
         private readonly ForumQueryService $forumQueryService
     ) {
@@ -76,15 +76,23 @@ class ThreadController extends Controller
      * Display the specified thread with its posts.
      */
     public function show(string $slug, Request $request)
-    {
-        $thread = $this->forumQueryService->getThreadForShow($slug);
+{
+    $thread = $this->forumQueryService->getThreadForShow($slug);
 
-        $this->rememberRecentThread($request, $thread);
+    // Calculate vote scores for the thread
+    $thread->score = $thread->score;
 
-        return Inertia::render('Forum/ShowThread', [
-            'thread' => (new ThreadDetailResource($thread))->resolve(),
-        ]);
-    }
+    // Calculate vote scores for each post (comment)
+    $thread->posts->each(function ($post) {
+        $post->score = $post->score;
+    });
+
+    $this->rememberRecentThread($request, $thread);
+
+    return Inertia::render('Forum/ShowThread', [
+        'thread' => (new ThreadDetailResource($thread))->resolve(),
+    ]);
+}
 
     private function rememberRecentThread(Request $request, Thread $thread): void
     {

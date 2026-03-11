@@ -1,41 +1,27 @@
-import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import axios from 'axios';
 
-export default function VoteButtons({ votableType, votableId, votes, userVote }) {
-    const vote = (value) => {
-        router.post(route('votes.store'), {
-            votable_type: votableType,
-            votable_id: votableId,
-            value: value,
-        }, {
-            preserveScroll: true,
-        });
+export default function VoteButtons({ routeName, routeParams, initialScore, userVote }) {
+    const [score, setScore] = useState(Number(initialScore) || 0);
+    const [vote, setVote] = useState(Number(userVote) || 0);
+
+    const handleVote = async (value) => {
+        try {
+            await axios.post(route(routeName, routeParams), { value });
+
+            // Update local score
+            setScore(prev => prev + value - vote);
+            setVote(value);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     return (
-        <div className="flex flex-col items-center text-sm">
-            <button
-                onClick={() => vote(1)}
-                className={`text-lg ${
-                    userVote === 1
-                        ? 'text-orange-500'
-                        : 'text-gray-400 hover:text-orange-500'
-                }`}
-            >
-                ▲
-            </button>
-
-            <span className="font-semibold">{votes}</span>
-
-            <button
-                onClick={() => vote(-1)}
-                className={`text-lg ${
-                    userVote === -1
-                        ? 'text-blue-500'
-                        : 'text-gray-400 hover:text-blue-500'
-                }`}
-            >
-                ▼
-            </button>
+        <div className="flex flex-col items-center">
+            <button onClick={() => handleVote(1)}>▲</button>
+            <span>{isNaN(score) ? 0 : score}</span>
+            <button onClick={() => handleVote(-1)}>▼</button>
         </div>
     );
 }
