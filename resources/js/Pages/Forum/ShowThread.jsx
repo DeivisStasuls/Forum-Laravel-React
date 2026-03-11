@@ -4,6 +4,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
+import VoteButtons from '@/Components/VoteButtons';
 
 export default function ShowThread({ auth, thread }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -105,37 +106,57 @@ export default function ShowThread({ auth, thread }) {
 
                     <article className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
-                            <div className="mb-3 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                <span>
-                                    by{' '}
-                                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                                        {thread.user.name}
-                                    </span>
-                                </span>
-                                <span>
-                                    {formatDistanceToNow(
-                                        new Date(thread.created_at),
-                                        { addSuffix: true },
-                                    )}
-                                </span>
-                            </div>
-                            <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                                {thread.body}
-                            </p>
-                            {thread.edited_at && (
-                                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                                    Edited by{' '}
-                                    {thread.edited_by?.role === 'admin'
-                                        ? 'admin'
-                                        : 'user'}{' '}
-                                    {thread.edited_by?.name ?? 'unknown'}{' '}
-                                    {formatDistanceToNow(
-                                        new Date(thread.edited_at),
-                                        { addSuffix: true },
-                                    )}
-                                </p>
-                            )}
-                        </div>
+    <div className="flex gap-4">
+
+        {/* Votes */}
+        <VoteButtons
+            votableType="thread"
+            votableId={thread.id}
+            votes={thread.votes_count}
+            userVote={thread.user_vote}
+        />
+
+        {/* Thread content */}
+        <div className="flex-1">
+
+            <div className="mb-3 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                <span>
+                    by{' '}
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                        {thread.user.name}
+                    </span>
+                </span>
+
+                <span>
+                    {formatDistanceToNow(
+                        new Date(thread.created_at),
+                        { addSuffix: true },
+                    )}
+                </span>
+            </div>
+
+            <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                {thread.body}
+            </p>
+
+            {thread.edited_at && (
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Edited by{' '}
+                    {thread.edited_by?.role === 'admin'
+                        ? 'admin'
+                        : 'user'}{' '}
+                    {thread.edited_by?.name ?? 'unknown'}{' '}
+                    {formatDistanceToNow(
+                        new Date(thread.edited_at),
+                        { addSuffix: true },
+                    )}
+                </p>
+            )}
+
+        </div>
+    </div>
+</div>
+                        
 
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -146,70 +167,62 @@ export default function ShowThread({ auth, thread }) {
                         {thread.posts.length > 0 ? (
                             <div className="divide-y divide-gray-200 dark:divide-gray-700">
                                 {thread.posts.map((reply) => (
-                                    <div key={reply.id} className="p-6">
-                                        <div className="mb-2 flex items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-medium text-gray-700 dark:text-gray-300">
-                                                    {reply.user.name}
-                                                </span>
-                                                <span>
-                                                    {formatDistanceToNow(
-                                                        new Date(
-                                                            reply.created_at,
-                                                        ),
-                                                        { addSuffix: true },
-                                                    )}
-                                                </span>
-                                            </div>
-                                            {(auth.user.id === reply.user.id ||
-                                                auth.user.role === 'admin') && (
-                                                <div className="flex items-center gap-2">
-                                                    <Link
-                                                        href={route(
-                                                            'posts.edit',
-                                                            [
-                                                                thread.slug,
-                                                                reply.id,
-                                                            ],
-                                                        )}
-                                                        className="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-300"
-                                                    >
-                                                        Edit
-                                                    </Link>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            setDeleteTarget({
-                                                                type: 'comment',
-                                                                replyId: reply.id,
-                                                            })
-                                                        }
-                                                        className="rounded-md px-2 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                                            {reply.body}
-                                        </p>
-                                        {reply.edited_at && (
-                                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                Edited by{' '}
-                                                {reply.edited_by?.role ===
-                                                'admin'
-                                                    ? 'admin'
-                                                    : 'user'}{' '}
-                                                {reply.edited_by?.name ??
-                                                    'unknown'}{' '}
-                                                {formatDistanceToNow(
-                                                    new Date(reply.edited_at),
-                                                    { addSuffix: true },
-                                                )}
-                                            </p>
-                                        )}
-                                    </div>
+                                    <div key={reply.id} className="p-6 flex gap-4">
+
+    <VoteButtons
+        votableType="post"
+        votableId={reply.id}
+        votes={reply.votes_count}
+        userVote={reply.user_vote}
+    />
+
+    <div className="flex-1">
+
+        <div className="mb-2 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-3">
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                    {reply.user.name}
+                </span>
+
+                <span>
+                    {formatDistanceToNow(
+                        new Date(reply.created_at),
+                        { addSuffix: true },
+                    )}
+                </span>
+            </div>
+
+            {(auth.user.id === reply.user.id ||
+                auth.user.role === 'admin') && (
+                <div className="flex items-center gap-2">
+                    <Link
+                        href={route('posts.edit', [thread.slug, reply.id])}
+                        className="text-xs text-indigo-600"
+                    >
+                        Edit
+                    </Link>
+
+                    <button
+                        onClick={() =>
+                            setDeleteTarget({
+                                type: 'comment',
+                                replyId: reply.id,
+                            })
+                        }
+                        className="text-xs text-red-600"
+                    >
+                        Delete
+                    </button>
+                </div>
+            )}
+        </div>
+
+        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+            {reply.body}
+        </p>
+
+    </div>
+</div>
                                 ))}
                             </div>
                         ) : (
