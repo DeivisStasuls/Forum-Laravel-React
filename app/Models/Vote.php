@@ -8,7 +8,7 @@ class Vote extends Model
 {
     protected $fillable = ['user_id', 'value'];
 
-    public function vottable()
+    public function votable()
     {
         return $this->morphTo();
     }

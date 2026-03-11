@@ -26,6 +26,8 @@ class Post extends Model
         'edited_at' => 'datetime',
     ];
 
+    protected $appends = ['score', 'user_vote'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

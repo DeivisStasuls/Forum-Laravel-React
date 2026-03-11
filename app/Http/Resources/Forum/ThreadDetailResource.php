@@ -35,6 +35,8 @@ class ThreadDetailResource extends JsonResource
                 'slug' => $this->subforum->slug,
             ],
             'posts_count' => $this->posts_count,
+            'score' => $this->score,
+            'user_vote' => $this->user_vote,
             'creator_only_comments' => $this->creator_only_comments,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

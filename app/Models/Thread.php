@@ -83,7 +83,7 @@ class Thread extends Model
     return $query->firstOrFail();
 }
 public function getUserVoteAttribute() {
-        if (!auth()->check()) return null;
+        if (!auth()->check()) return 0;
         return $this->votes()->where('user_id', auth()->id())->value('value') ?? 0;
     }
 

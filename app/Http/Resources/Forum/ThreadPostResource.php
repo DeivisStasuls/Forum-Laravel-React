@@ -26,6 +26,8 @@ class ThreadPostResource extends JsonResource
                 'name' => $this->editor->name,
                 'role' => $this->editor->role,
             ] : null,
+            'score' => $this->score,
+            'user_vote' => $this->user_vote,
             'edited_at' => $this->edited_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

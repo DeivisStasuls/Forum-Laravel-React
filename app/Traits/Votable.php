@@ -19,4 +19,13 @@ trait Votable
     {
         return $this->votes()->where('user_id', $user->id)->first()?->value ?? 0;
     }
+
+    public function getUserVoteAttribute(): int
+    {
+        if (! auth()->check()) {
+            return 0;
+        }
+
+        return (int) $this->votes()->where('user_id', auth()->id())->value('value');
+    }
 }

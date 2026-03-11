@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('votes', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->morphs('votable'); // Creates vottable_id and vottable_type
-    $table->tinyInteger('value'); // 1 for Up, -1 for Down
-    $table->timestamps();
-    
-    $table->unique(['user_id', 'vottable_id', 'vottable_type']);
-});
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->morphs('votable');
+            $table->tinyInteger('value');
+            $table->timestamps();
+
+            $table->unique(['user_id', 'votable_id', 'votable_type']);
+        });
     }
 
     /**
