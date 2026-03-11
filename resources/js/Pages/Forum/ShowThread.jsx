@@ -170,7 +170,7 @@ export default function ShowThread({ auth, thread }) {
 
     <VoteButtons
     routeName="posts.vote"
-    routeParams={{ thread: thread.slug, post: reply.id }}
+    routeParams={{ threadSlug: thread.slug, post: reply.id }}
     initialScore={reply.score}
     userVote={reply.user_vote}
 />
