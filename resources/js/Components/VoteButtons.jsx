@@ -1,27 +1,49 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { router } from '@inertiajs/react';
 
-export default function VoteButtons({ routeName, routeParams, initialScore, userVote }) {
-    const [score, setScore] = useState(Number(initialScore) || 0);
-    const [vote, setVote] = useState(Number(userVote) || 0);
+export default function VoteButtons({ initialScore, userVote, routeName, routeParams, disabled }) {
+    const [score, setScore] = useState(initialScore);
+    const [currentVote, setCurrentVote] = useState(userVote); // 1, -1, or 0
 
-    const handleVote = async (value) => {
-        try {
-            await axios.post(route(routeName, routeParams), { value });
-
-            // Update local score
-            setScore(prev => prev + value - vote);
-            setVote(value);
-        } catch (e) {
-            console.error(e);
+    const handleVote = (value) => {
+        if (disabled) {
+            alert("You cannot vote on your own thread.");
+            return;
         }
+
+        const newVote = currentVote === value ? 0 : value;
+
+        setScore(score - currentVote + newVote);
+        setCurrentVote(newVote);
+
+        router.post(route(routeName, routeParams), { vote: newVote });
     };
 
     return (
         <div className="flex flex-col items-center">
-            <button onClick={() => handleVote(1)}>▲</button>
-            <span>{isNaN(score) ? 0 : score}</span>
-            <button onClick={() => handleVote(-1)}>▼</button>
+            <button
+                onClick={() => handleVote(1)}
+                disabled={disabled}
+                className={`text-gray-400 transition-colors duration-150 ${
+                    !disabled && 'hover:text-green-500'
+                } ${currentVote === 1 ? 'text-green-600 font-bold' : ''} ${
+                    disabled ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+            >
+                ▲
+            </button>
+            <span className="text-sm">{score}</span>
+            <button
+                onClick={() => handleVote(-1)}
+                disabled={disabled}
+                className={`text-gray-400 transition-colors duration-150 ${
+                    !disabled && 'hover:text-red-500'
+                } ${currentVote === -1 ? 'text-red-600 font-bold' : ''} ${
+                    disabled ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+            >
+                ▼
+            </button>
         </div>
     );
 }
