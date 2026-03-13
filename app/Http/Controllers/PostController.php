@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Http\Requests\StorePostRequest;
@@ -12,6 +13,7 @@ use Inertia\Inertia;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Store a newly created post in storage.
      */
@@ -84,17 +86,17 @@ class PostController extends Controller
 }
 
 public function destroy(string $threadSlug, int $postId)
-{
-    $post = Post::findOrFail($postId);
-    
-    // This automatically calls the 'delete' method in PostPolicy
-    $this->authorize('delete', $post);
+    {
+        [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-    $post->delete();
+        // Use policy to check authorization
+        $this->authorize('delete', $post);
 
-    return Redirect::route('threads.show', $threadSlug)
-        ->with('success', 'Comment deleted successfully!');
-}
+        $post->delete();
+
+        return Redirect::route('threads.show', $thread->slug)
+            ->with('success', 'Comment deleted successfully!');
+    }
 
     private function getPost(string $threadSlug, int $postId)
 {
