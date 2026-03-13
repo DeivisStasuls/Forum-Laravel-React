@@ -109,11 +109,12 @@ export default function ShowThread({ auth, thread }) {
     <div className="flex gap-4">
 
         {/* Votes */}
-        <VoteButtons
+       <VoteButtons
     routeName="threads.vote"
-    routeParams={{ thread: thread.id }}  
+    routeParams={{ thread: thread.id }}
     initialScore={thread.score}
     userVote={thread.user_vote}
+    selfVote={auth.user.id === thread.user.id} // prevents voting on own thread
 />
         {/* Thread content */}
         <div className="flex-1">
@@ -169,11 +170,11 @@ export default function ShowThread({ auth, thread }) {
                                     <div key={reply.id} className="p-6 flex gap-4">
 
     <VoteButtons
-    routeName="threads.vote"
-    routeParams={{ thread: thread.id }}
-    initialScore={thread.score}
-    userVote={thread.user_vote}
-    disabled={auth.user.id === thread.user.id} // Disable if current user is the thread author
+    routeName="posts.vote"
+    routeParams={{ threadSlug: thread.slug, post: reply.id }}
+    initialScore={reply.score}
+    userVote={reply.user_vote}
+    selfVote={auth.user.id === reply.user.id} // prevents voting on own post
 />
 
     <div className="flex-1">

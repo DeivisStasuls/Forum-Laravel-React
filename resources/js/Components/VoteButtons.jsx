@@ -1,46 +1,40 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 
-export default function VoteButtons({ initialScore, userVote, routeName, routeParams, disabled }) {
+export default function VoteButtons({ initialScore, userVote, routeName, routeParams, selfVote }) {
     const [score, setScore] = useState(initialScore);
-    const [currentVote, setCurrentVote] = useState(userVote); // 1, -1, or 0
+    const [selected, setSelected] = useState(userVote);
 
     const handleVote = (value) => {
-        if (disabled) {
-            alert("You cannot vote on your own thread.");
+        if (selfVote) {
+            alert("You cannot vote on your own post/thread.");
             return;
         }
 
-        const newVote = currentVote === value ? 0 : value;
+        router.post(route(routeName, routeParams), { vote: value });
 
-        setScore(score - currentVote + newVote);
-        setCurrentVote(newVote);
-
-        router.post(route(routeName, routeParams), { vote: newVote });
+        // Optimistic update
+        if (selected === value) {
+            setScore(score - value); // toggle off
+            setSelected(0);
+        } else {
+            setScore(score + value - selected); // remove old vote, add new
+            setSelected(value);
+        }
     };
 
     return (
         <div className="flex flex-col items-center">
             <button
                 onClick={() => handleVote(1)}
-                disabled={disabled}
-                className={`text-gray-400 transition-colors duration-150 ${
-                    !disabled && 'hover:text-green-500'
-                } ${currentVote === 1 ? 'text-green-600 font-bold' : ''} ${
-                    disabled ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`text-green-600 hover:text-green-800 ${selected === 1 ? 'font-bold' : ''}`}
             >
                 ▲
             </button>
             <span className="text-sm">{score}</span>
             <button
                 onClick={() => handleVote(-1)}
-                disabled={disabled}
-                className={`text-gray-400 transition-colors duration-150 ${
-                    !disabled && 'hover:text-red-500'
-                } ${currentVote === -1 ? 'text-red-600 font-bold' : ''} ${
-                    disabled ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`text-red-600 hover:text-red-800 ${selected === -1 ? 'font-bold' : ''}`}
             >
                 ▼
             </button>
