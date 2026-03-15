@@ -30,13 +30,11 @@ class ThreadController extends Controller
         $subforums = $this->forumQueryService->getForumSubforums();
         $recentThreads = $this->forumQueryService->getRecentThreads($search);
         $recentPosts = $this->forumQueryService->getRecentPosts();
-        $stats = $this->forumQueryService->getForumStats();
 
         return Inertia::render('Forum/Index', [
             'subforums' => SubforumResource::collection($subforums)->resolve(),
             'recentThreads' => RecentThreadResource::collection($recentThreads)->resolve(),
             'recentPosts' => RecentPostResource::collection($recentPosts)->resolve(),
-            'stats' => $stats,
             'filters' => [
                 'search' => $search,
             ],

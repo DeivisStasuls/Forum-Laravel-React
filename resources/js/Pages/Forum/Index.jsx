@@ -10,7 +10,6 @@ export default function ForumIndex({
     subforums,
     recentThreads,
     recentPosts,
-    stats,
     filters,
 }) {
     const [search, setSearch] = useState(filters?.search ?? '');
@@ -150,45 +149,7 @@ export default function ForumIndex({
                             </div>
                         </main>
 
-                        <aside className="lg:col-span-3 space-y-6">
-                            <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
-                                <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
-                                    Forum Statistics
-                                </h3>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-600">
-                                            Discussions
-                                        </span>
-                                        <span className="font-bold text-slate-900">
-                                            {stats.total_threads.toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-600">
-                                            Comments
-                                        </span>
-                                        <span className="font-bold text-slate-900">
-                                            {stats.total_posts.toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-600">
-                                            Categories
-                                        </span>
-                                        <span className="font-bold text-slate-900">
-                                            {stats.total_subforums.toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-slate-600">Members</span>
-                                        <span className="font-bold text-slate-900">
-                                            {stats.total_users.toLocaleString()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <aside className="lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
                                     Recent Activity

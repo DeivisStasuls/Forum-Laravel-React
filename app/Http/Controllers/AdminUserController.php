@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AdminUserResource;
+use App\Models\Post;
+use App\Models\Subforum;
+use App\Models\Thread;
 use App\Models\User;
 use App\Services\AdminUserQueryService;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +27,12 @@ class AdminUserController extends Controller
 
         return Inertia::render('Admin/Users', [
             'users' => AdminUserResource::collection($users)->resolve(),
+            'forumStats' => [
+                'total_threads' => Thread::count(),
+                'total_posts' => Post::count(),
+                'total_subforums' => Subforum::count(),
+                'total_users' => User::count(),
+            ],
         ]);
     }
 

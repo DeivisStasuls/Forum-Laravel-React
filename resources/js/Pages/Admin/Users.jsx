@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo, useState } from 'react';
 
-export default function AdminUsers({ auth, users }) {
+export default function AdminUsers({ auth, users, forumStats }) {
     const [search, setSearch] = useState('');
 
     const filteredUsers = useMemo(() => {
@@ -37,6 +37,46 @@ export default function AdminUsers({ auth, users }) {
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
+                        <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+                            Forum Statistics
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    Discussions
+                                </div>
+                                <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                    {forumStats.total_threads.toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    Comments
+                                </div>
+                                <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                    {forumStats.total_posts.toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    Categories
+                                </div>
+                                <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                    {forumStats.total_subforums.toLocaleString()}
+                                </div>
+                            </div>
+                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                    Members
+                                </div>
+                                <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                    {forumStats.total_users.toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">

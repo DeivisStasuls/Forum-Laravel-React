@@ -46,12 +46,6 @@ export default function AuthenticatedLayout({ children }) {
                                 >
                                     Private Discussions
                                 </NavLink>
-                                <NavLink
-                                    href={route('posts.mine')}
-                                    active={route().current('posts.mine')}
-                                >
-                                    My Posts
-                                </NavLink>
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
@@ -144,6 +138,11 @@ export default function AuthenticatedLayout({ children }) {
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
+                                            href={route('posts.mine')}
+                                        >
+                                            My Posts
+                                        </Dropdown.Link>
+                                        <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
                                             Profile
@@ -228,12 +227,6 @@ export default function AuthenticatedLayout({ children }) {
                         >
                             Private Discussions
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            href={route('posts.mine')}
-                            active={route().current('posts.mine')}
-                        >
-                            My Posts
-                        </ResponsiveNavLink>
                         {recentSubforums.map((item) => (
                             <ResponsiveNavLink
                                 key={item.id}
@@ -271,6 +264,12 @@ export default function AuthenticatedLayout({ children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
+                            <ResponsiveNavLink
+                                href={route('posts.mine')}
+                                active={route().current('posts.mine')}
+                            >
+                                My Posts
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Profile
                             </ResponsiveNavLink>
