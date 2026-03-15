@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import VoteButtons from '@/Components/VoteButtons';
 
 export default function ShowThread({ auth, thread, filters }) {
@@ -14,9 +14,39 @@ export default function ShowThread({ auth, thread, filters }) {
         image: null,
     });
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [selectedOrder, setSelectedOrder] = useState(
+        filters?.order ?? 'oldest',
+    );
+    const [replySearch, setReplySearch] = useState(
+        filters?.reply_search ?? '',
+    );
+    const isFirstFilterRender = useRef(true);
     const canComment =
         !thread.creator_only_comments || auth.user.id === thread.user.id;
-    const selectedOrder = filters?.order ?? 'oldest';
+
+    useEffect(() => {
+        if (isFirstFilterRender.current) {
+            isFirstFilterRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.get(
+                route('threads.show', thread.slug),
+                {
+                    order: selectedOrder,
+                    reply_search: replySearch,
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                },
+            );
+        }, 250);
+
+        return () => clearTimeout(timeout);
+    }, [selectedOrder, replySearch, thread.slug]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -176,7 +206,16 @@ export default function ShowThread({ auth, thread, filters }) {
                                 <h3 className="text-lg font-bold text-slate-900">
                                     Comments ({thread.posts_count})
                                 </h3>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={replySearch}
+                                        onChange={(e) =>
+                                            setReplySearch(e.target.value)
+                                        }
+                                        placeholder="Search replies..."
+                                        className="w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-56"
+                                    />
                                     <label
                                         htmlFor="reply-order"
                                         className="text-sm font-medium text-slate-600"
@@ -187,18 +226,7 @@ export default function ShowThread({ auth, thread, filters }) {
                                         id="reply-order"
                                         value={selectedOrder}
                                         onChange={(e) =>
-                                            router.get(
-                                                route(
-                                                    'threads.show',
-                                                    thread.slug,
-                                                ),
-                                                { order: e.target.value },
-                                                {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                    replace: true,
-                                                },
-                                            )
+                                            setSelectedOrder(e.target.value)
                                         }
                                         className="rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     >

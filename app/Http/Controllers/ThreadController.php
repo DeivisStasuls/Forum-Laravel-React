@@ -108,8 +108,13 @@ class ThreadController extends Controller
     $allowedOrders = ['oldest', 'latest', 'top_voted'];
     $order = trim((string) $request->query('order', 'oldest'));
     $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'oldest';
+    $replySearch = trim((string) $request->query('reply_search', ''));
 
-    $thread = $this->forumQueryService->getThreadForShow($slug, $resolvedOrder);
+    $thread = $this->forumQueryService->getThreadForShow(
+        $slug,
+        $resolvedOrder,
+        $replySearch,
+    );
 
     // Calculate vote scores for the thread
     $thread->score = $thread->score;
@@ -125,6 +130,7 @@ class ThreadController extends Controller
         'thread' => (new ThreadDetailResource($thread))->resolve(),
         'filters' => [
             'order' => $resolvedOrder,
+            'reply_search' => $replySearch,
         ],
     ]);
 }

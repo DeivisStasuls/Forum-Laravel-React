@@ -68,7 +68,11 @@ class ForumQueryService
             ->get(['id', 'name', 'slug', 'restricted_thread_creation']);
     }
 
-    public function getThreadForShow(string $slug, string $order = 'oldest'): Thread
+    public function getThreadForShow(
+        string $slug,
+        string $order = 'oldest',
+        string $replySearch = '',
+    ): Thread
     {
         $allowedOrders = ['oldest', 'latest', 'top_voted'];
         $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'oldest';
@@ -78,8 +82,17 @@ class ForumQueryService
                 'user',
                 'editor',
                 'subforum',
-                'posts' => function ($query) use ($resolvedOrder) {
+                'posts' => function ($query) use ($resolvedOrder, $replySearch) {
                     $query->with(['user', 'editor'])
+                        ->when($replySearch !== '', function ($searchQuery) use ($replySearch) {
+                            $searchQuery->where(function ($innerQuery) use ($replySearch) {
+                                $innerQuery
+                                    ->where('body', 'like', "%{$replySearch}%")
+                                    ->orWhereHas('user', function ($userQuery) use ($replySearch) {
+                                        $userQuery->where('name', 'like', "%{$replySearch}%");
+                                    });
+                            });
+                        })
                         ->when(
                             $resolvedOrder === 'top_voted',
                             fn ($orderedQuery) => $orderedQuery
