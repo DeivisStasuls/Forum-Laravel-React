@@ -56,9 +56,9 @@ export default function AdminUsers({ auth, users }) {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="max-h-[70vh] overflow-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead className="bg-gray-50 dark:bg-gray-900/40">
+                                <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900/40">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                                             User
