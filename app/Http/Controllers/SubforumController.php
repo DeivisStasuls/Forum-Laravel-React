@@ -67,8 +67,9 @@ class SubforumController extends Controller
     public function show(string $slug, Request $request)
     {
         $search = trim((string) $request->query('search', ''));
+        $order = trim((string) $request->query('order', 'latest'));
         $subforums = $this->forumQueryService->getForumSubforums();
-        $subforum = $this->forumQueryService->getSubforumForShow($slug, $search);
+        $subforum = $this->forumQueryService->getSubforumForShow($slug, $search, $order);
 
         $this->rememberRecentSubforum($request, $subforum);
 
@@ -77,6 +78,7 @@ class SubforumController extends Controller
             'subforum' => (new SubforumDetailResource($subforum))->resolve(),
             'filters' => [
                 'search' => $search,
+                'order' => $order,
             ],
         ]);
     }

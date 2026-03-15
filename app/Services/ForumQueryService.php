@@ -69,10 +69,13 @@ class ForumQueryService
             ->firstOrFail();
     }
 
-    public function getSubforumForShow(string $slug, string $search): Subforum
+    public function getSubforumForShow(string $slug, string $search, string $order): Subforum
     {
+        $allowedOrders = ['latest', 'oldest', 'most_commented'];
+        $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'latest';
+
         return Subforum::where('slug', $slug)
-            ->with(['threads' => function ($query) use ($search) {
+            ->with(['threads' => function ($query) use ($search, $resolvedOrder) {
                 $query->with('user')
                     ->withCount('posts')
                     ->when($search !== '', function ($innerQuery) use ($search) {
@@ -81,7 +84,18 @@ class ForumQueryService
                                 ->orWhere('body', 'like', "%{$search}%");
                         });
                     })
-                    ->latest();
+                    ->when(
+                        $resolvedOrder === 'most_commented',
+                        fn ($orderedQuery) => $orderedQuery->orderByDesc('posts_count')->latest(),
+                    )
+                    ->when(
+                        $resolvedOrder === 'oldest',
+                        fn ($orderedQuery) => $orderedQuery->oldest(),
+                    )
+                    ->when(
+                        $resolvedOrder === 'latest',
+                        fn ($orderedQuery) => $orderedQuery->latest(),
+                    );
             }])
             ->firstOrFail();
     }

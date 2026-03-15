@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function ShowSubforum({ auth, subforum, subforums, filters }) {
     const [search, setSearch] = useState(filters?.search ?? '');
+    const [order, setOrder] = useState(filters?.order ?? 'latest');
     const isFirstRender = useRef(true);
 
     useEffect(() => {
@@ -16,7 +17,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
         const timeout = setTimeout(() => {
             router.get(
                 route('subforums.show', subforum.slug),
-                { search },
+                { search, order },
                 {
                     preserveState: true,
                     preserveScroll: true,
@@ -26,7 +27,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
         }, 250);
 
         return () => clearTimeout(timeout);
-    }, [search, subforum.slug]);
+    }, [search, order, subforum.slug]);
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -84,9 +85,32 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
                                 <div className="border-b border-slate-200 p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <h3 className="text-lg font-bold text-slate-900">
-                                            Discussions in {subforum.name}
-                                        </h3>
+                                        <div className="flex items-center gap-2">
+                                            <label
+                                                htmlFor="order"
+                                                className="text-sm font-semibold text-slate-700"
+                                            >
+                                                Order by
+                                            </label>
+                                            <select
+                                                id="order"
+                                                value={order}
+                                                onChange={(e) =>
+                                                    setOrder(e.target.value)
+                                                }
+                                                className="rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            >
+                                                <option value="latest">
+                                                    Newest
+                                                </option>
+                                                <option value="oldest">
+                                                    Oldest
+                                                </option>
+                                                <option value="most_commented">
+                                                    Most Commented
+                                                </option>
+                                            </select>
+                                        </div>
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="text"
