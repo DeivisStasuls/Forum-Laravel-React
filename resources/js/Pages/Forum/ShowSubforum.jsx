@@ -183,9 +183,37 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                     <h3 className="mb-2 text-lg font-bold text-slate-900">
                                         {subforum.name}
                                     </h3>
+                                    {subforum.is_moderator && (
+                                        <div className="mb-2 inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                                            You are a moderator in this category
+                                        </div>
+                                    )}
                                     <p className="text-sm text-slate-600">
                                         {subforum.description || 'No description provided yet.'}
                                     </p>
+                                    <div className="mt-3">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                            Moderators
+                                        </p>
+                                        {subforum.moderators.length > 0 ? (
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {subforum.moderators.map(
+                                                    (moderator) => (
+                                                        <span
+                                                            key={moderator.id}
+                                                            className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
+                                                        >
+                                                            {moderator.name}
+                                                        </span>
+                                                    ),
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="mt-1 text-xs text-slate-500">
+                                                No moderators assigned.
+                                            </p>
+                                        )}
+                                    </div>
                                     <div className="mt-4 text-xs text-slate-500">
                                         {subforum.threads.length}{' '}
                                         {subforum.threads.length === 1

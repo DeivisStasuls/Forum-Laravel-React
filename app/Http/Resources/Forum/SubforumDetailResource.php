@@ -14,11 +14,20 @@ class SubforumDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $isModerator = $request->user()
+            ? $this->moderators->contains('id', $request->user()->id)
+            : false;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'slug' => $this->slug,
+            'is_moderator' => $isModerator,
+            'moderators' => $this->moderators->map(fn ($moderator) => [
+                'id' => $moderator->id,
+                'name' => $moderator->name,
+            ])->values()->all(),
             'threads' => SubforumThreadResource::collection($this->threads)->resolve(),
         ];
     }

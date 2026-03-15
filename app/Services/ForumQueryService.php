@@ -13,6 +13,7 @@ class ForumQueryService
     public function getForumSubforums(string $search = ''): Collection
     {
         return Subforum::withCount('threads')
+            ->with(['moderators:id,name'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($innerQuery) use ($search) {
                     $innerQuery->where('name', 'like', "%{$search}%")
@@ -100,6 +101,7 @@ class ForumQueryService
         $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'latest';
 
         return Subforum::where('slug', $slug)
+            ->with(['moderators:id,name'])
             ->with(['threads' => function ($query) use ($search, $resolvedOrder) {
                 $query->with('user')
                     ->withCount('posts')

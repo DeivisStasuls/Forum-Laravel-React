@@ -77,6 +77,11 @@ export default function Subforums({ auth, subforums, filters }) {
                                             >
                                                 {subforum.name}
                                             </Link>
+                                            {subforum.is_moderator && (
+                                                <span className="ml-2 inline-flex rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                                                    Moderator
+                                                </span>
+                                            )}
                                             <p className="mt-1 text-sm text-slate-500">
                                                 {subforum.threads_count}{' '}
                                                 {subforum.threads_count === 1
