@@ -1,4 +1,6 @@
 import InputError from '@/Components/InputError';
+import MarkdownEditor from '@/Components/MarkdownEditor';
+import MarkdownText from '@/Components/MarkdownText';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -181,9 +183,10 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                                         </span>
                                                     </div>
                                                     {message.body && (
-                                                        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                                                            {message.body}
-                                                        </p>
+                                                        <MarkdownText
+                                                            content={message.body}
+                                                            className="text-gray-800 dark:text-gray-200"
+                                                        />
                                                     )}
                                                     {message.image_url && (
                                                         <img
@@ -211,13 +214,13 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                     Send Message
                                 </h3>
                                 <form onSubmit={submit}>
-                                    <textarea
+                                    <MarkdownEditor
                                         value={messageData.body}
-                                        onChange={(e) =>
-                                            setMessageData('body', e.target.value)
+                                        onChange={(value) =>
+                                            setMessageData('body', value)
                                         }
                                         rows={4}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                        textareaClassName="rounded-md border-gray-300 dark:bg-gray-900 dark:text-gray-100"
                                         placeholder="Write a private message..."
                                     />
                                     <InputError

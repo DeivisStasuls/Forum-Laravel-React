@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import MarkdownText from '@/Components/MarkdownText';
 import { Head, Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -47,9 +48,10 @@ export default function MyPosts({ auth, posts }) {
                                         </Link>
                                     </div>
 
-                                    <p className="mb-3 whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-200">
-                                        {post.preview}
-                                    </p>
+                                           <MarkdownText
+                                               content={post.preview}
+                                               className="mb-3 text-sm text-gray-800 dark:text-gray-200"
+                                           />
 
                                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                                         <span>

@@ -1,5 +1,6 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
+import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -55,14 +56,15 @@ export default function EditSubforum({ auth, subforum }) {
                                     htmlFor="description"
                                     value="Description (optional)"
                                 />
-                                <textarea
+                                <MarkdownEditor
                                     id="description"
                                     rows={5}
                                     value={data.description}
-                                    onChange={(e) =>
-                                        setData('description', e.target.value)
+                                    onChange={(value) =>
+                                        setData('description', value)
                                     }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-100"
+                                    className="mt-1"
+                                    textareaClassName="rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-100"
                                 />
                                 <InputError
                                     message={errors.description}

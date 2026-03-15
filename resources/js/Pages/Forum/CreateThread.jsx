@@ -1,4 +1,5 @@
 import InputError from '@/Components/InputError';
+import MarkdownEditor from '@/Components/MarkdownEditor';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -98,14 +99,14 @@ export default function CreateThread({ auth, subforums }) {
                                         htmlFor="body"
                                         value="Discussion Content"
                                     />
-                                    <textarea
+                                    <MarkdownEditor
                                         id="body"
-                                        rows="8"
+                                        rows={8}
                                         value={data.body}
-                                        onChange={(e) =>
-                                            setData('body', e.target.value)
+                                        onChange={(value) =>
+                                            setData('body', value)
                                         }
-                                        className="mt-1 block w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="mt-1"
                                         placeholder="Share details, context, and your question..."
                                     />
                                     <InputError

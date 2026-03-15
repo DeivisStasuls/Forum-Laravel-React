@@ -1,4 +1,5 @@
 import InputError from '@/Components/InputError';
+import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -33,13 +34,13 @@ export default function EditPost({ auth, thread, post }) {
                     <div className="overflow-hidden rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                         <form onSubmit={submit}>
                             <div>
-                                <textarea
+                                <MarkdownEditor
                                     value={data.body}
-                                    onChange={(e) =>
-                                        setData('body', e.target.value)
+                                    onChange={(value) =>
+                                        setData('body', value)
                                     }
                                     rows={7}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                    textareaClassName="rounded-md border-gray-300 dark:bg-gray-900 dark:text-gray-100"
                                 />
                                 <InputError
                                     message={errors.body}

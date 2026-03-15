@@ -1,4 +1,6 @@
 import InputError from '@/Components/InputError';
+import MarkdownEditor from '@/Components/MarkdownEditor';
+import MarkdownText from '@/Components/MarkdownText';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -138,9 +140,10 @@ export default function ShowThread({ auth, thread, filters }) {
                 </span>
             </div>
 
-            <p className="whitespace-pre-wrap text-slate-800">
-                {thread.body}
-            </p>
+            <MarkdownText
+                content={thread.body}
+                className="text-slate-800"
+            />
             {thread.image_url && (
                 <img
                     src={thread.image_url}
@@ -263,9 +266,10 @@ export default function ShowThread({ auth, thread, filters }) {
             )}
         </div>
 
-        <p className="whitespace-pre-wrap text-slate-800">
-            {reply.body}
-        </p>
+        <MarkdownText
+            content={reply.body}
+            className="text-slate-800"
+        />
         {reply.image_url && (
             <img
                 src={reply.image_url}
@@ -291,13 +295,11 @@ export default function ShowThread({ auth, thread, filters }) {
                         </h3>
                         {canComment ? (
                             <form onSubmit={submit}>
-                                <textarea
+                                <MarkdownEditor
                                     value={data.body}
-                                    onChange={(e) =>
-                                        setData('body', e.target.value)
-                                    }
+                                    onChange={(value) => setData('body', value)}
                                     rows={5}
-                                    className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    textareaClassName="border-slate-300"
                                     placeholder="Write your comment..."
                                 />
                                 <InputError
