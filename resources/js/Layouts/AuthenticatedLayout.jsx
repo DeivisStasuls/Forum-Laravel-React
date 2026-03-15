@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ children }) {
     const user = usePage().props.auth.user;
-    const recentSubforums = usePage().props.recentSubforums ?? [];
     const recentThreads = usePage().props.recentThreads ?? [];
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -46,32 +45,6 @@ export default function AuthenticatedLayout({ children }) {
                                 >
                                     Private Discussions
                                 </NavLink>
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
-                                            Recent Categories
-                                        </span>
-                                    </Dropdown.Trigger>
-                                    <Dropdown.Content align="left">
-                                        {recentSubforums.length > 0 ? (
-                                            recentSubforums.map((item) => (
-                                                <Dropdown.Link
-                                                    key={item.id}
-                                                    href={route(
-                                                        'subforums.show',
-                                                        item.slug,
-                                                    )}
-                                                >
-                                                    {item.name}
-                                                </Dropdown.Link>
-                                            ))
-                                        ) : (
-                                            <div className="px-4 py-2 text-sm text-gray-500">
-                                                No recently visited categories
-                                            </div>
-                                        )}
-                                    </Dropdown.Content>
-                                </Dropdown>
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
@@ -227,14 +200,6 @@ export default function AuthenticatedLayout({ children }) {
                         >
                             Private Discussions
                         </ResponsiveNavLink>
-                        {recentSubforums.map((item) => (
-                            <ResponsiveNavLink
-                                key={item.id}
-                                href={route('subforums.show', item.slug)}
-                            >
-                                {item.name}
-                            </ResponsiveNavLink>
-                        ))}
                         {recentThreads.map((item) => (
                             <ResponsiveNavLink
                                 key={item.id}

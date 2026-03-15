@@ -115,7 +115,7 @@ export default function PrivateDiscussionShow({ auth, group }) {
         >
             <Head title={group.name || 'Private Group'} />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <Link

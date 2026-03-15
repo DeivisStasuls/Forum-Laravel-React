@@ -61,7 +61,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
         >
             <Head title="Private Discussions" />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 lg:grid-cols-12">
                     <aside className="lg:col-span-4">
                         <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">

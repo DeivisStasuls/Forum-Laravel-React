@@ -77,7 +77,7 @@ export default function AdminUsers({ auth, users, forumStats }) {
         >
             <Head title="Administration" />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                         <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
