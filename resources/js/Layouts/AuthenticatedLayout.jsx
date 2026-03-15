@@ -44,6 +44,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Private Discussions
                                 </NavLink>
+                                <NavLink
+                                    href={route('posts.mine')}
+                                    active={route().current('posts.mine')}
+                                >
+                                    My Posts
+                                </NavLink>
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex cursor-pointer items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out hover:border-gray-300 hover:text-gray-700 focus:border-indigo-400 focus:text-gray-700 focus:outline-none">
@@ -219,6 +225,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('private-discussions.*')}
                         >
                             Private Discussions
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('posts.mine')}
+                            active={route().current('posts.mine')}
+                        >
+                            My Posts
                         </ResponsiveNavLink>
                         {recentSubforums.map((item) => (
                             <ResponsiveNavLink

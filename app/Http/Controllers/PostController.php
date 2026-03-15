@@ -9,11 +9,45 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class PostController extends Controller
 {
     use AuthorizesRequests;
+
+    public function myPosts(Request $request)
+    {
+        $posts = Post::with(['thread.subforum'])
+            ->where('user_id', $request->user()->id)
+            ->latest()
+            ->take(50)
+            ->get()
+            ->map(fn (Post $post) => [
+                'id' => $post->id,
+                'body' => $post->body,
+                'preview' => Str::limit($post->body, 180),
+                'score' => $post->score,
+                'user_vote' => $post->user_vote,
+                'created_at' => $post->created_at,
+                'edited_at' => $post->edited_at,
+                'thread' => [
+                    'id' => $post->thread->id,
+                    'slug' => $post->thread->slug,
+                    'title' => $post->thread->title,
+                ],
+                'subforum' => [
+                    'slug' => $post->thread->subforum->slug,
+                    'name' => $post->thread->subforum->name,
+                ],
+            ])
+            ->values();
+
+        return Inertia::render('Forum/MyPosts', [
+            'posts' => $posts,
+        ]);
+    }
+
     /**
      * Store a newly created post in storage.
      */
