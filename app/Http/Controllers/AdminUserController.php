@@ -90,6 +90,40 @@ class AdminUserController extends Controller
         return back()->with('success', 'User unbanned successfully.');
     }
 
+    public function warn(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        if ($request->user()->id === $user->id) {
+            return back()->withErrors(['email' => 'You cannot warn yourself.']);
+        }
+
+        $user->increment('warnings_count');
+
+        return back()->with('success', 'Warning added successfully.');
+    }
+
+    public function removeWarning(Request $request, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        if ($request->user()->id === $user->id) {
+            return back()->withErrors(['email' => 'You cannot modify your own warnings.']);
+        }
+
+        $currentWarnings = (int) $user->warnings_count;
+
+        if ($currentWarnings <= 0) {
+            return back()->withErrors(['email' => 'User has no warnings to remove.']);
+        }
+
+        $user->update([
+            'warnings_count' => $currentWarnings - 1,
+        ]);
+
+        return back()->with('success', 'Warning removed successfully.');
+    }
+
     private function authorizeAdmin(Request $request): void
     {
         if (! $request->user() || ! $request->user()->isAdmin()) {

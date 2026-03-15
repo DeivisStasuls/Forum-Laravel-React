@@ -117,4 +117,48 @@ class AdminUserControllerTest extends TestCase
         $this->assertNull($user->fresh()->banned_at);
         $this->assertNull($user->fresh()->ban_reason);
     }
+
+    /** @test */
+    public function admin_can_add_and_remove_warning()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['warnings_count' => 0]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.warn', $user))
+            ->assertRedirect();
+
+        $this->assertEquals(1, $user->fresh()->warnings_count);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.warnings.remove', $user))
+            ->assertRedirect();
+
+        $this->assertEquals(0, $user->fresh()->warnings_count);
+    }
+
+    /** @test */
+    public function admin_cannot_warn_self()
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'warnings_count' => 0]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.warn', $admin))
+            ->assertSessionHasErrors('email');
+
+        $this->assertEquals(0, $admin->fresh()->warnings_count);
+    }
+
+    /** @test */
+    public function removing_warning_fails_when_user_has_no_warnings()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['warnings_count' => 0]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.warnings.remove', $user))
+            ->assertSessionHasErrors('email');
+
+        $this->assertEquals(0, $user->fresh()->warnings_count);
+    }
 }

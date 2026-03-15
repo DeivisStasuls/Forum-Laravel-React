@@ -21,6 +21,7 @@ class AdminUserResource extends JsonResource
             'role' => $this->role,
             'banned_at' => $this->banned_at,
             'ban_reason' => $this->ban_reason,
+            'warnings_count' => (int) ($this->warnings_count ?? 0),
             'created_at' => $this->created_at,
         ];
     }

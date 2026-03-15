@@ -5,25 +5,46 @@ import { useMemo, useState } from 'react';
 
 export default function AdminUsers({ auth, users, forumStats }) {
     const [search, setSearch] = useState('');
+    const [banTarget, setBanTarget] = useState(null);
+    const [banReason, setBanReason] = useState('');
+    const [banError, setBanError] = useState('');
 
-    const handleBan = (user) => {
-        const reason = window.prompt(`Ban reason for ${user.name}:`, '');
+    const openBanReasonPanel = (user) => {
+        setBanTarget(user);
+        setBanReason('');
+        setBanError('');
+    };
 
-        if (reason === null) {
+    const closeBanReasonPanel = () => {
+        setBanTarget(null);
+        setBanReason('');
+        setBanError('');
+    };
+
+    const submitBan = () => {
+        if (!banTarget) {
             return;
         }
 
-        const trimmedReason = reason.trim();
+        const trimmedReason = banReason.trim();
 
         if (!trimmedReason) {
-            window.alert('Ban reason is required.');
+            setBanError('Ban reason is required.');
             return;
         }
 
         router.patch(
-            route('admin.users.ban', user.id),
+            route('admin.users.ban', banTarget.id),
             { reason: trimmedReason },
-            { preserveScroll: true },
+            {
+                preserveScroll: true,
+                onSuccess: () => closeBanReasonPanel(),
+                onError: (errors) => {
+                    setBanError(
+                        errors.reason ?? 'Unable to ban user right now.',
+                    );
+                },
+            },
         );
     };
 
@@ -115,6 +136,45 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                     placeholder="Search users by name, email, role, or status..."
                                 />
                             </div>
+
+                            {banTarget && (
+                                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                                    <div className="mb-2 text-sm font-semibold text-red-800">
+                                        Ban {banTarget.name}
+                                    </div>
+                                    <textarea
+                                        value={banReason}
+                                        onChange={(e) =>
+                                            setBanReason(e.target.value)
+                                        }
+                                        className="w-full rounded-md border-red-300 text-sm text-gray-900 shadow-sm focus:border-red-500 focus:ring-red-500"
+                                        rows={3}
+                                        maxLength={500}
+                                        placeholder="Required: explain why this user is being banned."
+                                    />
+                                    {banError && (
+                                        <p className="mt-2 text-sm text-red-700">
+                                            {banError}
+                                        </p>
+                                    )}
+                                    <div className="mt-3 flex justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={closeBanReasonPanel}
+                                            className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-800 transition hover:bg-gray-300"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={submitBan}
+                                            className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"
+                                        >
+                                            Confirm Ban
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="max-h-[70vh] overflow-auto">
@@ -132,6 +192,9 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                                             Joined
+                                        </th>
+                                        <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                            Warnings
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
                                             Actions
@@ -185,8 +248,50 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                                     { addSuffix: true },
                                                 )}
                                             </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span
+                                                    className={`inline-flex min-w-8 justify-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                                        user.warnings_count > 0
+                                                            ? 'bg-amber-100 text-amber-800'
+                                                            : 'bg-gray-100 text-gray-600'
+                                                    }`}
+                                                >
+                                                    {user.warnings_count}
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-end gap-2">
+                                                    {user.id !== auth.user.id && (
+                                                        <>
+                                                            <Link
+                                                                href={route(
+                                                                    'admin.users.warn',
+                                                                    user.id,
+                                                                )}
+                                                                method="patch"
+                                                                as="button"
+                                                                className="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
+                                                            >
+                                                                Warn
+                                                            </Link>
+                                                            <Link
+                                                                href={route(
+                                                                    'admin.users.warnings.remove',
+                                                                    user.id,
+                                                                )}
+                                                                method="patch"
+                                                                as="button"
+                                                                className="rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                                                disabled={
+                                                                    user.warnings_count <=
+                                                                    0
+                                                                }
+                                                            >
+                                                                Remove Warning
+                                                            </Link>
+                                                        </>
+                                                    )}
+
                                                     {user.id !== auth.user.id &&
                                                         (user.role === 'admin' ? (
                                                             <Link
@@ -230,11 +335,7 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                                         ) : (
                                                             <button
                                                                 type="button"
-                                                                onClick={() =>
-                                                                    handleBan(
-                                                                        user,
-                                                                    )
-                                                                }
+                                                                onClick={() => openBanReasonPanel(user)}
                                                                 className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"
                                                             >
                                                                 Ban
@@ -247,7 +348,7 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                     {filteredUsers.length === 0 && (
                                         <tr>
                                             <td
-                                                colSpan={5}
+                                                colSpan={6}
                                                 className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
                                             >
                                                 No users match your search.

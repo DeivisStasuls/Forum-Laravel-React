@@ -11,6 +11,6 @@ class AdminUserQueryService
     {
         return User::query()
             ->orderByDesc('created_at')
-            ->get(['id', 'name', 'email', 'role', 'banned_at', 'ban_reason', 'created_at']);
+            ->get(['id', 'name', 'email', 'role', 'banned_at', 'ban_reason', 'warnings_count', 'created_at']);
     }
 }

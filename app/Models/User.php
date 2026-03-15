@@ -28,6 +28,7 @@ class User extends Authenticatable
         'role', // Added the new role field
         'banned_at',
         'ban_reason',
+        'warnings_count',
     ];
 
     /**
@@ -51,6 +52,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'banned_at' => 'datetime',
+            'warnings_count' => 'integer',
         ];
     }
 
