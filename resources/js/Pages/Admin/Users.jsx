@@ -412,6 +412,8 @@ export default function AdminUsers({
                                                                 )}
                                                                 method="patch"
                                                                 as="button"
+                                                                preserveState
+                                                                preserveScroll
                                                                 className="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
                                                             >
                                                                 Warn
@@ -423,6 +425,8 @@ export default function AdminUsers({
                                                                 )}
                                                                 method="patch"
                                                                 as="button"
+                                                                preserveState
+                                                                preserveScroll
                                                                 className="rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-50"
                                                                 disabled={
                                                                     user.warnings_count <=

@@ -9,6 +9,17 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
+    defaults: {
+        visitOptions: (href, options) => {
+            const method = (options.method ?? 'get').toLowerCase();
+            const isGet = method === 'get';
+
+            return {
+                preserveScroll: options.preserveScroll ?? true,
+                preserveState: options.preserveState ?? !isGet,
+            };
+        },
+    },
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
