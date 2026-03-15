@@ -36,11 +36,26 @@ export default function PrivateDiscussionShow({ auth, group }) {
         user_id: '',
     });
     const [messages, setMessages] = useState(group.messages);
+    const [memberSearch, setMemberSearch] = useState('');
     const messagesContainerRef = useRef(null);
     const lastMessageId = useMemo(
         () => (messages.length > 0 ? messages[messages.length - 1].id : 0),
         [messages],
     );
+    const filteredAvailableUsers = useMemo(() => {
+        const users = group.available_users || [];
+        const term = memberSearch.trim().toLowerCase();
+        if (!term) {
+            return users;
+        }
+
+        return users.filter((user) => {
+            return (
+                user.name.toLowerCase().includes(term) ||
+                user.email.toLowerCase().includes(term)
+            );
+        });
+    }, [group.available_users, memberSearch]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -60,7 +75,10 @@ export default function PrivateDiscussionShow({ auth, group }) {
     const submitAddMember = (e) => {
         e.preventDefault();
         postMember(route('private-discussions.members.add', group.id), {
-            onSuccess: () => setMemberData('user_id', ''),
+            onSuccess: () => {
+                setMemberData('user_id', '');
+                setMemberSearch('');
+            },
         });
     };
 
@@ -274,31 +292,56 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                             <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                                 Add Member
                                             </label>
-                                            <select
-                                                value={memberData.user_id}
+                                            <input
+                                                type="text"
+                                                value={memberSearch}
                                                 onChange={(e) =>
-                                                    setMemberData(
-                                                        'user_id',
+                                                    setMemberSearch(
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                            >
-                                                <option value="">
-                                                    Select a user...
-                                                </option>
-                                                {(
-                                                    group.available_users || []
-                                                ).map((user) => (
-                                                    <option
-                                                        key={user.id}
-                                                        value={user.id}
-                                                    >
-                                                        {user.name} ({user.email}
-                                                        )
-                                                    </option>
-                                                ))}
-                                            </select>
+                                                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                                placeholder="Search users by name or email..."
+                                            />
+                                            <div className="mt-1 max-h-40 overflow-y-auto rounded-md border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+                                                {filteredAvailableUsers.length >
+                                                0 ? (
+                                                    filteredAvailableUsers.map(
+                                                        (user) => (
+                                                            <button
+                                                                key={user.id}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setMemberData(
+                                                                        'user_id',
+                                                                        String(
+                                                                            user.id,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                                className={`mb-1 block w-full rounded px-2 py-1 text-left text-sm transition last:mb-0 ${
+                                                                    String(
+                                                                        memberData.user_id,
+                                                                    ) ===
+                                                                    String(
+                                                                        user.id,
+                                                                    )
+                                                                        ? 'bg-indigo-100 text-indigo-700'
+                                                                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                                }`}
+                                                            >
+                                                                {user.name} (
+                                                                {user.email})
+                                                            </button>
+                                                        ),
+                                                    )
+                                                ) : (
+                                                    <p className="px-2 py-1 text-sm text-gray-500 dark:text-gray-400">
+                                                        No users match your
+                                                        search.
+                                                    </p>
+                                                )}
+                                            </div>
                                             <InputError
                                                 message={memberErrors.user_id}
                                                 className="mt-2"

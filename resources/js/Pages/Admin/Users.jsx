@@ -14,6 +14,7 @@ export default function AdminUsers({
     const [banTarget, setBanTarget] = useState(null);
     const [banReason, setBanReason] = useState('');
     const [banError, setBanError] = useState('');
+    const [moderatorUserSearch, setModeratorUserSearch] = useState('');
     const {
         data: moderatorData,
         setData: setModeratorData,
@@ -71,6 +72,7 @@ export default function AdminUsers({
             preserveScroll: true,
             onSuccess: () => {
                 setModeratorData('user_id', '');
+                setModeratorUserSearch('');
             },
         });
     };
@@ -92,6 +94,20 @@ export default function AdminUsers({
             );
         });
     }, [users, search]);
+
+    const filteredAssignableUsers = useMemo(() => {
+        const term = moderatorUserSearch.trim().toLowerCase();
+        if (!term) {
+            return assignableUsers;
+        }
+
+        return assignableUsers.filter((user) => {
+            return (
+                user.name.toLowerCase().includes(term) ||
+                user.email.toLowerCase().includes(term)
+            );
+        });
+    }, [assignableUsers, moderatorUserSearch]);
 
     return (
         <AuthenticatedLayout
@@ -177,20 +193,46 @@ export default function AdminUsers({
                                 ))}
                             </select>
 
-                            <select
-                                value={moderatorData.user_id}
-                                onChange={(e) =>
-                                    setModeratorData('user_id', e.target.value)
-                                }
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                            >
-                                <option value="">Select user...</option>
-                                {assignableUsers.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.name} ({user.email})
-                                    </option>
-                                ))}
-                            </select>
+                            <div>
+                                <input
+                                    type="text"
+                                    value={moderatorUserSearch}
+                                    onChange={(e) =>
+                                        setModeratorUserSearch(e.target.value)
+                                    }
+                                    className="mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                    placeholder="Search user by name or email..."
+                                />
+                                <div className="max-h-36 overflow-y-auto rounded-md border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+                                    {filteredAssignableUsers.length > 0 ? (
+                                        filteredAssignableUsers.map((user) => (
+                                            <button
+                                                key={user.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    setModeratorData(
+                                                        'user_id',
+                                                        String(user.id),
+                                                    )
+                                                }
+                                                className={`mb-1 block w-full rounded px-2 py-1 text-left text-sm transition last:mb-0 ${
+                                                    String(
+                                                        moderatorData.user_id,
+                                                    ) === String(user.id)
+                                                        ? 'bg-indigo-100 text-indigo-700'
+                                                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                }`}
+                                            >
+                                                {user.name} ({user.email})
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="px-2 py-1 text-sm text-gray-500 dark:text-gray-400">
+                                            No users match your search.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
 
                             <button
                                 type="submit"
