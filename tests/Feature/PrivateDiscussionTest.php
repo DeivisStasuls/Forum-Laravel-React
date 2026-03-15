@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\PrivateDiscussions\PrivateDiscussionGroupResource;
 use App\Models\PrivateGroup;
+use App\Models\PrivateMessage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -13,7 +16,7 @@ class PrivateDiscussionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function index_displays_groups_and_users_for_authenticated_user()
     {
         $user = User::factory()->create();
@@ -26,7 +29,7 @@ class PrivateDiscussionTest extends TestCase
         $response->assertSee('users');  // you can adjust based on actual response
     }
 
-    /** @test */
+    #[Test]
     public function authenticated_user_can_create_private_group()
     {
         $user = User::factory()->create();
@@ -46,7 +49,7 @@ class PrivateDiscussionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_view_group_and_non_member_cannot()
     {
         $creator = User::factory()->create();
@@ -68,7 +71,7 @@ class PrivateDiscussionTest extends TestCase
             ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_send_message_but_non_member_cannot()
     {
         $creator = User::factory()->create();
@@ -93,7 +96,7 @@ class PrivateDiscussionTest extends TestCase
             ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_send_message_with_image()
     {
         Storage::fake('public');
@@ -128,7 +131,7 @@ class PrivateDiscussionTest extends TestCase
         Storage::disk('public')->assertExists($message->image_path);
     }
 
-    /** @test */
+    #[Test]
     public function creator_can_update_group_name_but_non_creator_cannot()
     {
         $creator = User::factory()->create();
@@ -157,7 +160,7 @@ class PrivateDiscussionTest extends TestCase
             ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function creator_can_add_and_remove_members_but_cannot_remove_self()
     {
         $creator = User::factory()->create();
@@ -187,7 +190,7 @@ class PrivateDiscussionTest extends TestCase
             ->assertSessionHasErrors();
     }
 
-    /** @test */
+    #[Test]
     public function member_can_leave_group_and_creator_transfer_happens()
     {
         $creator = User::factory()->create();
@@ -209,7 +212,7 @@ class PrivateDiscussionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function creator_can_delete_group_but_non_creator_cannot()
     {
         $creator = User::factory()->create();
@@ -233,5 +236,68 @@ class PrivateDiscussionTest extends TestCase
         $this->actingAs($nonCreator)
             ->delete(route('private-discussions.destroy', $group->id))
             ->assertStatus(403);
+    }
+
+    #[Test]
+    public function index_shows_latest_message_rich_text_content()
+    {
+        $viewer = User::factory()->create();
+        $group = PrivateGroup::factory()->create([
+            'created_by' => $viewer->id,
+        ]);
+        $group->members()->sync([$viewer->id]);
+
+        PrivateMessage::create([
+            'private_group_id' => $group->id,
+            'user_id' => $viewer->id,
+            'body' => '<p><strong>Bold preview text</strong> in latest message.</p>',
+            'image_path' => null,
+        ]);
+
+        $group->load([
+            'members:id,name',
+            'messages' => function ($query) {
+                $query->latest()->limit(1)->with('user:id,name');
+            },
+        ]);
+
+        $payload = (new PrivateDiscussionGroupResource($group))->resolve();
+
+        $this->assertSame(
+            '<p><strong>Bold preview text</strong> in latest message.</p>',
+            $payload['latest_message']['body'],
+        );
+    }
+
+    #[Test]
+    public function index_shows_image_attachment_fallback_when_latest_message_has_no_body()
+    {
+        $viewer = User::factory()->create();
+        $group = PrivateGroup::factory()->create([
+            'created_by' => $viewer->id,
+        ]);
+        $group->members()->sync([$viewer->id]);
+
+        PrivateMessage::create([
+            'private_group_id' => $group->id,
+            'user_id' => $viewer->id,
+            'body' => '',
+            'image_path' => 'private-message-images/sample.jpg',
+        ]);
+
+        $group->load([
+            'members:id,name',
+            'messages' => function ($query) {
+                $query->latest()->limit(1)->with('user:id,name');
+            },
+        ]);
+
+        $payload = (new PrivateDiscussionGroupResource($group))->resolve();
+
+        $this->assertSame('', $payload['latest_message']['body']);
+        $this->assertSame(
+            '/storage/private-message-images/sample.jpg',
+            $payload['latest_message']['image_url'],
+        );
     }
 }

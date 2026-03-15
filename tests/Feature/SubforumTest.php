@@ -6,12 +6,13 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Subforum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 class SubforumTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function user_can_view_subforum_index()
     {
         $user = User::factory()->create();
@@ -22,7 +23,7 @@ class SubforumTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_access_create_page()
     {
         $admin = User::factory()->create([
@@ -35,7 +36,7 @@ class SubforumTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_create_page()
     {
         $user = User::factory()->create();
@@ -46,7 +47,7 @@ class SubforumTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_create_subforum()
     {
         $admin = User::factory()->create([
@@ -64,7 +65,7 @@ class SubforumTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_can_view_subforum()
     {
         $user = User::factory()->create();
@@ -77,7 +78,7 @@ class SubforumTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_update_subforum()
     {
         $admin = User::factory()->create([
@@ -97,7 +98,7 @@ class SubforumTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_delete_subforum()
     {
         $admin = User::factory()->create([

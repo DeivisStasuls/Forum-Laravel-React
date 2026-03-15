@@ -34,6 +34,32 @@ class PostTest extends TestCase
         ]);
     }
 
+    public function test_user_can_comment_on_thread_with_rich_text_html_body()
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now()
+        ]);
+
+        $thread = Thread::factory()->create([
+            'creator_only_comments' => false
+        ]);
+
+        $richBody = '<p><strong>Rich text</strong> comment body with <em>formatting</em>.</p>';
+
+        $this->actingAs($user)->post(
+            route('posts.store', $thread->slug),
+            [
+                'body' => $richBody
+            ]
+        )->assertRedirect();
+
+        $this->assertDatabaseHas('posts', [
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+            'body' => $richBody,
+        ]);
+    }
+
     public function test_author_can_update_comment()
     {
         $user = User::factory()->create([

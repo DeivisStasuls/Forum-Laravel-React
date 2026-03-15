@@ -5,13 +5,14 @@ namespace Tests\Feature;
 use App\Models\Subforum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdminUserControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function admin_can_view_user_management_page()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -22,7 +23,7 @@ class AdminUserControllerTest extends TestCase
             ->assertSee('Users'); // adjust based on your Inertia page content
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_user_management_page()
     {
         $user = User::factory()->create(['role' => 'user']);
@@ -32,7 +33,7 @@ class AdminUserControllerTest extends TestCase
             ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_promote_and_demote_users()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -53,7 +54,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertEquals('user', $user->fresh()->role);
     }
 
-    /** @test */
+    #[Test]
     public function admin_cannot_demote_self()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -65,7 +66,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertEquals('admin', $admin->fresh()->role);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_ban_and_unban_users()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -89,7 +90,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertNull($user->fresh()->banned_at);
     }
 
-    /** @test */
+    #[Test]
     public function admin_cannot_ban_self()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -103,7 +104,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertNull($admin->fresh()->banned_at);
     }
 
-    /** @test */
+    #[Test]
     public function admin_must_provide_reason_when_banning_user()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -119,7 +120,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertNull($user->fresh()->ban_reason);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_add_and_remove_warning()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -138,7 +139,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertEquals(0, $user->fresh()->warnings_count);
     }
 
-    /** @test */
+    #[Test]
     public function admin_cannot_warn_self()
     {
         $admin = User::factory()->create(['role' => 'admin', 'warnings_count' => 0]);
@@ -150,7 +151,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertEquals(0, $admin->fresh()->warnings_count);
     }
 
-    /** @test */
+    #[Test]
     public function removing_warning_fails_when_user_has_no_warnings()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -163,7 +164,7 @@ class AdminUserControllerTest extends TestCase
         $this->assertEquals(0, $user->fresh()->warnings_count);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_assign_and_remove_category_moderator()
     {
         $admin = User::factory()->create(['role' => 'admin']);

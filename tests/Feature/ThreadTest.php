@@ -7,13 +7,14 @@ use App\Models\Thread;
 use App\Models\Subforum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ThreadTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function user_can_view_threads()
 {
     $user = User::factory()->create();
@@ -25,7 +26,7 @@ class ThreadTest extends TestCase
          ->assertSee($thread->title);
 }
 
-    /** @test */
+    #[Test]
     public function authenticated_user_can_create_thread()
     {
         $user = User::factory()->create();
@@ -45,7 +46,7 @@ class ThreadTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function thread_author_can_update_thread()
     {
         $user = User::factory()->create();
@@ -65,7 +66,7 @@ class ThreadTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function non_author_cannot_update_thread()
     {
         $user = User::factory()->create();
@@ -81,7 +82,7 @@ class ThreadTest extends TestCase
      ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function thread_author_can_delete_thread()
     {
         $user = User::factory()->create();
@@ -96,7 +97,7 @@ class ThreadTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function non_author_cannot_delete_thread()
     {
         $user = User::factory()->create();
@@ -112,7 +113,7 @@ class ThreadTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function forum_index_search_can_find_threads_by_author_name()
     {
         $viewer = User::factory()->create();
@@ -133,7 +134,7 @@ class ThreadTest extends TestCase
             ->assertDontSee($otherThread->title);
     }
 
-    /** @test */
+    #[Test]
     public function thread_reply_search_can_filter_by_reply_body_text()
     {
         $viewer = User::factory()->create();
@@ -156,7 +157,7 @@ class ThreadTest extends TestCase
             ->assertDontSee($otherPost->body);
     }
 
-    /** @test */
+    #[Test]
     public function thread_reply_search_can_filter_by_reply_author_name()
     {
         $viewer = User::factory()->create();
