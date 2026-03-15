@@ -11,9 +11,9 @@ export default function ResponsiveNavLink({
             {...props}
             className={`flex w-full items-center rounded-md px-3 py-2 ${
                 active
-                    ? 'bg-slate-700 text-white'
-                    : 'text-slate-200 hover:bg-slate-800 hover:text-white'
-            } text-sm font-medium transition duration-150 ease-in-out focus:outline-none ${className}`}
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'
+            } text-sm font-semibold transition duration-150 ease-in-out focus:outline-none ${className}`}
         >
             {children}
         </Link>

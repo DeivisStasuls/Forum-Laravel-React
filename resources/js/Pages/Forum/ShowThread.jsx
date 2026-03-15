@@ -50,14 +50,14 @@ export default function ShowThread({ auth, thread }) {
             header={
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                        <h2 className="text-xl font-semibold leading-tight text-slate-900">
                             {thread.title}
                         </h2>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-sm text-slate-500">
                             in{' '}
                             <Link
                                 href={route('subforums.show', thread.subforum.slug)}
-                                className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                className="font-medium text-indigo-600 hover:text-indigo-800"
                             >
                                 {thread.subforum.name}
                             </Link>
@@ -68,13 +68,13 @@ export default function ShowThread({ auth, thread }) {
         >
             <Head title={thread.title} />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <div className="flex items-center justify-between gap-4">
                             <Link
                                 href={route('subforums.show', thread.subforum.slug)}
-                                className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                className="text-sm text-indigo-600 hover:text-indigo-800"
                             >
                                 ← Back to {thread.subforum.name}
                             </Link>
@@ -84,7 +84,7 @@ export default function ShowThread({ auth, thread }) {
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href={route('threads.edit', thread.slug)}
-                                        className="rounded-md px-3 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-300"
+                                        className="rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700"
                                     >
                                         Edit Discussion
                                     </Link>
@@ -95,7 +95,7 @@ export default function ShowThread({ auth, thread }) {
                                                 type: 'discussion',
                                             })
                                         }
-                                        className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                        className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700"
                                     >
                                         Delete Discussion
                                     </button>
@@ -104,8 +104,8 @@ export default function ShowThread({ auth, thread }) {
                         </div>
                     </div>
 
-                    <article className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
-                        <div className="border-b border-gray-200 p-6 dark:border-gray-700">
+                    <article className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
+                        <div className="border-b border-slate-200 p-6">
     <div className="flex gap-4">
 
         {/* Votes */}
@@ -119,10 +119,10 @@ export default function ShowThread({ auth, thread }) {
         {/* Thread content */}
         <div className="flex-1">
 
-            <div className="mb-3 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+            <div className="mb-3 flex items-center gap-3 text-sm text-slate-500">
                 <span>
                     by{' '}
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                    <span className="font-medium text-slate-700">
                         {thread.user.name}
                     </span>
                 </span>
@@ -135,12 +135,12 @@ export default function ShowThread({ auth, thread }) {
                 </span>
             </div>
 
-            <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+            <p className="whitespace-pre-wrap text-slate-800">
                 {thread.body}
             </p>
 
             {thread.edited_at && (
-                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-3 text-xs text-slate-500">
                     Edited by{' '}
                     {thread.edited_by?.role === 'admin'
                         ? 'admin'
@@ -158,16 +158,16 @@ export default function ShowThread({ auth, thread }) {
 </div>
                         
 
-                        <div className="border-b border-gray-200 p-6 dark:border-gray-700">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        <div className="border-b border-slate-200 p-6">
+                            <h3 className="text-lg font-bold text-slate-900">
                                 Comments ({thread.posts_count})
                             </h3>
                         </div>
 
                         {thread.posts.length > 0 ? (
-                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                            <div className="divide-y divide-slate-200">
                                 {thread.posts.map((reply) => (
-                                    <div key={reply.id} className="p-6 flex gap-4">
+                                    <div key={reply.id} className="flex gap-4 p-6">
 
     <VoteButtons
     routeName="posts.vote"
@@ -179,9 +179,9 @@ export default function ShowThread({ auth, thread }) {
 
     <div className="flex-1">
 
-        <div className="mb-2 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div className="mb-2 flex items-center justify-between text-sm text-slate-500">
             <div className="flex items-center gap-3">
-                <span className="font-medium text-gray-700 dark:text-gray-300">
+                <span className="font-medium text-slate-700">
                     {reply.user.name}
                 </span>
 
@@ -198,7 +198,7 @@ export default function ShowThread({ auth, thread }) {
                 <div className="flex items-center gap-2">
                     <Link
                         href={route('posts.edit', [thread.slug, reply.id])}
-                        className="text-xs text-indigo-600"
+                        className="text-xs text-indigo-600 hover:text-indigo-800"
                     >
                         Edit
                     </Link>
@@ -210,7 +210,7 @@ export default function ShowThread({ auth, thread }) {
                                 replyId: reply.id,
                             })
                         }
-                        className="text-xs text-red-600"
+                        className="text-xs text-red-600 hover:text-red-700"
                     >
                         Delete
                     </button>
@@ -218,7 +218,7 @@ export default function ShowThread({ auth, thread }) {
             )}
         </div>
 
-        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+        <p className="whitespace-pre-wrap text-slate-800">
             {reply.body}
         </p>
 
@@ -227,14 +227,14 @@ export default function ShowThread({ auth, thread }) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="p-6 text-sm text-slate-500">
                                 No replies yet. Be the first to comment.
                             </div>
                         )}
                     </article>
 
-                    <div className="mt-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-                        <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
+                        <h3 className="mb-4 text-lg font-bold text-slate-900">
                             Add a Comment
                         </h3>
                         {canComment ? (
@@ -245,7 +245,7 @@ export default function ShowThread({ auth, thread }) {
                                         setData('body', e.target.value)
                                     }
                                     rows={5}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                    className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     placeholder="Write your comment..."
                                 />
                                 <InputError
@@ -260,7 +260,7 @@ export default function ShowThread({ auth, thread }) {
                                 </div>
                             </form>
                         ) : (
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            <p className="text-sm text-slate-600">
                                 This discussion is creator-only. Only{' '}
                                 {thread.user.name} can comment.
                             </p>
@@ -271,11 +271,11 @@ export default function ShowThread({ auth, thread }) {
 
             {deleteTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+                        <h4 className="text-lg font-semibold text-slate-900">
                             Confirm Deletion
                         </h4>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                        <p className="mt-2 text-sm text-slate-600">
                             {deleteTarget.type === 'discussion'
                                 ? 'Are you sure you want to delete this discussion? This action cannot be undone.'
                                 : 'Are you sure you want to delete this comment? This action cannot be undone.'}
@@ -285,14 +285,14 @@ export default function ShowThread({ auth, thread }) {
                             <button
                                 type="button"
                                 onClick={() => setDeleteTarget(null)}
-                                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={confirmDelete}
-                                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
                             >
                                 Delete
                             </button>

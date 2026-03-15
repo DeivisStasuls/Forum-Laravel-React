@@ -6,11 +6,8 @@ export default function GuestLayout({ children }) {
         <div className="flex min-h-screen flex-col items-center bg-slate-950 px-4 pt-6 sm:justify-center sm:pt-0">
             <div>
                 <Link href="/">
-                    <div className="flex items-center gap-3">
-                        <ApplicationLogo className="h-10 w-10 fill-current text-indigo-300" />
-                        <span className="text-lg font-semibold text-white">
-                            Forum Hub
-                        </span>
+                    <div className="flex items-center">
+                        <ApplicationLogo className="h-16 w-auto" />
                     </div>
                 </Link>
             </div>

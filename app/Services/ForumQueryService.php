@@ -10,9 +10,15 @@ use Illuminate\Support\Collection;
 
 class ForumQueryService
 {
-    public function getForumSubforums(): Collection
+    public function getForumSubforums(string $search = ''): Collection
     {
         return Subforum::withCount('threads')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
             ->orderBy('name')
             ->get();
     }

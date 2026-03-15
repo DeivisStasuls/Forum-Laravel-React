@@ -1,60 +1,105 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function Subforums({ auth, subforums }) {
+export default function Subforums({ auth, subforums, filters }) {
+    const [search, setSearch] = useState(filters?.search ?? '');
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.get(
+                route('subforums.index'),
+                { search },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                },
+            );
+        }, 250);
+
+        return () => clearTimeout(timeout);
+    }, [search]);
+
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex items-center justify-between gap-4">
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                        Categories
-                    </h2>
-                    {auth.user.role === 'admin' && (
-                        <Link
-                            href={route('subforums.create')}
-                            className="rounded bg-emerald-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-emerald-700"
-                        >
-                            + New Category
-                        </Link>
-                    )}
-                </div>
-            }
-        >
+        <AuthenticatedLayout user={auth.user}>
             <Head title="Categories" />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
-                        {subforums.length > 0 ? (
-                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {subforums.map((subforum) => (
-                                    <div key={subforum.id} className="p-6">
+                    <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
+                        <div className="border-b border-slate-200 p-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 className="text-lg font-bold text-slate-900">
+                                        Categories
+                                    </h2>
+                                    <p className="mt-1 text-sm text-slate-600">
+                                        Explore all discussion sections.
+                                    </p>
+                                </div>
+                                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                    <input
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        placeholder="Search categories..."
+                                        className="w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
+                                    />
+                                    {auth.user.role === 'admin' && (
                                         <Link
-                                            href={route(
-                                                'subforums.show',
-                                                subforum.slug,
-                                            )}
-                                            className="text-lg font-semibold text-gray-900 hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400"
+                                            href={route('subforums.create')}
+                                            className="whitespace-nowrap rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
                                         >
-                                            {subforum.name}
+                                            + New Category
                                         </Link>
-                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                            {subforum.threads_count}{' '}
-                                            {subforum.threads_count === 1
-                                                ? 'discussion'
-                                                : 'discussions'}
-                                        </p>
-                                        {subforum.description && (
-                                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                                {subforum.description}
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {subforums.length > 0 ? (
+                            <div className="divide-y divide-slate-200">
+                                {subforums.map((subforum) => (
+                                    <div key={subforum.id} className="flex items-start justify-between gap-4 p-6 transition-colors hover:bg-slate-50">
+                                        <div className="min-w-0">
+                                            <Link
+                                                href={route(
+                                                    'subforums.show',
+                                                    subforum.slug,
+                                                )}
+                                                className="text-lg font-semibold text-slate-900 hover:text-indigo-600"
+                                            >
+                                                {subforum.name}
+                                            </Link>
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                {subforum.threads_count}{' '}
+                                                {subforum.threads_count === 1
+                                                    ? 'discussion'
+                                                    : 'discussions'}
                                             </p>
-                                        )}
+                                            {subforum.description && (
+                                                <p className="mt-2 text-sm text-slate-600">
+                                                    {subforum.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <Link
+                                            href={route('subforums.show', subforum.slug)}
+                                            className="shrink-0 rounded-full border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-50"
+                                        >
+                                            Open
+                                        </Link>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-12 text-center text-gray-500 dark:text-gray-400">
+                            <div className="p-12 text-center text-slate-500">
                                 No categories yet.
                             </div>
                         )}

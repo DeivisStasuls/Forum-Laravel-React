@@ -5,7 +5,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ children }) {
     const user = usePage().props.auth.user;
     const recentSubforums = usePage().props.recentSubforums ?? [];
     const recentThreads = usePage().props.recentThreads ?? [];
@@ -14,23 +14,20 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-200">
-            <nav className="border-b border-slate-700 bg-slate-900 text-slate-100 shadow-lg">
+        <div className="min-h-screen bg-sky-100/70">
+            <nav className="sticky top-0 z-50 border-b border-sky-200 bg-white/95 text-slate-900 shadow backdrop-blur">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
+                    <div className="flex h-24 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
                                     <div className="flex items-center gap-2">
-                                        <ApplicationLogo className="block h-8 w-auto fill-current text-indigo-300" />
-                                        <span className="text-sm font-semibold tracking-wide text-white">
-                                            Forum Hub
-                                        </span>
+                                        <ApplicationLogo className="block h-16 w-auto" />
                                     </div>
                                 </Link>
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div className="hidden h-full items-center gap-6 sm:ms-10 sm:flex">
                                 <NavLink
                                     href={route('forum.index')}
                                     active={route().current('forum.index')}
@@ -57,7 +54,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </NavLink>
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex cursor-pointer items-center rounded-full px-3 py-1.5 text-sm font-medium text-slate-200 transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:outline-none">
+                                        <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
                                             Recent Categories
                                         </span>
                                     </Dropdown.Trigger>
@@ -83,7 +80,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Dropdown>
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex cursor-pointer items-center rounded-full px-3 py-1.5 text-sm font-medium text-slate-200 transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:outline-none">
+                                        <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
                                             Recent Discussions
                                         </span>
                                     </Dropdown.Trigger>
@@ -101,7 +98,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 </Dropdown.Link>
                                             ))
                                         ) : (
-                                            <div className="px-4 py-2 text-sm text-gray-500">
+                                            <div className="px-4 py-2 text-sm text-slate-500">
                                                 No recently visited discussions
                                             </div>
                                         )}
@@ -125,7 +122,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-3 py-2 text-sm font-medium leading-4 text-slate-200 transition duration-150 ease-in-out hover:border-slate-500 hover:bg-slate-700 hover:text-white focus:outline-none"
+                                                className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold leading-4 text-blue-700 transition duration-150 ease-in-out hover:border-amber-400 hover:bg-white hover:text-blue-800 focus:outline-none"
                                             >
                                                 My Account
 
@@ -170,7 +167,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         (previousState) => !previousState,
                                     )
                                 }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-slate-300 transition duration-150 ease-in-out hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white focus:outline-none"
+                                className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 transition duration-150 ease-in-out hover:bg-sky-100 hover:text-blue-700 focus:bg-sky-100 focus:text-blue-700 focus:outline-none"
                             >
                                 <svg
                                     className="h-6 w-6"
@@ -212,7 +209,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         ' sm:hidden'
                     }
                 >
-                    <div className="space-y-1 bg-slate-900 px-3 pb-3 pt-2">
+                    <div className="space-y-1 border-t border-sky-200 bg-white px-3 pb-3 pt-2">
                         <ResponsiveNavLink
                             href={route('forum.index')}
                             active={route().current('forum.index')}
@@ -263,12 +260,12 @@ export default function AuthenticatedLayout({ header, children }) {
                         )}
                     </div>
 
-                    <div className="border-t border-slate-700 bg-slate-900 pb-1 pt-4">
+                    <div className="border-t border-sky-200 bg-white pb-1 pt-4">
                         <div className="px-4">
-                            <div className="text-base font-medium text-white">
+                            <div className="text-base font-medium text-slate-900">
                                 {user.name}
                             </div>
-                            <div className="text-sm font-medium text-slate-300">
+                            <div className="text-sm font-medium text-slate-600">
                                 {user.email}
                             </div>
                         </div>
@@ -288,14 +285,6 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </div>
             </nav>
-
-            {header && (
-                <header className="border-b border-slate-200/70 bg-white/80 shadow-sm backdrop-blur">
-                    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {header}
-                    </div>
-                </header>
-            )}
 
             <main>{children}</main>
         </div>

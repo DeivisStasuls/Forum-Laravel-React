@@ -29,47 +29,15 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
     }, [search, subforum.slug]);
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                            {subforum.name}
-                        </h2>
-                        {subforum.description && (
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                {subforum.description}
-                            </p>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {auth.user.role === 'admin' && (
-                            <Link
-                                href={route('subforums.edit', subforum.slug)}
-                                className="rounded bg-emerald-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-emerald-700"
-                            >
-                                Edit Category
-                            </Link>
-                        )}
-                        <Link
-                            href={route('threads.create')}
-                            className="rounded bg-indigo-600 px-4 py-2 font-bold text-white transition duration-150 hover:bg-indigo-700"
-                        >
-                            + New Discussion
-                        </Link>
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout user={auth.user}>
             <Head title={subforum.name} />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
                         <Link
                             href={route('forum.index')}
-                            className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            className="text-sm text-indigo-600 hover:text-indigo-800"
                         >
                             ← Back to Forum
                         </Link>
@@ -77,8 +45,8 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                         <aside className="lg:col-span-3">
-                            <div className="sticky top-4 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-                                <h3 className="mb-4 border-b border-gray-200 pb-2 text-lg font-bold text-gray-900 dark:border-gray-700 dark:text-gray-100">
+                            <div className="sticky top-4 rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
+                                <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
                                     Categories
                                 </h3>
                                 <nav className="space-y-2">
@@ -88,21 +56,21 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                             href={route('subforums.show', item.slug)}
                                             className={`block rounded-lg p-3 transition-colors ${
                                                 item.id === subforum.id
-                                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
-                                                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                    ? 'bg-indigo-50 text-indigo-700'
+                                                    : 'hover:bg-slate-50'
                                             }`}
                                         >
-                                            <div className="font-medium text-gray-900 dark:text-gray-100">
+                                            <div className="font-medium text-slate-900">
                                                 {item.name}
                                             </div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                            <div className="text-sm text-slate-500">
                                                 {item.threads_count}{' '}
                                                 {item.threads_count === 1
                                                     ? 'discussion'
                                                     : 'discussions'}
                                             </div>
                                             {item.description && (
-                                                <div className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                                <div className="mt-1 text-xs text-slate-400">
                                                     {item.description}
                                                 </div>
                                             )}
@@ -112,11 +80,11 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             </div>
                         </aside>
 
-                        <main className="lg:col-span-9">
-                            <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
-                                <div className="border-b border-gray-200 p-6 dark:border-gray-700">
+                        <main className="lg:col-span-6">
+                            <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
+                                <div className="border-b border-slate-200 p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                                        <h3 className="text-lg font-bold text-slate-900">
                                             Discussions in {subforum.name}
                                         </h3>
                                         <div className="flex items-center gap-2">
@@ -127,29 +95,29 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                     setSearch(e.target.value)
                                                 }
                                                 placeholder="Search discussions..."
-                                                className="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
+                                                className="w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 {subforum.threads.length > 0 ? (
-                                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <div className="divide-y divide-slate-200">
                                         {subforum.threads.map((thread) => (
                                             <div
                                                 key={thread.id}
-                                                className="p-6 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                className="p-6 transition-colors hover:bg-slate-50"
                                             >
                                                 <Link
                                                     href={route('threads.show', thread.slug)}
-                                                    className="text-lg font-semibold text-gray-900 hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400"
+                                                    className="text-lg font-semibold text-slate-900 hover:text-indigo-600"
                                                 >
                                                     {thread.title}
                                                 </Link>
-                                                <div className="mt-2 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                                <div className="mt-2 flex items-center gap-4 text-sm text-slate-500">
                                                     <span>
                                                         by{' '}
-                                                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                        <span className="font-medium text-slate-700">
                                                             {thread.user.name}
                                                         </span>
                                                     </span>
@@ -172,7 +140,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="p-12 text-center text-gray-500 dark:text-gray-400">
+                                    <div className="p-12 text-center text-slate-500">
                                         <p className="text-lg">
                                             No discussions in this category yet
                                         </p>
@@ -184,6 +152,45 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                 )}
                             </div>
                         </main>
+
+                        <aside className="lg:col-span-3">
+                            <div className="sticky top-4 space-y-4">
+                                <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
+                                    <h3 className="mb-2 text-lg font-bold text-slate-900">
+                                        {subforum.name}
+                                    </h3>
+                                    <p className="text-sm text-slate-600">
+                                        {subforum.description || 'No description provided yet.'}
+                                    </p>
+                                    <div className="mt-4 text-xs text-slate-500">
+                                        {subforum.threads.length}{' '}
+                                        {subforum.threads.length === 1
+                                            ? 'discussion'
+                                            : 'discussions'}{' '}
+                                        shown
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-4 shadow-sm backdrop-blur">
+                                    <div className="flex flex-col gap-2">
+                                        <Link
+                                            href={route('threads.create')}
+                                            className="w-full rounded-full bg-indigo-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-indigo-500"
+                                        >
+                                            + Create Discussion
+                                        </Link>
+                                        {auth.user.role === 'admin' && (
+                                            <Link
+                                                href={route('subforums.edit', subforum.slug)}
+                                                className="w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                            >
+                                                Edit Category
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
                     </div>
                 </div>
             </div>

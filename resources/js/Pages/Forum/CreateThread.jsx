@@ -21,18 +21,18 @@ export default function CreateThread({ auth, subforums }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                <h2 className="text-xl font-semibold leading-tight text-slate-900">
                     Start a New Discussion
                 </h2>
             }
         >
             <Head title="New Discussion" />
 
-            <div className="min-h-screen bg-gray-200 py-6">
+            <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg dark:bg-gray-800">
+                    <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur sm:rounded-2xl">
                         {subforums.length === 0 ? (
-                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                            <div className="text-sm text-slate-600">
                                 You need at least one category before creating
                                 a discussion.
                             </div>
@@ -50,7 +50,7 @@ export default function CreateThread({ auth, subforums }) {
                                         onChange={(e) =>
                                             setData('title', e.target.value)
                                         }
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                        className="mt-1 block w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         placeholder="What do you want to discuss?"
                                     />
                                     <InputError
@@ -73,7 +73,7 @@ export default function CreateThread({ auth, subforums }) {
                                                 e.target.value,
                                             )
                                         }
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                        className="mt-1 block w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     >
                                         {subforums.map((subforum) => (
                                             <option
@@ -102,7 +102,7 @@ export default function CreateThread({ auth, subforums }) {
                                         onChange={(e) =>
                                             setData('body', e.target.value)
                                         }
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                        className="mt-1 block w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         placeholder="Share details, context, and your question..."
                                     />
                                     <InputError
@@ -122,9 +122,9 @@ export default function CreateThread({ auth, subforums }) {
                                                     e.target.checked,
                                                 )
                                             }
-                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                            className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                         />
-                                        <span className="text-sm text-gray-700 dark:text-gray-200">
+                                        <span className="text-sm text-slate-700">
                                             Only I can comment on this
                                             discussion
                                         </span>
@@ -134,7 +134,7 @@ export default function CreateThread({ auth, subforums }) {
                                 <div className="mt-6 flex items-center justify-end gap-3">
                                     <Link
                                         href={route('forum.index')}
-                                        className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                                     >
                                         Cancel
                                     </Link>

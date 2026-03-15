@@ -22,12 +22,16 @@ class SubforumController extends Controller
     /**
      * Display a listing of all subforums.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subforums = $this->forumQueryService->getForumSubforums();
+        $search = trim((string) $request->query('search', ''));
+        $subforums = $this->forumQueryService->getForumSubforums($search);
 
         return Inertia::render('Forum/Subforums', [
             'subforums' => SubforumResource::collection($subforums)->resolve(),
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
