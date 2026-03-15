@@ -95,7 +95,7 @@ export default function ForumIndex({
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {recentThreads.length > 0 ? (
                                     <div className="divide-y divide-slate-200">
                                         {recentThreads.map((thread) => (
@@ -105,16 +105,23 @@ export default function ForumIndex({
                                             >
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 mb-2">
+                                                        <div className="mb-2 flex items-center gap-2">
                                                             <Link
-                                                                href={route('subforums.show', thread.subforum.slug)}
+                                                                href={route(
+                                                                    'subforums.show',
+                                                                    thread.subforum
+                                                                        .slug,
+                                                                )}
                                                                 className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
                                                             >
                                                                 {thread.subforum.name}
                                                             </Link>
                                                         </div>
                                                         <Link
-                                                            href={route('threads.show', thread.slug)}
+                                                            href={route(
+                                                                'threads.show',
+                                                                thread.slug,
+                                                            )}
                                                             className="mb-2 block text-lg font-semibold text-slate-900 hover:text-indigo-600"
                                                         >
                                                             {thread.title}
@@ -127,10 +134,18 @@ export default function ForumIndex({
                                                                 </span>
                                                             </span>
                                                             <span>
-                                                                {thread.posts_count} {thread.posts_count === 1 ? 'reply' : 'replies'}
+                                                                {thread.posts_count}{' '}
+                                                                {thread.posts_count === 1
+                                                                    ? 'reply'
+                                                                    : 'replies'}
                                                             </span>
                                                             <span>
-                                                                {formatDistanceToNow(new Date(thread.created_at), { addSuffix: true })}
+                                                                {formatDistanceToNow(
+                                                                    new Date(
+                                                                        thread.created_at,
+                                                                    ),
+                                                                    { addSuffix: true },
+                                                                )}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -140,10 +155,12 @@ export default function ForumIndex({
                                     </div>
                                 ) : (
                                     <div className="p-12 text-center text-slate-500">
-                                        <p className="text-lg mb-2">
+                                        <p className="mb-2 text-lg">
                                             No discussions yet
                                         </p>
-                                        <p className="text-sm">Be the first to start a discussion!</p>
+                                        <p className="text-sm">
+                                            Be the first to start a discussion!
+                                        </p>
                                     </div>
                                 )}
                             </div>

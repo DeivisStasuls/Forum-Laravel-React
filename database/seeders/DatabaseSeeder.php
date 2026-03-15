@@ -122,6 +122,7 @@ class DatabaseSeeder extends Seeder
                 $thread = Thread::factory()->create([
                     'user_id' => $author->id,
                     'subforum_id' => $subforum->id,
+                    'body' => $this->fakeRichHtmlBody('thread'),
                 ]);
                 $this->seedVotesForVotable($thread, $activeUsers, 18, $author->id);
 
@@ -130,6 +131,7 @@ class DatabaseSeeder extends Seeder
                     $post = Post::factory()->create([
                         'thread_id' => $thread->id,
                         'user_id' => $activeUsers->random()->id,
+                        'body' => $this->fakeRichHtmlBody('post'),
                     ]);
                     $this->seedVotesForVotable(
                         $post,
@@ -165,10 +167,34 @@ class DatabaseSeeder extends Seeder
                 PrivateMessage::create([
                     'private_group_id' => $group->id,
                     'user_id' => $memberIds->random(),
-                    'body' => fake()->sentence(fake()->numberBetween(8, 16)),
+                    'body' => $this->fakeRichHtmlBody('message'),
                 ]);
             }
         }
+    }
+
+    private function fakeRichHtmlBody(string $type): string
+    {
+        $topic = fake()->words(fake()->numberBetween(2, 4), true);
+        $intro = fake()->sentence(fake()->numberBetween(7, 12));
+        $detail = fake()->sentence(fake()->numberBetween(8, 14));
+        $action = fake()->sentence(fake()->numberBetween(6, 10));
+
+        $templates = [
+            "<p><strong>{$topic}</strong> - {$intro}</p><p>{$detail}</p><ul><li>" . fake()->sentence(6) . "</li><li>" . fake()->sentence(6) . "</li></ul>",
+            "<p><em>{$intro}</em></p><blockquote>{$detail}</blockquote><p>{$action}</p>",
+            "<p>{$intro}</p><p><strong>Next step:</strong> {$action}</p><p><a href=\"https://example.com\" target=\"_blank\" rel=\"noreferrer\">Read more</a></p>",
+        ];
+
+        if ($type === 'message') {
+            return "<p><strong>{$topic}</strong></p><p>{$intro}</p><p>{$action}</p>";
+        }
+
+        if ($type === 'post') {
+            return "<p>{$intro}</p><ul><li>" . fake()->sentence(5) . "</li><li>" . fake()->sentence(5) . "</li></ul><p>{$detail}</p>";
+        }
+
+        return fake()->randomElement($templates);
     }
 
     private function seedVotesForVotable(

@@ -7,7 +7,6 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ children }) {
     const user = usePage().props.auth.user;
-    const recentThreads = usePage().props.recentThreads ?? [];
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -45,32 +44,6 @@ export default function AuthenticatedLayout({ children }) {
                                 >
                                     Private Discussions
                                 </NavLink>
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <span className="inline-flex h-full cursor-pointer items-center border-b-2 border-transparent px-2 text-sm font-semibold uppercase tracking-wide text-slate-700 transition duration-150 ease-in-out hover:border-amber-500 hover:text-blue-700 focus:outline-none">
-                                            Recent Discussions
-                                        </span>
-                                    </Dropdown.Trigger>
-                                    <Dropdown.Content align="left">
-                                        {recentThreads.length > 0 ? (
-                                            recentThreads.map((item) => (
-                                                <Dropdown.Link
-                                                    key={item.id}
-                                                    href={route(
-                                                        'threads.show',
-                                                        item.slug,
-                                                    )}
-                                                >
-                                                    {item.title}
-                                                </Dropdown.Link>
-                                            ))
-                                        ) : (
-                                            <div className="px-4 py-2 text-sm text-slate-500">
-                                                No recently visited discussions
-                                            </div>
-                                        )}
-                                    </Dropdown.Content>
-                                </Dropdown>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('admin.users.index')}
@@ -200,14 +173,6 @@ export default function AuthenticatedLayout({ children }) {
                         >
                             Private Discussions
                         </ResponsiveNavLink>
-                        {recentThreads.map((item) => (
-                            <ResponsiveNavLink
-                                key={item.id}
-                                href={route('threads.show', item.slug)}
-                            >
-                                {item.title}
-                            </ResponsiveNavLink>
-                        ))}
                         {user.role === 'admin' && (
                             <ResponsiveNavLink
                                 href={route('admin.users.index')}
