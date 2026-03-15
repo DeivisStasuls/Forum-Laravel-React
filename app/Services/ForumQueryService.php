@@ -31,7 +31,10 @@ class ForumQueryService
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($innerQuery) use ($search) {
                     $innerQuery->where('title', 'like', "%{$search}%")
-                        ->orWhere('body', 'like', "%{$search}%");
+                        ->orWhere('body', 'like', "%{$search}%")
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->latest()
@@ -111,7 +114,10 @@ class ForumQueryService
                     ->when($search !== '', function ($innerQuery) use ($search) {
                         $innerQuery->where(function ($filterQuery) use ($search) {
                             $filterQuery->where('title', 'like', "%{$search}%")
-                                ->orWhere('body', 'like', "%{$search}%");
+                                ->orWhere('body', 'like', "%{$search}%")
+                                ->orWhereHas('user', function ($userQuery) use ($search) {
+                                    $userQuery->where('name', 'like', "%{$search}%");
+                                });
                         });
                     })
                     ->when(
