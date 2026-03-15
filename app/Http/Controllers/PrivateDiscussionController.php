@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -98,13 +99,17 @@ class PrivateDiscussionController extends Controller
         $this->authorizeMember($request, $privateGroup);
 
         $data = $request->validate([
-            'body' => ['required', 'string', 'max:2000'],
+            'body' => ['nullable', 'string', 'max:2000', 'required_without:image'],
+            'image' => ['nullable', 'image', 'max:4096'],
         ]);
 
         PrivateMessage::create([
             'private_group_id' => $privateGroup->id,
             'user_id' => $request->user()->id,
-            'body' => $data['body'],
+            'body' => Str::of((string) ($data['body'] ?? ''))->trim()->value(),
+            'image_path' => $request->hasFile('image')
+                ? $request->file('image')->store('private-message-images', 'public')
+                : null,
         ]);
 
         return Redirect::route('private-discussions.show', $privateGroup->id);

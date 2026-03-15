@@ -15,6 +15,7 @@ export default function PrivateDiscussionShow({ auth, group }) {
         reset,
     } = useForm({
         body: '',
+        image: null,
     });
     const {
         data: groupData,
@@ -46,7 +47,8 @@ export default function PrivateDiscussionShow({ auth, group }) {
 
         post(route('private-discussions.messages.store', group.id), {
             preserveScroll: true,
-            onSuccess: () => reset('body'),
+            forceFormData: true,
+            onSuccess: () => reset('body', 'image'),
         });
     };
 
@@ -160,9 +162,20 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                                             )}
                                                         </span>
                                                     </div>
-                                                    <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                                                        {message.body}
-                                                    </p>
+                                                    {message.body && (
+                                                        <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                                                            {message.body}
+                                                        </p>
+                                                    )}
+                                                    {message.image_url && (
+                                                        <img
+                                                            src={
+                                                                message.image_url
+                                                            }
+                                                            alt="Message attachment"
+                                                            className="mt-3 max-h-80 w-auto rounded-lg border border-slate-200"
+                                                        />
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
@@ -193,6 +206,23 @@ export default function PrivateDiscussionShow({ auth, group }) {
                                         message={errors.body}
                                         className="mt-2"
                                     />
+                                    <div className="mt-3">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) =>
+                                                setMessageData(
+                                                    'image',
+                                                    e.target.files?.[0] ?? null,
+                                                )
+                                            }
+                                            className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+                                        />
+                                        <InputError
+                                            message={errors.image}
+                                            className="mt-2"
+                                        />
+                                    </div>
 
                                     <div className="mt-4 flex justify-end">
                                         <PrimaryButton disabled={processing}>

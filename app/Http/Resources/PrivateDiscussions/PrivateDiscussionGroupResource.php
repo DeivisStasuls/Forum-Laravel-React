@@ -25,6 +25,7 @@ class PrivateDiscussionGroupResource extends JsonResource
             ])->all(),
             'latest_message' => $latestMessage ? [
                 'body' => $latestMessage->body,
+                'image_url' => $latestMessage->image_url,
                 'user_name' => $latestMessage->user?->name,
                 'created_at' => $latestMessage->created_at,
             ] : null,

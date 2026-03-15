@@ -252,7 +252,11 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                         }
                                                         :
                                                     </span>{' '}
-                                                    {group.latest_message.body}
+                                                    {group.latest_message.body ||
+                                                        (group.latest_message
+                                                            .image_url
+                                                            ? '[Image attachment]'
+                                                            : '')}
                                                 </p>
                                             ) : (
                                                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">

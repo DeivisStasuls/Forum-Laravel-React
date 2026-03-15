@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\PrivateGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PrivateDiscussionTest extends TestCase
@@ -89,6 +91,41 @@ class PrivateDiscussionTest extends TestCase
                 'body' => 'Hello Hack',
             ])
             ->assertStatus(403);
+    }
+
+    /** @test */
+    public function member_can_send_message_with_image()
+    {
+        Storage::fake('public');
+
+        $creator = User::factory()->create();
+        $member = User::factory()->create();
+
+        $group = PrivateGroup::factory()->create([
+            'created_by' => $creator->id,
+        ]);
+        $group->members()->sync([$creator->id, $member->id]);
+
+        $this->actingAs($member)
+            ->post(route('private-discussions.messages.store', $group->id), [
+                'body' => 'See attachment',
+                'image' => UploadedFile::fake()->create(
+                    'message.jpg',
+                    100,
+                    'image/jpeg',
+                ),
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('private_messages', [
+            'private_group_id' => $group->id,
+            'user_id' => $member->id,
+            'body' => 'See attachment',
+        ]);
+
+        $message = $group->messages()->latest('id')->first();
+        $this->assertNotNull($message->image_path);
+        Storage::disk('public')->assertExists($message->image_path);
     }
 
     /** @test */

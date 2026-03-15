@@ -17,6 +17,7 @@ class PrivateDiscussionMessageResource extends JsonResource
         return [
             'id' => $this->id,
             'body' => $this->body,
+            'image_url' => $this->image_url,
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,
