@@ -72,10 +72,13 @@ class AdminUserControllerTest extends TestCase
 
         // Ban
         $this->actingAs($admin)
-            ->patch(route('admin.users.ban', $user))
+            ->patch(route('admin.users.ban', $user), [
+                'reason' => 'Spam and repeated rule violations.',
+            ])
             ->assertRedirect();
 
         $this->assertNotNull($user->fresh()->banned_at);
+        $this->assertEquals('Spam and repeated rule violations.', $user->fresh()->ban_reason);
 
         // Unban
         $this->actingAs($admin)
@@ -91,9 +94,27 @@ class AdminUserControllerTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
 
         $this->actingAs($admin)
-            ->patch(route('admin.users.ban', $admin))
+            ->patch(route('admin.users.ban', $admin), [
+                'reason' => 'Test reason.',
+            ])
             ->assertSessionHasErrors('email');
 
         $this->assertNull($admin->fresh()->banned_at);
+    }
+
+    /** @test */
+    public function admin_must_provide_reason_when_banning_user()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['banned_at' => null]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.ban', $user), [
+                'reason' => '',
+            ])
+            ->assertSessionHasErrors('reason');
+
+        $this->assertNull($user->fresh()->banned_at);
+        $this->assertNull($user->fresh()->ban_reason);
     }
 }

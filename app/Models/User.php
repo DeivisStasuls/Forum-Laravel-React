@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'role', // Added the new role field
         'banned_at',
+        'ban_reason',
     ];
 
     /**
@@ -67,6 +68,17 @@ class User extends Authenticatable
     public function isBanned(): bool
     {
         return ! is_null($this->banned_at);
+    }
+
+    public function getBanMessage(): string
+    {
+        $reason = trim((string) $this->ban_reason);
+
+        if ($reason === '') {
+            return 'Your account has been banned.';
+        }
+
+        return "Your account has been banned. Reason: {$reason}";
     }
 
     /**

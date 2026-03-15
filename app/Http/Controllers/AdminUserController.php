@@ -66,7 +66,14 @@ class AdminUserController extends Controller
             return back()->withErrors(['email' => 'You cannot ban yourself.']);
         }
 
-        $user->update(['banned_at' => now()]);
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $user->update([
+            'banned_at' => now(),
+            'ban_reason' => $validated['reason'],
+        ]);
 
         return back()->with('success', 'User banned successfully.');
     }
@@ -75,7 +82,10 @@ class AdminUserController extends Controller
     {
         $this->authorizeAdmin($request);
 
-        $user->update(['banned_at' => null]);
+        $user->update([
+            'banned_at' => null,
+            'ban_reason' => null,
+        ]);
 
         return back()->with('success', 'User unbanned successfully.');
     }

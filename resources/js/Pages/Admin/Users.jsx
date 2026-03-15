@@ -1,10 +1,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo, useState } from 'react';
 
 export default function AdminUsers({ auth, users, forumStats }) {
     const [search, setSearch] = useState('');
+
+    const handleBan = (user) => {
+        const reason = window.prompt(`Ban reason for ${user.name}:`, '');
+
+        if (reason === null) {
+            return;
+        }
+
+        const trimmedReason = reason.trim();
+
+        if (!trimmedReason) {
+            window.alert('Ban reason is required.');
+            return;
+        }
+
+        router.patch(
+            route('admin.users.ban', user.id),
+            { reason: trimmedReason },
+            { preserveScroll: true },
+        );
+    };
 
     const filteredUsers = useMemo(() => {
         const term = search.trim().toLowerCase();
@@ -146,6 +167,12 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                                             ? 'bg-red-100 text-red-700'
                                                             : 'bg-green-100 text-green-700'
                                                     }`}
+                                                    title={
+                                                        user.banned_at &&
+                                                        user.ban_reason
+                                                            ? `Reason: ${user.ban_reason}`
+                                                            : undefined
+                                                    }
                                                 >
                                                     {user.banned_at
                                                         ? 'Banned'
@@ -201,17 +228,17 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                                                 Unban
                                                             </Link>
                                                         ) : (
-                                                            <Link
-                                                                href={route(
-                                                                    'admin.users.ban',
-                                                                    user.id,
-                                                                )}
-                                                                method="patch"
-                                                                as="button"
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleBan(
+                                                                        user,
+                                                                    )
+                                                                }
                                                                 className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"
                                                             >
                                                                 Ban
-                                                            </Link>
+                                                            </button>
                                                         ))}
                                                 </div>
                                             </td>

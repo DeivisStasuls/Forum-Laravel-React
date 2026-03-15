@@ -50,10 +50,11 @@ class LoginRequest extends FormRequest
         }
 
         if (Auth::user()?->isBanned()) {
+            $banMessage = Auth::user()->getBanMessage();
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'Your account has been banned.',
+                'email' => $banMessage,
             ]);
         }
 

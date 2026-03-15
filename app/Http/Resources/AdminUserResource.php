@@ -20,6 +20,7 @@ class AdminUserResource extends JsonResource
             'email' => $this->email,
             'role' => $this->role,
             'banned_at' => $this->banned_at,
+            'ban_reason' => $this->ban_reason,
             'created_at' => $this->created_at,
         ];
     }

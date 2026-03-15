@@ -22,7 +22,7 @@ class EnsureUserIsNotBanned
             $request->session()->regenerateToken();
 
             return redirect()->route('login')->withErrors([
-                'email' => 'Your account has been banned.',
+                'email' => $user->getBanMessage(),
             ]);
         }
 
