@@ -173,7 +173,7 @@ export default function AdminUsers({
 
                         <form
                             onSubmit={submitModerator}
-                            className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3"
+                            className="mt-4 grid grid-cols-1 items-start gap-3 md:grid-cols-3"
                         >
                             <select
                                 value={moderatorData.subforum_id}
@@ -183,7 +183,7 @@ export default function AdminUsers({
                                         e.target.value,
                                     )
                                 }
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                                className="block h-11 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
                             >
                                 <option value="">Select category...</option>
                                 {subforums.map((subforum) => (
@@ -241,7 +241,7 @@ export default function AdminUsers({
                                     !moderatorData.subforum_id ||
                                     !moderatorData.user_id
                                 }
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="h-11 w-full self-start rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 Add Moderator
                             </button>
