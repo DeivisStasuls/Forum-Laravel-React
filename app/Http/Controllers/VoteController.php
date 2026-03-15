@@ -5,64 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Thread;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class VoteController extends Controller
 {
-    /**
-     * Vote on a thread.
-     */
-    public function store(Request $request, \App\Models\Thread $thread)
-{
-    $user = $request->user();
+    public function store(Request $request, Thread $thread)
+    {
+        $this->authorize('vote', $thread);
+        $this->performVote($request, $thread);
 
-    // Prevent self-voting
-    if ($thread->user_id === $user->id) {
-        return back()->with('error', "You cannot vote on your own thread.");
+        return back()->with('success', 'Vote recorded!');
     }
 
-    $voteValue = (int) $request->input('vote');
+    public function storePost(Request $request, string $threadSlug, Post $post)
+    {
+        $this->authorize('vote', $post);
+        $this->performVote($request, $post);
 
-    // Create or update the vote
-    $thread->votes()->updateOrCreate(
-        ['user_id' => $user->id],
-        ['value' => $voteValue]
-    );
-
-    return back()->with('success', 'Vote recorded!');
-}
-
-    /**
-     * Vote on a post.
-     */
-    public function storePost(Request $request, \App\Models\Post $post)
-{
-    $user = $request->user();
-
-    if ($post->user_id === $user->id) {
-        return back()->with('error', "You cannot vote on your own post.");
+        return back()->with('success', 'Vote recorded!');
     }
-
-    $voteValue = (int) $request->input('vote');
-
-    $post->votes()->updateOrCreate(
-        ['user_id' => $user->id],
-        ['value' => $voteValue]
-    );
-
-    return back()->with('success', 'Vote recorded!');
-}
 
     /**
      * Core voting logic for thread or post.
      */
     private function performVote(Request $request, $votable)
     {
-        $voteValue = (int) $request->vote;
-
-        if (! in_array($voteValue, [1, -1])) {
-            abort(400, 'Invalid vote value.');
-        }
+        $validated = $request->validate([
+            'vote' => ['required', 'integer', 'in:1,-1'],
+        ]);
+        $voteValue = (int) $validated['vote'];
 
         $user = $request->user();
 
