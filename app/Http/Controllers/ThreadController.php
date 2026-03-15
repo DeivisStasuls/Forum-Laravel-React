@@ -81,7 +81,11 @@ class ThreadController extends Controller
      */
     public function show(string $slug, Request $request)
 {
-    $thread = $this->forumQueryService->getThreadForShow($slug);
+    $allowedOrders = ['oldest', 'latest', 'top_voted'];
+    $order = trim((string) $request->query('order', 'oldest'));
+    $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'oldest';
+
+    $thread = $this->forumQueryService->getThreadForShow($slug, $resolvedOrder);
 
     // Calculate vote scores for the thread
     $thread->score = $thread->score;
@@ -95,6 +99,9 @@ class ThreadController extends Controller
 
     return Inertia::render('Forum/ShowThread', [
         'thread' => (new ThreadDetailResource($thread))->resolve(),
+        'filters' => [
+            'order' => $resolvedOrder,
+        ],
     ]);
 }
 

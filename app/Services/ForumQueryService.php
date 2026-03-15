@@ -61,10 +61,35 @@ class ForumQueryService
         return Subforum::query()->get(['id', 'name', 'slug']);
     }
 
-    public function getThreadForShow(string $slug): Thread
+    public function getThreadForShow(string $slug, string $order = 'oldest'): Thread
     {
+        $allowedOrders = ['oldest', 'latest', 'top_voted'];
+        $resolvedOrder = in_array($order, $allowedOrders, true) ? $order : 'oldest';
+
         return Thread::where('slug', $slug)
-            ->with(['user', 'editor', 'subforum', 'posts.user', 'posts.editor'])
+            ->with([
+                'user',
+                'editor',
+                'subforum',
+                'posts' => function ($query) use ($resolvedOrder) {
+                    $query->with(['user', 'editor'])
+                        ->when(
+                            $resolvedOrder === 'top_voted',
+                            fn ($orderedQuery) => $orderedQuery
+                                ->withSum('votes as score_sum', 'value')
+                                ->orderByDesc('score_sum')
+                                ->oldest(),
+                        )
+                        ->when(
+                            $resolvedOrder === 'latest',
+                            fn ($orderedQuery) => $orderedQuery->latest(),
+                        )
+                        ->when(
+                            $resolvedOrder === 'oldest',
+                            fn ($orderedQuery) => $orderedQuery->oldest(),
+                        );
+                },
+            ])
             ->withCount('posts')
             ->firstOrFail();
     }

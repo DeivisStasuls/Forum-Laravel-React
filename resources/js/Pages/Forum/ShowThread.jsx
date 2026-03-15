@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import VoteButtons from '@/Components/VoteButtons';
 
-export default function ShowThread({ auth, thread }) {
+export default function ShowThread({ auth, thread, filters }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
         image: null,
@@ -14,6 +14,7 @@ export default function ShowThread({ auth, thread }) {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const canComment =
         !thread.creator_only_comments || auth.user.id === thread.user.id;
+    const selectedOrder = filters?.order ?? 'oldest';
 
     const submit = (e) => {
         e.preventDefault();
@@ -168,9 +169,44 @@ export default function ShowThread({ auth, thread }) {
                         
 
                         <div className="border-b border-slate-200 p-6">
-                            <h3 className="text-lg font-bold text-slate-900">
-                                Comments ({thread.posts_count})
-                            </h3>
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <h3 className="text-lg font-bold text-slate-900">
+                                    Comments ({thread.posts_count})
+                                </h3>
+                                <div className="flex items-center gap-2">
+                                    <label
+                                        htmlFor="reply-order"
+                                        className="text-sm font-medium text-slate-600"
+                                    >
+                                        Order by
+                                    </label>
+                                    <select
+                                        id="reply-order"
+                                        value={selectedOrder}
+                                        onChange={(e) =>
+                                            router.get(
+                                                route(
+                                                    'threads.show',
+                                                    thread.slug,
+                                                ),
+                                                { order: e.target.value },
+                                                {
+                                                    preserveState: true,
+                                                    preserveScroll: true,
+                                                    replace: true,
+                                                },
+                                            )
+                                        }
+                                        className="rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >
+                                        <option value="oldest">Oldest</option>
+                                        <option value="latest">Newest</option>
+                                        <option value="top_voted">
+                                            Top voted
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         {thread.posts.length > 0 ? (
