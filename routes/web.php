@@ -61,6 +61,8 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::patch('/admin/users/{user}/unban', [AdminUserController::class, 'unban'])->name('admin.users.unban');
     Route::patch('/admin/users/{user}/warn', [AdminUserController::class, 'warn'])->name('admin.users.warn');
     Route::patch('/admin/users/{user}/warnings/remove', [AdminUserController::class, 'removeWarning'])->name('admin.users.warnings.remove');
+    Route::post('/admin/moderators', [AdminUserController::class, 'assignModerator'])->name('admin.moderators.assign');
+    Route::delete('/admin/subforums/{subforum}/moderators/{user}', [AdminUserController::class, 'removeModerator'])->name('admin.moderators.remove');
 
     // Private discussion groups
     Route::get('/private-discussions', [PrivateDiscussionController::class, 'index'])->name('private-discussions.index');

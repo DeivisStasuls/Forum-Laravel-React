@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Subforum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -160,5 +161,34 @@ class AdminUserControllerTest extends TestCase
             ->assertSessionHasErrors('email');
 
         $this->assertEquals(0, $user->fresh()->warnings_count);
+    }
+
+    /** @test */
+    public function admin_can_assign_and_remove_category_moderator()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['banned_at' => null]);
+        $subforum = Subforum::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.moderators.assign'), [
+                'subforum_id' => $subforum->id,
+                'user_id' => $user->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('subforum_moderators', [
+            'subforum_id' => $subforum->id,
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.moderators.remove', [$subforum, $user]))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('subforum_moderators', [
+            'subforum_id' => $subforum->id,
+            'user_id' => $user->id,
+        ]);
     }
 }

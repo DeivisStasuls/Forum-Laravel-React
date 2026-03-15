@@ -24,9 +24,32 @@ class AdminUserController extends Controller
     {
         $this->authorizeAdmin($request);
         $users = $this->adminUserQueryService->getUsersForManagement();
+        $subforums = Subforum::query()
+            ->with(['moderators:id,name,email'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+        $assignableUsers = User::query()
+            ->whereNull('banned_at')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
 
         return Inertia::render('Admin/Users', [
             'users' => AdminUserResource::collection($users)->resolve(),
+            'subforums' => $subforums->map(fn (Subforum $subforum) => [
+                'id' => $subforum->id,
+                'name' => $subforum->name,
+                'slug' => $subforum->slug,
+                'moderators' => $subforum->moderators->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ])->values()->all(),
+            ])->values()->all(),
+            'assignableUsers' => $assignableUsers->map(fn (User $user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ])->values()->all(),
             'forumStats' => [
                 'total_threads' => Thread::count(),
                 'total_posts' => Post::count(),
@@ -122,6 +145,34 @@ class AdminUserController extends Controller
         ]);
 
         return back()->with('success', 'Warning removed successfully.');
+    }
+
+    public function assignModerator(Request $request): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $validated = $request->validate([
+            'subforum_id' => ['required', 'integer', 'exists:subforums,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $subforum = Subforum::query()->findOrFail($validated['subforum_id']);
+        $user = User::query()
+            ->whereNull('banned_at')
+            ->findOrFail($validated['user_id']);
+
+        $subforum->moderators()->syncWithoutDetaching([$user->id]);
+
+        return back()->with('success', 'Moderator assigned successfully.');
+    }
+
+    public function removeModerator(Request $request, Subforum $subforum, User $user): RedirectResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $subforum->moderators()->detach($user->id);
+
+        return back()->with('success', 'Moderator removed successfully.');
     }
 
     private function authorizeAdmin(Request $request): void

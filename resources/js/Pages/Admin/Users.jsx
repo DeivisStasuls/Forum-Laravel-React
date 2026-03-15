@@ -1,13 +1,29 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo, useState } from 'react';
 
-export default function AdminUsers({ auth, users, forumStats }) {
+export default function AdminUsers({
+    auth,
+    users,
+    subforums,
+    assignableUsers,
+    forumStats,
+}) {
     const [search, setSearch] = useState('');
     const [banTarget, setBanTarget] = useState(null);
     const [banReason, setBanReason] = useState('');
     const [banError, setBanError] = useState('');
+    const {
+        data: moderatorData,
+        setData: setModeratorData,
+        post: postModerator,
+        processing: assigningModerator,
+        errors: moderatorErrors,
+    } = useForm({
+        subforum_id: '',
+        user_id: '',
+    });
 
     const openBanReasonPanel = (user) => {
         setBanTarget(user);
@@ -46,6 +62,17 @@ export default function AdminUsers({ auth, users, forumStats }) {
                 },
             },
         );
+    };
+
+    const submitModerator = (e) => {
+        e.preventDefault();
+
+        postModerator(route('admin.moderators.assign'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setModeratorData('user_id', '');
+            },
+        });
     };
 
     const filteredUsers = useMemo(() => {
@@ -116,6 +143,121 @@ export default function AdminUsers({ auth, users, forumStats }) {
                                     {forumStats.total_users.toLocaleString()}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="mb-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                            Category Moderators
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Assign moderators to selected categories and view the
+                            current moderator list.
+                        </p>
+
+                        <form
+                            onSubmit={submitModerator}
+                            className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3"
+                        >
+                            <select
+                                value={moderatorData.subforum_id}
+                                onChange={(e) =>
+                                    setModeratorData(
+                                        'subforum_id',
+                                        e.target.value,
+                                    )
+                                }
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                            >
+                                <option value="">Select category...</option>
+                                {subforums.map((subforum) => (
+                                    <option key={subforum.id} value={subforum.id}>
+                                        {subforum.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <select
+                                value={moderatorData.user_id}
+                                onChange={(e) =>
+                                    setModeratorData('user_id', e.target.value)
+                                }
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
+                            >
+                                <option value="">Select user...</option>
+                                {assignableUsers.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name} ({user.email})
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button
+                                type="submit"
+                                disabled={
+                                    assigningModerator ||
+                                    !moderatorData.subforum_id ||
+                                    !moderatorData.user_id
+                                }
+                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Add Moderator
+                            </button>
+                        </form>
+
+                        {(moderatorErrors.subforum_id ||
+                            moderatorErrors.user_id) && (
+                            <p className="mt-2 text-sm text-red-600">
+                                {moderatorErrors.subforum_id ||
+                                    moderatorErrors.user_id}
+                            </p>
+                        )}
+
+                        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+                            {subforums.map((subforum) => (
+                                <div
+                                    key={subforum.id}
+                                    className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                                >
+                                    <div className="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                        {subforum.name}
+                                    </div>
+                                    {subforum.moderators.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {subforum.moderators.map(
+                                                (moderator) => (
+                                                    <div
+                                                        key={moderator.id}
+                                                        className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm dark:bg-gray-900/40"
+                                                    >
+                                                        <span className="text-gray-700 dark:text-gray-200">
+                                                            {moderator.name}
+                                                        </span>
+                                                        <Link
+                                                            href={route(
+                                                                'admin.moderators.remove',
+                                                                [
+                                                                    subforum.id,
+                                                                    moderator.id,
+                                                                ],
+                                                            )}
+                                                            method="delete"
+                                                            as="button"
+                                                            className="text-xs font-semibold text-red-600 transition hover:text-red-700"
+                                                        >
+                                                            Remove
+                                                        </Link>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            No moderators assigned.
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
 

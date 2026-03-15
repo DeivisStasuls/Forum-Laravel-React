@@ -105,6 +105,12 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function moderatedSubforums(): BelongsToMany
+    {
+        return $this->belongsToMany(Subforum::class, 'subforum_moderators')
+            ->withTimestamps();
+    }
+
     public function privateMessages(): HasMany
     {
         return $this->hasMany(PrivateMessage::class);
