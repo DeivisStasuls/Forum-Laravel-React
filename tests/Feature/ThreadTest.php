@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Post;
 use App\Models\Thread;
 use App\Models\Subforum;
 use App\Models\User;
@@ -109,5 +110,80 @@ class ThreadTest extends TestCase
         $this->assertDatabaseHas('threads', [
             'id' => $thread->id,
         ]);
+    }
+
+    /** @test */
+    public function forum_index_search_can_find_threads_by_author_name()
+    {
+        $viewer = User::factory()->create();
+        $matchingAuthor = User::factory()->create(['name' => 'Marta Searchable']);
+        $otherAuthor = User::factory()->create(['name' => 'Other Person']);
+
+        $matchingThread = Thread::factory()->for($matchingAuthor)->create([
+            'title' => 'Thread from matching author',
+        ]);
+        $otherThread = Thread::factory()->for($otherAuthor)->create([
+            'title' => 'Thread from non matching author',
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('forum.index', ['search' => 'Marta Searchable']))
+            ->assertStatus(200)
+            ->assertSee($matchingThread->title)
+            ->assertDontSee($otherThread->title);
+    }
+
+    /** @test */
+    public function thread_reply_search_can_filter_by_reply_body_text()
+    {
+        $viewer = User::factory()->create();
+        $thread = Thread::factory()->create();
+
+        $matchingPost = Post::factory()->for($thread)->create([
+            'body' => 'Unique body phrase for matching reply',
+        ]);
+        $otherPost = Post::factory()->for($thread)->create([
+            'body' => 'Different reply body that should not match',
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('threads.show', [
+                'slug' => $thread->slug,
+                'reply_search' => 'matching reply',
+            ]))
+            ->assertStatus(200)
+            ->assertSee($matchingPost->body)
+            ->assertDontSee($otherPost->body);
+    }
+
+    /** @test */
+    public function thread_reply_search_can_filter_by_reply_author_name()
+    {
+        $viewer = User::factory()->create();
+        $thread = Thread::factory()->create();
+
+        $matchingAuthor = User::factory()->create([
+            'name' => 'Reply Search Target',
+        ]);
+        $otherAuthor = User::factory()->create([
+            'name' => 'Reply Search Other',
+        ]);
+
+        $matchingPost = Post::factory()->for($thread)->for($matchingAuthor)->create([
+            'body' => 'Body from matching author',
+        ]);
+        $otherPost = Post::factory()->for($thread)->for($otherAuthor)->create([
+            'body' => 'Body from other author',
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('threads.show', [
+                'slug' => $thread->slug,
+                'reply_search' => 'Reply Search Target',
+            ]))
+            ->assertStatus(200)
+            ->assertSee($matchingAuthor->name)
+            ->assertSee($matchingPost->body)
+            ->assertDontSee($otherPost->body);
     }
 }
