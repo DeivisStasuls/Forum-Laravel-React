@@ -1,4 +1,5 @@
 import InputError from '@/Components/InputError';
+import MarkdownText from '@/Components/MarkdownText';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -244,20 +245,28 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                     .join(', ')}
                                             </p>
                                             {group.latest_message ? (
-                                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                                    <span className="font-medium">
+                                                <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                                    <p className="font-medium">
                                                         {
                                                             group.latest_message
                                                                 .user_name
                                                         }
                                                         :
-                                                    </span>{' '}
-                                                    {group.latest_message.body ||
-                                                        (group.latest_message
-                                                            .image_url
-                                                            ? '[Image attachment]'
-                                                            : '')}
-                                                </p>
+                                                    </p>
+                                                    {group.latest_message.body ? (
+                                                        <MarkdownText
+                                                            content={group.latest_message.body}
+                                                            className="mt-1"
+                                                        />
+                                                    ) : (
+                                                        <p>
+                                                            {group.latest_message
+                                                                .image_url
+                                                                ? '[Image attachment]'
+                                                                : ''}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                                                     No messages yet.

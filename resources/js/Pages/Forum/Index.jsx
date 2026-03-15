@@ -1,6 +1,7 @@
 // resources/js/Pages/Forum/Index.jsx
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import MarkdownText from '@/Components/MarkdownText';
 import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
@@ -180,9 +181,10 @@ export default function ForumIndex({
                                             >
                                                 {post.thread.title}
                                             </Link>
-                                            <p className="mb-1 text-xs text-slate-600">
-                                                {post.body}
-                                            </p>
+                                            <MarkdownText
+                                                content={post.body}
+                                                className="mb-1 text-xs text-slate-600"
+                                            />
                                             <div className="text-xs text-slate-500">
                                                 by {post.user.name} • {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                                             </div>
