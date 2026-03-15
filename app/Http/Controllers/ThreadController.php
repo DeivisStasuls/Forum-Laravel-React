@@ -13,6 +13,7 @@ use App\Services\ForumQueryService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class ThreadController extends Controller
 { 
@@ -58,9 +59,14 @@ class ThreadController extends Controller
      */
     public function store(StoreThreadRequest $request)
     {
+        $imagePath = $request->hasFile('image')
+            ? $request->file('image')->store('thread-images', 'public')
+            : null;
+
         $thread = Thread::create([
             'title' => $request->title,
             'body' => $request->body,
+            'image_path' => $imagePath,
             'creator_only_comments' => $request->boolean('creator_only_comments'),
             'user_id' => $request->user()->id,
             'subforum_id' => $request->subforum_id,
@@ -131,6 +137,7 @@ class ThreadController extends Controller
                 'id' => $thread->id,
                 'title' => $thread->title,
                 'body' => $thread->body,
+                'image_url' => $thread->image_url,
                 'slug' => $thread->slug,
                 'subforum_id' => $thread->subforum_id,
             ],
@@ -149,9 +156,22 @@ class ThreadController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        if ($request->boolean('remove_image') && $thread->image_path) {
+            Storage::disk('public')->delete($thread->image_path);
+            $thread->image_path = null;
+        }
+
+        if ($request->hasFile('image')) {
+            if ($thread->image_path) {
+                Storage::disk('public')->delete($thread->image_path);
+            }
+            $thread->image_path = $request->file('image')->store('thread-images', 'public');
+        }
+
         $thread->update([
             'title' => $request->title,
             'body' => $request->body,
+            'image_path' => $thread->image_path,
             'subforum_id' => $request->subforum_id,
             'edited_by_user_id' => $request->user()->id,
             'edited_at' => now(),
@@ -180,6 +200,9 @@ class ThreadController extends Controller
         }
 
         $subforumSlug = $thread->subforum->slug;
+        if ($thread->image_path) {
+            Storage::disk('public')->delete($thread->image_path);
+        }
         $thread->delete();
 
         return Redirect::route('subforums.show', $subforumSlug)

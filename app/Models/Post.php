@@ -6,6 +6,7 @@ use App\Traits\Votable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 
 class Post extends Model
@@ -16,6 +17,7 @@ class Post extends Model
 
     protected $fillable = [
         'body',
+        'image_path',
         'user_id',
         'thread_id',
         'edited_by_user_id',
@@ -26,7 +28,7 @@ class Post extends Model
         'edited_at' => 'datetime',
     ];
 
-    protected $appends = ['score', 'user_vote'];
+    protected $appends = ['score', 'user_vote', 'image_url'];
 
     public function user(): BelongsTo
     {
@@ -41,6 +43,15 @@ class Post extends Model
     public function editor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'edited_by_user_id');
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        return Storage::url($this->image_path);
     }
 }
 

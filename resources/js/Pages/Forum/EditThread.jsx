@@ -9,11 +9,15 @@ export default function EditThread({ auth, thread, subforums }) {
         title: thread.title ?? '',
         subforum_id: thread.subforum_id ? String(thread.subforum_id) : '',
         body: thread.body ?? '',
+        image: null,
+        remove_image: false,
     });
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route('threads.update', thread.slug));
+        patch(route('threads.update', thread.slug), {
+            forceFormData: true,
+        });
     };
 
     return (
@@ -97,6 +101,52 @@ export default function EditThread({ auth, thread, subforums }) {
                                     message={errors.body}
                                     className="mt-2"
                                 />
+                            </div>
+
+                            <div className="mt-4">
+                                <InputLabel
+                                    htmlFor="image"
+                                    value="Attachment (optional)"
+                                />
+                                {thread.image_url && !data.remove_image && (
+                                    <img
+                                        src={thread.image_url}
+                                        alt="Current thread attachment"
+                                        className="mb-3 mt-1 max-h-80 w-auto rounded-lg border border-slate-200"
+                                    />
+                                )}
+                                <input
+                                    id="image"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setData(
+                                            'image',
+                                            e.target.files?.[0] ?? null,
+                                        )
+                                    }
+                                    className="mt-1 block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+                                />
+                                <InputError
+                                    message={errors.image}
+                                    className="mt-2"
+                                />
+                                {thread.image_url && (
+                                    <label className="mt-3 inline-flex items-center gap-2 text-sm text-slate-700">
+                                        <input
+                                            type="checkbox"
+                                            checked={data.remove_image}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'remove_image',
+                                                    e.target.checked,
+                                                )
+                                            }
+                                            className="rounded border-slate-300 text-indigo-600"
+                                        />
+                                        Remove current image
+                                    </label>
+                                )}
                             </div>
 
                             <div className="mt-6 flex items-center justify-end gap-3">

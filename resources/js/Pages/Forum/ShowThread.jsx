@@ -9,6 +9,7 @@ import VoteButtons from '@/Components/VoteButtons';
 export default function ShowThread({ auth, thread }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
+        image: null,
     });
     const [deleteTarget, setDeleteTarget] = useState(null);
     const canComment =
@@ -18,8 +19,9 @@ export default function ShowThread({ auth, thread }) {
         e.preventDefault();
 
         post(route('posts.store', thread.slug), {
+            forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => reset('body'),
+            onSuccess: () => reset('body', 'image'),
         });
     };
 
@@ -138,6 +140,13 @@ export default function ShowThread({ auth, thread }) {
             <p className="whitespace-pre-wrap text-slate-800">
                 {thread.body}
             </p>
+            {thread.image_url && (
+                <img
+                    src={thread.image_url}
+                    alt="Discussion attachment"
+                    className="mt-3 max-h-96 w-auto rounded-lg border border-slate-200"
+                />
+            )}
 
             {thread.edited_at && (
                 <p className="mt-3 text-xs text-slate-500">
@@ -221,6 +230,13 @@ export default function ShowThread({ auth, thread }) {
         <p className="whitespace-pre-wrap text-slate-800">
             {reply.body}
         </p>
+        {reply.image_url && (
+            <img
+                src={reply.image_url}
+                alt="Comment attachment"
+                className="mt-3 max-h-80 w-auto rounded-lg border border-slate-200"
+            />
+        )}
 
     </div>
 </div>
@@ -252,6 +268,23 @@ export default function ShowThread({ auth, thread }) {
                                     message={errors.body}
                                     className="mt-2"
                                 />
+                                <div className="mt-3">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setData(
+                                                'image',
+                                                e.target.files?.[0] ?? null,
+                                            )
+                                        }
+                                        className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+                                    />
+                                    <InputError
+                                        message={errors.image}
+                                        className="mt-2"
+                                    />
+                                </div>
 
                                 <div className="mt-4 flex justify-end">
                                     <PrimaryButton disabled={processing}>

@@ -17,6 +17,7 @@ class SubforumThreadResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'image_url' => $this->image_url,
             'slug' => $this->slug,
             'user' => [
                 'id' => $this->user->id,

@@ -18,6 +18,7 @@ class ThreadDetailResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'body' => $this->body,
+            'image_url' => $this->image_url,
             'slug' => $this->slug,
             'user' => [
                 'id' => $this->user->id,

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Thread extends Model
 {
@@ -23,6 +24,7 @@ class Thread extends Model
     protected $fillable = [
         'title',
         'body',
+        'image_path',
         'creator_only_comments',
         'slug',
         'user_id',
@@ -30,7 +32,7 @@ class Thread extends Model
         'edited_by_user_id',
         'edited_at',
     ];
-    protected $appends = ['score', 'user_vote'];
+    protected $appends = ['score', 'user_vote', 'image_url'];
 
     protected $casts = [
         'creator_only_comments' => 'boolean',
@@ -85,6 +87,15 @@ class Thread extends Model
 public function getUserVoteAttribute() {
         if (!auth()->check()) return 0;
         return $this->votes()->where('user_id', auth()->id())->value('value') ?? 0;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        return Storage::url($this->image_path);
     }
 
 }

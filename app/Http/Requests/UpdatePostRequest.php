@@ -32,6 +32,8 @@ class UpdatePostRequest extends FormRequest
     {
         return [
             'body' => ['required', 'string', 'min:5'],
+            'image' => ['nullable', 'image', 'max:4096'],
+            'remove_image' => ['nullable', 'boolean'],
         ];
     }
 
@@ -45,6 +47,8 @@ class UpdatePostRequest extends FormRequest
         return [
             'body.required' => 'The post content is required.',
             'body.min' => 'The post content must be at least 5 characters.',
+            'image.image' => 'The attachment must be an image.',
+            'image.max' => 'The image may not be greater than 4 MB.',
         ];
     }
 }

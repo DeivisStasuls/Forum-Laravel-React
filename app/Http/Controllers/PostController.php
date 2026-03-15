@@ -9,6 +9,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -27,6 +28,7 @@ class PostController extends Controller
                 'id' => $post->id,
                 'body' => $post->body,
                 'preview' => Str::limit($post->body, 180),
+                'image_url' => $post->image_url,
                 'score' => $post->score,
                 'user_vote' => $post->user_vote,
                 'created_at' => $post->created_at,
@@ -61,8 +63,13 @@ class PostController extends Controller
             ]);
         }
 
+        $imagePath = $request->hasFile('image')
+            ? $request->file('image')->store('post-images', 'public')
+            : null;
+
         Post::create([
             'body' => $request->body,
+            'image_path' => $imagePath,
             'user_id' => $request->user()->id,
             'thread_id' => $thread->id,
         ]);
@@ -93,6 +100,7 @@ class PostController extends Controller
         'post' => [
             'id' => $post->id,
             'body' => $post->body,
+            'image_url' => $post->image_url,
         ],
     ]);
 }
@@ -109,8 +117,21 @@ class PostController extends Controller
         abort(403, 'Unauthorized action.');
     }
 
+    if ($request->boolean('remove_image') && $post->image_path) {
+        Storage::disk('public')->delete($post->image_path);
+        $post->image_path = null;
+    }
+
+    if ($request->hasFile('image')) {
+        if ($post->image_path) {
+            Storage::disk('public')->delete($post->image_path);
+        }
+        $post->image_path = $request->file('image')->store('post-images', 'public');
+    }
+
     $post->update([
         'body' => $request->body,
+        'image_path' => $post->image_path,
         'edited_by_user_id' => $request->user()->id,
         'edited_at' => now(),
     ]);
@@ -125,6 +146,10 @@ public function destroy(string $threadSlug, int $postId)
 
         // Use policy to check authorization
         $this->authorize('delete', $post);
+
+        if ($post->image_path) {
+            Storage::disk('public')->delete($post->image_path);
+        }
 
         $post->delete();
 

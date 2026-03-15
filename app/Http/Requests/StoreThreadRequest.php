@@ -25,6 +25,7 @@ class StoreThreadRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string', 'min:10'],
+            'image' => ['nullable', 'image', 'max:4096'],
             'subforum_id' => ['required', 'exists:subforums,id'],
             'creator_only_comments' => ['nullable', 'boolean'],
         ];
@@ -42,6 +43,8 @@ class StoreThreadRequest extends FormRequest
             'title.max' => 'The thread title may not be greater than 255 characters.',
             'body.required' => 'The thread content is required.',
             'body.min' => 'The thread content must be at least 10 characters.',
+            'image.image' => 'The attachment must be an image.',
+            'image.max' => 'The image may not be greater than 4 MB.',
             'subforum_id.required' => 'Please select a subforum.',
             'subforum_id.exists' => 'The selected subforum does not exist.',
         ];
