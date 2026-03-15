@@ -17,31 +17,37 @@ class SubforumSeeder extends Seeder
                 'name' => 'Sports',
                 'description' => 'Discuss school teams, matches, training, and tryouts.',
                 'slug' => 'sports',
+                'restricted_thread_creation' => false,
             ],
             [
                 'name' => 'Education',
                 'description' => 'Homework, study strategies, exams, and academic resources.',
                 'slug' => 'education',
+                'restricted_thread_creation' => false,
             ],
             [
-                'name' => 'Announcements',
-                'description' => 'Important school updates, deadlines, and notices.',
+                'name' => 'School Announcements',
+                'description' => 'Official school updates, deadlines, notices, and policy changes.',
                 'slug' => 'announcements',
+                'restricted_thread_creation' => true,
             ],
             [
                 'name' => 'Clubs and Activities',
                 'description' => 'School clubs, competitions, volunteer projects, and events.',
                 'slug' => 'clubs-and-activities',
+                'restricted_thread_creation' => false,
             ],
             [
                 'name' => 'Campus Life',
                 'description' => 'Cafeteria, transport, schedules, and student life topics.',
                 'slug' => 'campus-life',
+                'restricted_thread_creation' => false,
             ],
             [
                 'name' => 'General Discussion',
                 'description' => 'Open conversation for anything related to the school community.',
                 'slug' => 'general-discussion',
+                'restricted_thread_creation' => false,
             ],
         ];
 
@@ -51,6 +57,7 @@ class SubforumSeeder extends Seeder
                 [
                     'name' => $subforum['name'],
                     'description' => $subforum['description'],
+                    'restricted_thread_creation' => $subforum['restricted_thread_creation'],
                 ]
             );
         }
