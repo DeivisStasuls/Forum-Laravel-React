@@ -24,6 +24,10 @@ class SubforumDetailResource extends JsonResource
             'description' => $this->description,
             'slug' => $this->slug,
             'is_moderator' => $isModerator,
+            'restricted_thread_creation' => (bool) $this->restricted_thread_creation,
+            'can_create_threads' => ! $this->restricted_thread_creation
+                || $request->user()?->isAdmin()
+                || $isModerator,
             'moderators' => $this->moderators->map(fn ($moderator) => [
                 'id' => $moderator->id,
                 'name' => $moderator->name,

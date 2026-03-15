@@ -36,6 +36,7 @@ class UpdateSubforumRequest extends FormRequest
                 Rule::unique('subforums', 'name')->ignore($subforum?->id),
             ],
             'description' => ['nullable', 'string', 'max:1000'],
+            'restricted_thread_creation' => ['nullable', 'boolean'],
         ];
     }
 }

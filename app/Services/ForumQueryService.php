@@ -59,7 +59,10 @@ class ForumQueryService
 
     public function getThreadCreateSubforums(): Collection
     {
-        return Subforum::query()->get(['id', 'name', 'slug']);
+        return Subforum::query()
+            ->with(['moderators:id,name'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'restricted_thread_creation']);
     }
 
     public function getThreadForShow(string $slug, string $order = 'oldest'): Thread

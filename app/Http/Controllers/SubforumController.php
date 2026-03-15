@@ -55,6 +55,7 @@ class SubforumController extends Controller
         $subforum = Subforum::create([
             'name' => $request->name,
             'description' => $request->description,
+            'restricted_thread_creation' => $request->boolean('restricted_thread_creation'),
         ]);
 
         return Redirect::route('subforums.show', $subforum->slug)
@@ -114,6 +115,7 @@ class SubforumController extends Controller
                 'id' => $subforum->id,
                 'name' => $subforum->name,
                 'description' => $subforum->description,
+                'restricted_thread_creation' => (bool) $subforum->restricted_thread_creation,
                 'slug' => $subforum->slug,
             ],
         ]);
@@ -129,6 +131,7 @@ class SubforumController extends Controller
         $subforum->update([
             'name' => $request->name,
             'description' => $request->description,
+            'restricted_thread_creation' => $request->boolean('restricted_thread_creation'),
         ]);
 
         // Regenerate slug if name changed

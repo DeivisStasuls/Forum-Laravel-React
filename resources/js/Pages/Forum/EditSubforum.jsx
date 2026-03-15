@@ -8,6 +8,9 @@ export default function EditSubforum({ auth, subforum }) {
     const { data, setData, patch, processing, errors } = useForm({
         name: subforum.name ?? '',
         description: subforum.description ?? '',
+        restricted_thread_creation: Boolean(
+            subforum.restricted_thread_creation,
+        ),
     });
 
     const submit = (e) => {
@@ -63,6 +66,30 @@ export default function EditSubforum({ auth, subforum }) {
                                 />
                                 <InputError
                                     message={errors.description}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mt-4">
+                                <label className="inline-flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={data.restricted_thread_creation}
+                                        onChange={(e) =>
+                                            setData(
+                                                'restricted_thread_creation',
+                                                e.target.checked,
+                                            )
+                                        }
+                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-200">
+                                        Restrict discussion creation (only admins
+                                        and category moderators can post)
+                                    </span>
+                                </label>
+                                <InputError
+                                    message={errors.restricted_thread_creation}
                                     className="mt-2"
                                 />
                             </div>

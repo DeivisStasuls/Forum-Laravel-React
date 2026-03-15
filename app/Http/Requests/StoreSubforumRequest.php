@@ -26,6 +26,7 @@ class StoreSubforumRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:subforums,name'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'restricted_thread_creation' => ['nullable', 'boolean'],
         ];
     }
 }

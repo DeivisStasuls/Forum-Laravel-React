@@ -6,6 +6,7 @@ use App\Http\Resources\Forum\RecentPostResource;
 use App\Http\Resources\Forum\RecentThreadResource;
 use App\Http\Resources\Forum\SubforumResource;
 use App\Http\Resources\Forum\ThreadDetailResource;
+use App\Models\Subforum;
 use App\Models\Thread;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
@@ -48,9 +49,18 @@ class ThreadController extends Controller
     public function create()
     {
         $subforums = $this->forumQueryService->getThreadCreateSubforums();
+        $user = auth()->user();
 
         return Inertia::render('Forum/CreateThread', [
-            'subforums' => $subforums,
+            'subforums' => $subforums->map(fn (Subforum $subforum) => [
+                'id' => $subforum->id,
+                'name' => $subforum->name,
+                'slug' => $subforum->slug,
+                'restricted_thread_creation' => (bool) $subforum->restricted_thread_creation,
+                'can_create_threads' => ! $subforum->restricted_thread_creation
+                    || $user?->isAdmin()
+                    || $subforum->moderators->contains('id', $user?->id),
+            ])->values()->all(),
         ]);
     }
 
@@ -59,6 +69,20 @@ class ThreadController extends Controller
      */
     public function store(StoreThreadRequest $request)
     {
+        $subforum = Subforum::query()
+            ->with('moderators:id')
+            ->findOrFail((int) $request->subforum_id);
+
+        if (
+            $subforum->restricted_thread_creation
+            && ! $request->user()->isAdmin()
+            && ! $subforum->moderators->contains('id', $request->user()->id)
+        ) {
+            return back()->withErrors([
+                'subforum_id' => 'You cannot create discussions in this category.',
+            ]);
+        }
+
         $imagePath = $request->hasFile('image')
             ? $request->file('image')->store('thread-images', 'public')
             : null;
@@ -69,7 +93,7 @@ class ThreadController extends Controller
             'image_path' => $imagePath,
             'creator_only_comments' => $request->boolean('creator_only_comments'),
             'user_id' => $request->user()->id,
-            'subforum_id' => $request->subforum_id,
+            'subforum_id' => $subforum->id,
         ]);
 
         return Redirect::route('threads.show', $thread->slug)

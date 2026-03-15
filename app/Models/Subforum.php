@@ -21,7 +21,11 @@ class Subforum extends Model
     use HasSlug;
 
 
-    protected $fillable = ['name', 'description', 'slug'];
+    protected $fillable = ['name', 'description', 'restricted_thread_creation', 'slug'];
+
+    protected $casts = [
+        'restricted_thread_creation' => 'boolean',
+    ];
 
     /**
      * A Subforum has many Threads.

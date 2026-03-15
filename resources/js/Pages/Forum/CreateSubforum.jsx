@@ -8,6 +8,7 @@ export default function CreateSubforum({ auth }) {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         description: '',
+        restricted_thread_creation: false,
     });
 
     const submit = (e) => {
@@ -65,6 +66,30 @@ export default function CreateSubforum({ auth }) {
                                 />
                                 <InputError
                                     message={errors.description}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mt-4">
+                                <label className="inline-flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={data.restricted_thread_creation}
+                                        onChange={(e) =>
+                                            setData(
+                                                'restricted_thread_creation',
+                                                e.target.checked,
+                                            )
+                                        }
+                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-200">
+                                        Restrict discussion creation (only admins
+                                        and category moderators can post)
+                                    </span>
+                                </label>
+                                <InputError
+                                    message={errors.restricted_thread_creation}
                                     className="mt-2"
                                 />
                             </div>
