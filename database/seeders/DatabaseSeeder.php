@@ -8,9 +8,11 @@ use App\Models\PrivateMessage;
 use App\Models\Subforum;
 use App\Models\Thread;
 use App\Models\User;
+use App\Models\Vote;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 class DatabaseSeeder extends Seeder
@@ -121,13 +123,20 @@ class DatabaseSeeder extends Seeder
                     'user_id' => $author->id,
                     'subforum_id' => $subforum->id,
                 ]);
+                $this->seedVotesForVotable($thread, $activeUsers, 18, $author->id);
 
                 $postCount = fake()->numberBetween(2, 8);
                 for ($j = 0; $j < $postCount; $j++) {
-                    Post::factory()->create([
+                    $post = Post::factory()->create([
                         'thread_id' => $thread->id,
                         'user_id' => $activeUsers->random()->id,
                     ]);
+                    $this->seedVotesForVotable(
+                        $post,
+                        $activeUsers,
+                        12,
+                        (int) $post->user_id,
+                    );
                 }
             }
         }
@@ -159,6 +168,36 @@ class DatabaseSeeder extends Seeder
                     'body' => fake()->sentence(fake()->numberBetween(8, 16)),
                 ]);
             }
+        }
+    }
+
+    private function seedVotesForVotable(
+        Model $votable,
+        EloquentCollection $activeUsers,
+        int $maxVotes,
+        ?int $excludeUserId = null,
+    ): void {
+        $votersPool = $activeUsers
+            ->when(
+                $excludeUserId !== null,
+                fn (EloquentCollection $users) => $users->where('id', '!=', $excludeUserId),
+            )
+            ->values();
+
+        if ($votersPool->isEmpty()) {
+            return;
+        }
+
+        $voteCount = fake()->numberBetween(0, min($maxVotes, $votersPool->count()));
+        $voters = $votersPool->shuffle()->take($voteCount);
+
+        foreach ($voters as $voter) {
+            Vote::create([
+                'user_id' => $voter->id,
+                'votable_id' => $votable->id,
+                'votable_type' => $votable::class,
+                'value' => fake()->boolean(78) ? 1 : -1,
+            ]);
         }
     }
 }
