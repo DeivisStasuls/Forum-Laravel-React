@@ -20,6 +20,7 @@ export default function ShowThread({ auth, thread, filters }) {
     const [replySearch, setReplySearch] = useState(
         filters?.reply_search ?? '',
     );
+    const [isCommentComposerOpen, setIsCommentComposerOpen] = useState(false);
     const isFirstFilterRender = useRef(true);
     const canComment =
         !thread.creator_only_comments || auth.user.id === thread.user.id;
@@ -54,7 +55,10 @@ export default function ShowThread({ auth, thread, filters }) {
         post(route('posts.store', thread.slug), {
             forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => reset('body', 'image'),
+            onSuccess: () => {
+                reset('body', 'image');
+                setIsCommentComposerOpen(false);
+            },
         });
     };
 
@@ -106,7 +110,7 @@ export default function ShowThread({ auth, thread, filters }) {
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-4">
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                             <Link
                                 href={route('subforums.show', thread.subforum.slug)}
                                 className="text-sm text-indigo-600 hover:text-indigo-800"
@@ -116,7 +120,7 @@ export default function ShowThread({ auth, thread, filters }) {
 
                             {(auth.user.id === thread.user.id ||
                                 auth.user.role === 'admin') && (
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <Link
                                         href={route('threads.edit', thread.slug)}
                                         className="rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700"
@@ -140,8 +144,8 @@ export default function ShowThread({ auth, thread, filters }) {
                     </div>
 
                     <article className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
-                        <div className="border-b border-slate-200 p-6">
-    <div className="flex gap-4">
+                        <div className="p-6">
+    <div className="flex flex-col gap-4 sm:flex-row">
 
         {/* Votes */}
        <VoteButtons
@@ -201,6 +205,91 @@ export default function ShowThread({ auth, thread, filters }) {
 </div>
                         
 
+                        <div className="mt-8 px-6 pb-6">
+                            <h3 className="mb-4 text-lg font-bold text-slate-900">
+                                Add a Comment
+                            </h3>
+                            {canComment ? (
+                                <form onSubmit={submit}>
+                                    {isCommentComposerOpen ? (
+                                        <>
+                                            <MarkdownEditor
+                                                value={data.body}
+                                                onChange={(value) =>
+                                                    setData('body', value)
+                                                }
+                                                rows={5}
+                                                textareaClassName="border-slate-300"
+                                                placeholder="Join the conversation"
+                                                autoFocus
+                                            />
+                                            <InputError
+                                                message={errors.body}
+                                                className="mt-2"
+                                            />
+                                            <div className="mt-3">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'image',
+                                                            e.target.files?.[0] ?? null,
+                                                        )
+                                                    }
+                                                    className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+                                                />
+                                                <InputError
+                                                    message={errors.image}
+                                                    className="mt-2"
+                                                />
+                                            </div>
+
+                                            <div className="mt-4 flex justify-end gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsCommentComposerOpen(
+                                                            false,
+                                                        );
+                                                        if (!processing) {
+                                                            reset(
+                                                                'body',
+                                                                'image',
+                                                            );
+                                                        }
+                                                    }}
+                                                    className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <PrimaryButton
+                                                    disabled={processing}
+                                                >
+                                                    Comment
+                                                </PrimaryButton>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setIsCommentComposerOpen(true)
+                                            }
+                                            className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm text-slate-500 shadow-sm transition hover:border-slate-400"
+                                        >
+                                            Join the conversation
+                                        </button>
+                                    )}
+                                </form>
+                            ) : (
+                                <p className="text-sm text-slate-600">
+                                    This discussion is creator-only. Only{' '}
+                                    {thread.user.name} can comment.
+                                </p>
+                            )}
+                        </div>
+
                         <div className="border-b border-slate-200 p-6">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <h3 className="text-lg font-bold text-slate-900">
@@ -243,7 +332,7 @@ export default function ShowThread({ auth, thread, filters }) {
                         {thread.posts.length > 0 ? (
                             <div className="divide-y divide-slate-200">
                                 {thread.posts.map((reply) => (
-                                    <div key={reply.id} className="flex gap-4 p-6">
+                                    <div key={reply.id} className="flex flex-col gap-4 p-6 sm:flex-row">
 
     <VoteButtons
     routeName="posts.vote"
@@ -316,55 +405,6 @@ export default function ShowThread({ auth, thread, filters }) {
                             </div>
                         )}
                     </article>
-
-                    <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
-                        <h3 className="mb-4 text-lg font-bold text-slate-900">
-                            Add a Comment
-                        </h3>
-                        {canComment ? (
-                            <form onSubmit={submit}>
-                                <MarkdownEditor
-                                    value={data.body}
-                                    onChange={(value) => setData('body', value)}
-                                    rows={5}
-                                    textareaClassName="border-slate-300"
-                                    placeholder="Write your comment..."
-                                />
-                                <InputError
-                                    message={errors.body}
-                                    className="mt-2"
-                                />
-                                <div className="mt-3">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) =>
-                                            setData(
-                                                'image',
-                                                e.target.files?.[0] ?? null,
-                                            )
-                                        }
-                                        className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
-                                    />
-                                    <InputError
-                                        message={errors.image}
-                                        className="mt-2"
-                                    />
-                                </div>
-
-                                <div className="mt-4 flex justify-end">
-                                    <PrimaryButton disabled={processing}>
-                                        Post Comment
-                                    </PrimaryButton>
-                                </div>
-                            </form>
-                        ) : (
-                            <p className="text-sm text-slate-600">
-                                This discussion is creator-only. Only{' '}
-                                {thread.user.name} can comment.
-                            </p>
-                        )}
-                    </div>
                 </div>
             </div>
 

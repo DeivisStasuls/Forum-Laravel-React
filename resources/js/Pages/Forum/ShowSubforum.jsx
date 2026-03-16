@@ -45,8 +45,8 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                        <aside className="lg:col-span-3">
-                            <div className="sticky top-4 rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
+                        <aside className="order-2 lg:order-1 lg:col-span-3">
+                            <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur lg:sticky lg:top-4">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
                                     Categories
                                 </h3>
@@ -81,7 +81,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             </div>
                         </aside>
 
-                        <main className="lg:col-span-6">
+                        <main className="order-1 lg:order-2 lg:col-span-6">
                             <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
                                 <div className="border-b border-slate-200 p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -138,7 +138,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                 >
                                                     {thread.title}
                                                 </Link>
-                                                <div className="mt-2 flex items-center gap-4 text-sm text-slate-500">
+                                                <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-500">
                                                     <span>
                                                         by{' '}
                                                         <span className="font-medium text-slate-700">
@@ -177,8 +177,8 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             </div>
                         </main>
 
-                        <aside className="lg:col-span-3">
-                            <div className="sticky top-4 space-y-4">
+                        <aside className="order-3 lg:col-span-3">
+                            <div className="space-y-4 lg:sticky lg:top-4">
                                 <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
                                     <h3 className="mb-2 text-lg font-bold text-slate-900">
                                         {subforum.name}

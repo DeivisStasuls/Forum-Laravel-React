@@ -32,7 +32,7 @@ export default function Subforums({ auth, subforums, filters }) {
             <Head title="Categories" />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
-                <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
                         <div className="border-b border-slate-200 p-6">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -66,7 +66,7 @@ export default function Subforums({ auth, subforums, filters }) {
                         {subforums.length > 0 ? (
                             <div className="divide-y divide-slate-200">
                                 {subforums.map((subforum) => (
-                                    <div key={subforum.id} className="flex items-start justify-between gap-4 p-6 transition-colors hover:bg-slate-50">
+                                    <div key={subforum.id} className="flex flex-col gap-4 p-6 transition-colors hover:bg-slate-50 sm:flex-row sm:items-start sm:justify-between">
                                         <div className="min-w-0">
                                             <Link
                                                 href={route(

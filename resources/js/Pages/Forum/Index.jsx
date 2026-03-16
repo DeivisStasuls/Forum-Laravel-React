@@ -42,10 +42,10 @@ export default function ForumIndex({
             <Head title="Forum" />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
-                <div className="container mx-auto px-4 py-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        <aside className="lg:col-span-3">
-                            <div className="sticky top-4 rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                        <aside className="order-2 lg:order-1 lg:col-span-3">
+                            <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur lg:sticky lg:top-4">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
                                     Categories
                                 </h3>
@@ -76,7 +76,7 @@ export default function ForumIndex({
                             </div>
                         </aside>
 
-                        <main className="lg:col-span-6">
+                        <main className="order-1 lg:order-2 lg:col-span-6">
                             <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
                                 <div className="border-b border-slate-200 p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -127,7 +127,7 @@ export default function ForumIndex({
                                                         >
                                                             {thread.title}
                                                         </Link>
-                                                        <div className="flex items-center gap-4 text-sm text-slate-500">
+                                                        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
                                                             <span>
                                                                 by{' '}
                                                                 <span className="font-medium text-slate-700">
@@ -167,7 +167,7 @@ export default function ForumIndex({
                             </div>
                         </main>
 
-                        <aside className="lg:col-span-3">
+                        <aside className="order-3 lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
                                     Recent Activity
