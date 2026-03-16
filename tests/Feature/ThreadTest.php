@@ -7,6 +7,7 @@ use App\Models\Thread;
 use App\Models\Subforum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -186,5 +187,25 @@ class ThreadTest extends TestCase
             ->assertSee($matchingAuthor->name)
             ->assertSee($matchingPost->body)
             ->assertDontSee($otherPost->body);
+    }
+
+    #[Test]
+    public function creating_thread_bumps_forum_cache_version()
+    {
+        Cache::flush();
+        Cache::forever('forum_cache_version', 7);
+
+        $user = User::factory()->create();
+        $subforum = Subforum::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('threads.store'), [
+                'title' => 'Cache bump discussion',
+                'body' => 'Body for cache bump test.',
+                'subforum_id' => $subforum->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(8, (int) Cache::get('forum_cache_version'));
     }
 }

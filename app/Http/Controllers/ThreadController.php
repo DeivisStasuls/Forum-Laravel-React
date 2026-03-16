@@ -95,6 +95,7 @@ class ThreadController extends Controller
             'user_id' => $request->user()->id,
             'subforum_id' => $subforum->id,
         ]);
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('threads.show', $thread->slug)
             ->with('success', 'Discussion created successfully!');
@@ -219,6 +220,7 @@ class ThreadController extends Controller
             $thread->slug = Thread::generateSlug($request->title);
             $thread->save();
         }
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('threads.show', $thread->slug)
             ->with('success', 'Discussion updated successfully!');
@@ -241,6 +243,7 @@ class ThreadController extends Controller
             Storage::disk('public')->delete($thread->image_path);
         }
         $thread->delete();
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('subforums.show', $subforumSlug)
             ->with('success', 'Discussion deleted successfully!');

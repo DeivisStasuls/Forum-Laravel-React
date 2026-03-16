@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Thread;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Services\ForumQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -16,6 +17,11 @@ use Inertia\Inertia;
 class PostController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        private readonly ForumQueryService $forumQueryService
+    ) {
+    }
 
     public function myPosts(Request $request)
     {
@@ -73,6 +79,7 @@ class PostController extends Controller
             'user_id' => $request->user()->id,
             'thread_id' => $thread->id,
         ]);
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('threads.show', $thread->slug)
             ->with('success', 'Comment posted successfully!');
@@ -135,6 +142,7 @@ class PostController extends Controller
         'edited_by_user_id' => $request->user()->id,
         'edited_at' => now(),
     ]);
+    $this->forumQueryService->bumpForumCacheVersion();
 
     return Redirect::route('threads.show', $thread->slug)
         ->with('success', 'Comment updated successfully!');
@@ -152,6 +160,7 @@ public function destroy(string $threadSlug, int $postId)
         }
 
         $post->delete();
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('threads.show', $thread->slug)
             ->with('success', 'Comment deleted successfully!');

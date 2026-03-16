@@ -57,6 +57,7 @@ class SubforumController extends Controller
             'description' => $request->description,
             'restricted_thread_creation' => $request->boolean('restricted_thread_creation'),
         ]);
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('subforums.show', $subforum->slug)
             ->with('success', 'Category created successfully!');
@@ -139,6 +140,7 @@ class SubforumController extends Controller
             $subforum->slug = Subforum::generateSlug($request->name);
             $subforum->save();
         }
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('subforums.show', $subforum->slug)
             ->with('success', 'Category updated successfully!');
@@ -151,6 +153,7 @@ class SubforumController extends Controller
     {
         $subforum = Subforum::where('slug', $slug)->firstOrFail();
         $subforum->delete();
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('forum.index')
             ->with('success', 'Category deleted successfully!');

@@ -8,6 +8,7 @@ use App\Models\Subforum;
 use App\Models\Thread;
 use App\Models\User;
 use App\Services\AdminUserQueryService;
+use App\Services\ForumQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +17,8 @@ use Inertia\Response;
 class AdminUserController extends Controller
 {
     public function __construct(
-        private readonly AdminUserQueryService $adminUserQueryService
+        private readonly AdminUserQueryService $adminUserQueryService,
+        private readonly ForumQueryService $forumQueryService
     ) {
     }
 
@@ -162,6 +164,7 @@ class AdminUserController extends Controller
             ->findOrFail($validated['user_id']);
 
         $subforum->moderators()->syncWithoutDetaching([$user->id]);
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return back()->with('success', 'Moderator assigned successfully.');
     }
@@ -171,6 +174,7 @@ class AdminUserController extends Controller
         $this->authorizeAdmin($request);
 
         $subforum->moderators()->detach($user->id);
+        $this->forumQueryService->bumpForumCacheVersion();
 
         return back()->with('success', 'Moderator removed successfully.');
     }
