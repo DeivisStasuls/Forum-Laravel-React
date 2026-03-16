@@ -101,4 +101,50 @@ class ApiAuthTest extends TestCase
             'id' => $tokenId,
         ]);
     }
+
+    #[Test]
+    public function register_endpoint_is_rate_limited(): void
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->postJson('/api/auth/register', [
+                'name' => '',
+                'email' => '',
+                'password' => 'short',
+                'password_confirmation' => 'short',
+                'device_name' => '',
+            ])->assertStatus(422);
+        }
+
+        $this->postJson('/api/auth/register', [
+            'name' => '',
+            'email' => '',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+            'device_name' => '',
+        ])->assertStatus(429);
+    }
+
+    #[Test]
+    public function login_endpoint_is_rate_limited(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'rate-limit-login@example.com',
+            'password' => 'Password123!',
+            'banned_at' => null,
+        ]);
+
+        for ($attempt = 0; $attempt < 10; $attempt++) {
+            $this->postJson('/api/auth/login', [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+                'device_name' => 'rate-limit-device',
+            ])->assertStatus(422);
+        }
+
+        $this->postJson('/api/auth/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+            'device_name' => 'rate-limit-device',
+        ])->assertStatus(429);
+    }
 }
