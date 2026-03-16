@@ -33,6 +33,7 @@ export default function Subforums({ auth, subforums, filters }) {
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-4 h-5" />
                     <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 shadow-sm backdrop-blur">
                         <div className="border-b border-slate-200 p-6">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

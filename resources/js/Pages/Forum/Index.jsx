@@ -43,6 +43,7 @@ export default function ForumIndex({
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mb-4 h-5" />
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                         <aside className="order-2 lg:order-1 lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur lg:sticky lg:top-4">
