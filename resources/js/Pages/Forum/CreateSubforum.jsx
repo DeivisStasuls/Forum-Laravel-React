@@ -3,9 +3,11 @@ import InputLabel from '@/Components/InputLabel';
 import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function CreateSubforum({ auth }) {
+    const { t } = useI18n();
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         description: '',
@@ -22,18 +24,18 @@ export default function CreateSubforum({ auth }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Create Category
+                    {t('Create Category')}
                 </h2>
             }
         >
-            <Head title="Create Category" />
+            <Head title={t('Create Category')} />
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg dark:bg-gray-800">
                         <form onSubmit={submit}>
                             <div>
-                                <InputLabel htmlFor="name" value="Category Name" />
+                                <InputLabel htmlFor="name" value={t('Category Name')} />
                                 <input
                                     id="name"
                                     type="text"
@@ -42,7 +44,7 @@ export default function CreateSubforum({ auth }) {
                                         setData('name', e.target.value)
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-100"
-                                    placeholder="e.g. Sports, Education, Campus Life"
+                                    placeholder={t('e.g. Sports, Education, Campus Life')}
                                 />
                                 <InputError
                                     message={errors.name}
@@ -53,7 +55,7 @@ export default function CreateSubforum({ auth }) {
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="description"
-                                    value="Description (optional)"
+                                    value={t('Description (optional)')}
                                 />
                                 <MarkdownEditor
                                     id="description"
@@ -64,7 +66,7 @@ export default function CreateSubforum({ auth }) {
                                     }
                                     className="mt-1"
                                     textareaClassName="rounded-md border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 dark:bg-gray-900 dark:text-gray-100"
-                                    placeholder="Describe what belongs in this category..."
+                                    placeholder={t('Describe what belongs in this category...')}
                                 />
                                 <InputError
                                     message={errors.description}
@@ -86,8 +88,7 @@ export default function CreateSubforum({ auth }) {
                                         className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                     />
                                     <span className="text-sm text-gray-700 dark:text-gray-200">
-                                        Restrict discussion creation (only admins
-                                        and category moderators can post)
+                                        {t('Restrict discussion creation (only admins and category moderators can post)')}
                                     </span>
                                 </label>
                                 <InputError
@@ -101,10 +102,10 @@ export default function CreateSubforum({ auth }) {
                                     href={route('forum.index')}
                                     className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </Link>
                                 <PrimaryButton disabled={processing}>
-                                    Create Category
+                                    {t('Create Category')}
                                 </PrimaryButton>
                             </div>
                         </form>

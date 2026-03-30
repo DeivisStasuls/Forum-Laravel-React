@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo, useState } from 'react';
@@ -10,6 +11,7 @@ export default function AdminUsers({
     assignableUsers,
     forumStats,
 }) {
+    const { t } = useI18n();
     const [search, setSearch] = useState('');
     const [subforumsState, setSubforumsState] = useState(subforums);
     const [banTarget, setBanTarget] = useState(null);
@@ -179,22 +181,22 @@ export default function AdminUsers({
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Administration
+                    {t('Administration')}
                 </h2>
             }
         >
-            <Head title="Administration" />
+            <Head title={t('Administration')} />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                         <h3 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
-                            Forum Statistics
+                            {t('Forum Statistics')}
                         </h3>
                         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Discussions
+                                    {t('Discussions')}
                                 </div>
                                 <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {forumStats.total_threads.toLocaleString()}
@@ -202,7 +204,7 @@ export default function AdminUsers({
                             </div>
                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Comments
+                                    {t('Comments')}
                                 </div>
                                 <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {forumStats.total_posts.toLocaleString()}
@@ -210,7 +212,7 @@ export default function AdminUsers({
                             </div>
                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Categories
+                                    {t('Categories')}
                                 </div>
                                 <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {forumStats.total_subforums.toLocaleString()}
@@ -218,7 +220,7 @@ export default function AdminUsers({
                             </div>
                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    Members
+                                    {t('Members')}
                                 </div>
                                 <div className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {forumStats.total_users.toLocaleString()}
@@ -229,11 +231,10 @@ export default function AdminUsers({
 
                     <div className="mb-6 rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                            Category Moderators
+                            {t('Category Moderators')}
                         </h3>
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Assign moderators to selected categories and view the
-                            current moderator list.
+                            {t('Assign moderators to selected categories and view the current moderator list.')}
                         </p>
 
                         <form
@@ -250,7 +251,7 @@ export default function AdminUsers({
                                 }
                                 className="block h-11 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
                             >
-                                <option value="">Select category...</option>
+                                <option value="">{t('Select category...')}</option>
                                 {subforumsState.map((subforum) => (
                                     <option key={subforum.id} value={subforum.id}>
                                         {subforum.name}
@@ -266,7 +267,7 @@ export default function AdminUsers({
                                         setModeratorUserSearch(e.target.value)
                                     }
                                     className="mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                    placeholder="Search user by name or email..."
+                                    placeholder={t('Search user by name or email...')}
                                 />
                                 <div className="max-h-36 overflow-y-auto rounded-md border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
                                     {filteredAssignableUsers.length > 0 ? (
@@ -293,7 +294,7 @@ export default function AdminUsers({
                                         ))
                                     ) : (
                                         <p className="px-2 py-1 text-sm text-gray-500 dark:text-gray-400">
-                                            No users match your search.
+                                            {t('No users match your search.')}
                                         </p>
                                     )}
                                 </div>
@@ -308,7 +309,7 @@ export default function AdminUsers({
                                 }
                                 className="h-11 w-full self-start rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Add Moderator
+                                {t('Add Moderator')}
                             </button>
                         </form>
 
@@ -350,7 +351,7 @@ export default function AdminUsers({
                                                             }
                                                             className="text-xs font-semibold text-red-600 transition hover:text-red-700"
                                                         >
-                                                            Remove
+                                                            {t('Remove')}
                                                         </button>
                                                     </div>
                                                 ),
@@ -358,7 +359,7 @@ export default function AdminUsers({
                                         </div>
                                     ) : (
                                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            No moderators assigned.
+                                            {t('No moderators assigned.')}
                                         </p>
                                     )}
                                 </div>
@@ -369,10 +370,10 @@ export default function AdminUsers({
                     <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
                         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                User Administration
+                                {t('User Administration')}
                             </h3>
                             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                Promote users to admin and ban/unban accounts.
+                                {t('Promote users to admin and ban/unban accounts.')}
                             </p>
                             <div className="mt-4">
                                 <input
@@ -380,14 +381,14 @@ export default function AdminUsers({
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                    placeholder="Search users by name, email, role, or status..."
+                                    placeholder={t('Search users by name, email, role, or status...')}
                                 />
                             </div>
 
                             {banTarget && (
                                 <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
                                     <div className="mb-2 text-sm font-semibold text-red-800">
-                                        Ban {banTarget.name}
+                                        {t('Ban')} {banTarget.name}
                                     </div>
                                     <textarea
                                         value={banReason}
@@ -397,7 +398,7 @@ export default function AdminUsers({
                                         className="w-full rounded-md border-red-300 text-sm text-gray-900 shadow-sm focus:border-red-500 focus:ring-red-500"
                                         rows={3}
                                         maxLength={500}
-                                        placeholder="Required: explain why this user is being banned."
+                                        placeholder={t('Required: explain why this user is being banned.')}
                                     />
                                     {banError && (
                                         <p className="mt-2 text-sm text-red-700">
@@ -410,14 +411,14 @@ export default function AdminUsers({
                                             onClick={closeBanReasonPanel}
                                             className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-800 transition hover:bg-gray-300"
                                         >
-                                            Cancel
+                                            {t('Cancel')}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={submitBan}
                                             className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"
                                         >
-                                            Confirm Ban
+                                            {t('Confirm Ban')}
                                         </button>
                                     </div>
                                 </div>
@@ -429,22 +430,22 @@ export default function AdminUsers({
                                 <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900/40">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            User
+                                            {t('User')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            Role
+                                            {t('Role')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            Status
+                                            {t('Status')}
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            Joined
+                                            {t('Joined')}
                                         </th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            Warnings
+                                            {t('Warnings')}
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                            Actions
+                                            {t('Actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -485,8 +486,8 @@ export default function AdminUsers({
                                                     }
                                                 >
                                                     {user.banned_at
-                                                        ? 'Banned'
-                                                        : 'Active'}
+                                                        ? t('Banned')
+                                                        : t('Active')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -521,7 +522,7 @@ export default function AdminUsers({
                                                                 preserveScroll
                                                                 className="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
                                                             >
-                                                                Warn
+                                                                {t('Warn')}
                                                             </Link>
                                                             <Link
                                                                 href={route(
@@ -538,7 +539,7 @@ export default function AdminUsers({
                                                                     0
                                                                 }
                                                             >
-                                                                Remove Warning
+                                                                {t('Remove Warning')}
                                                             </Link>
                                                         </>
                                                     )}
@@ -554,7 +555,7 @@ export default function AdminUsers({
                                                                 as="button"
                                                                 className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-800 transition hover:bg-gray-300"
                                                             >
-                                                                Remove Admin
+                                                                {t('Remove Admin')}
                                                             </Link>
                                                         ) : (
                                                             <Link
@@ -566,7 +567,7 @@ export default function AdminUsers({
                                                                 as="button"
                                                                 className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-700"
                                                             >
-                                                                Make Admin
+                                                                {t('Make Admin')}
                                                             </Link>
                                                         ))}
 
@@ -581,7 +582,7 @@ export default function AdminUsers({
                                                                 as="button"
                                                                 className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
                                                             >
-                                                                Unban
+                                                                {t('Unban')}
                                                             </Link>
                                                         ) : (
                                                             <button
@@ -589,7 +590,7 @@ export default function AdminUsers({
                                                                 onClick={() => openBanReasonPanel(user)}
                                                                 className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-700"
                                                             >
-                                                                Ban
+                                                                {t('Ban')}
                                                             </button>
                                                         ))}
                                                 </div>
@@ -602,7 +603,7 @@ export default function AdminUsers({
                                                 colSpan={6}
                                                 className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
                                             >
-                                                No users match your search.
+                                                {t('No users match your search.')}
                                             </td>
                                         </tr>
                                     )}

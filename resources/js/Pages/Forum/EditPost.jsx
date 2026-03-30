@@ -2,9 +2,11 @@ import InputError from '@/Components/InputError';
 import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 
 export default function EditPost({ auth, thread, post }) {
+    const { t } = useI18n();
     const { data, setData, processing, errors } = useForm({
         body: post.body ?? '',
         image: null,
@@ -26,11 +28,11 @@ export default function EditPost({ auth, thread, post }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Edit Comment
+                    {t('Edit Comment')}
                 </h2>
             }
         >
-            <Head title="Edit Comment" />
+            <Head title={t('Edit Comment')} />
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
@@ -87,7 +89,7 @@ export default function EditPost({ auth, thread, post }) {
                                             }
                                             className="rounded border-slate-300 text-indigo-600"
                                         />
-                                        Remove current image
+                                        {t('Remove current image')}
                                     </label>
                                 )}
                             </div>
@@ -97,10 +99,10 @@ export default function EditPost({ auth, thread, post }) {
                                     href={route('threads.show', thread.slug)}
                                     className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </Link>
                                 <PrimaryButton disabled={processing}>
-                                    Save Changes
+                                    {t('Save Changes')}
                                 </PrimaryButton>
                             </div>
                         </form>

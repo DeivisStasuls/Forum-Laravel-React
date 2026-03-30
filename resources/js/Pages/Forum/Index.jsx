@@ -2,6 +2,7 @@
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import MarkdownText from '@/Components/MarkdownText';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
@@ -13,6 +14,7 @@ export default function ForumIndex({
     recentPosts,
     filters,
 }) {
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters?.search ?? '');
     const isFirstRender = useRef(true);
 
@@ -48,7 +50,7 @@ export default function ForumIndex({
                         <aside className="order-2 lg:order-1 lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur lg:sticky lg:top-4">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
-                                    Categories
+                                    {t('Categories')}
                                 </h3>
                                 <nav className="space-y-2">
                                     {subforums.map((subforum) => (
@@ -63,8 +65,8 @@ export default function ForumIndex({
                                             <div className="text-sm text-slate-500">
                                                 {subforum.threads_count}{' '}
                                                 {subforum.threads_count === 1
-                                                    ? 'discussion'
-                                                    : 'discussions'}
+                                                    ? t('discussion')
+                                                    : t('discussions')}
                                             </div>
                                             {subforum.description && (
                                                 <MarkdownText
@@ -83,7 +85,7 @@ export default function ForumIndex({
                                 <div className="border-b border-slate-200 p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <h3 className="text-xl font-bold text-slate-900">
-                                            Recent Discussions
+                                            {t('Recent Discussions')}
                                         </h3>
                                         <div className="flex items-center gap-2">
                                             <input
@@ -92,7 +94,7 @@ export default function ForumIndex({
                                                 onChange={(e) =>
                                                     setSearch(e.target.value)
                                                 }
-                                                placeholder="Search discussions..."
+                                                placeholder={t('Search discussions...')}
                                                 className="w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
                                             />
                                         </div>
@@ -131,7 +133,7 @@ export default function ForumIndex({
                                                         </Link>
                                                         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
                                                             <span>
-                                                                by{' '}
+                                                                {t('by')}{' '}
                                                                 <span className="font-medium text-slate-700">
                                                                     {thread.user.name}
                                                                 </span>
@@ -139,8 +141,8 @@ export default function ForumIndex({
                                                             <span>
                                                                 {thread.posts_count}{' '}
                                                                 {thread.posts_count === 1
-                                                                    ? 'reply'
-                                                                    : 'replies'}
+                                                                    ? t('reply')
+                                                                    : t('replies')}
                                                             </span>
                                                             <span>
                                                                 {formatDistanceToNow(
@@ -159,10 +161,10 @@ export default function ForumIndex({
                                 ) : (
                                     <div className="p-12 text-center text-slate-500">
                                         <p className="mb-2 text-lg">
-                                            No discussions yet
+                                            {t('No discussions yet')}
                                         </p>
                                         <p className="text-sm">
-                                            Be the first to start a discussion!
+                                            {t('Be the first to start a discussion!')}
                                         </p>
                                     </div>
                                 )}
@@ -172,7 +174,7 @@ export default function ForumIndex({
                         <aside className="order-3 lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
-                                    Recent Activity
+                                    {t('Recent Activity')}
                                 </h3>
                                 <div className="space-y-4">
                                     {recentPosts.map((post) => (
@@ -188,7 +190,7 @@ export default function ForumIndex({
                                                 className="mb-1 text-xs text-slate-600"
                                             />
                                             <div className="text-xs text-slate-500">
-                                                by {post.user.name} • {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                                                {t('by')} {post.user.name} • {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                                             </div>
                                         </div>
                                     ))}

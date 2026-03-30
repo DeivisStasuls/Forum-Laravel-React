@@ -1,9 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import MarkdownText from '@/Components/MarkdownText';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function Subforums({ auth, subforums, filters }) {
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters?.search ?? '');
     const isFirstRender = useRef(true);
 
@@ -40,10 +42,10 @@ export default function Subforums({ auth, subforums, filters }) {
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h2 className="text-lg font-bold text-slate-900">
-                                        Categories
+                                        {t('Categories')}
                                     </h2>
                                     <p className="mt-1 text-sm text-slate-600">
-                                        Explore all discussion sections.
+                                        {t('Explore all discussion sections.')}
                                     </p>
                                 </div>
                                 <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
@@ -51,7 +53,7 @@ export default function Subforums({ auth, subforums, filters }) {
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search categories..."
+                                        placeholder={t('Search categories...')}
                                         className="w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
                                     />
                                     {auth.user.role === 'admin' && (
@@ -59,7 +61,7 @@ export default function Subforums({ auth, subforums, filters }) {
                                             href={route('subforums.create')}
                                             className="whitespace-nowrap rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
                                         >
-                                            + New Category
+                                            + {t('New Category')}
                                         </Link>
                                     )}
                                 </div>
@@ -87,8 +89,8 @@ export default function Subforums({ auth, subforums, filters }) {
                                             <p className="mt-1 text-sm text-slate-500">
                                                 {subforum.threads_count}{' '}
                                                 {subforum.threads_count === 1
-                                                    ? 'discussion'
-                                                    : 'discussions'}
+                                                    ? t('discussion')
+                                                    : t('discussions')}
                                             </p>
                                             {subforum.description && (
                                                 <MarkdownText
@@ -101,14 +103,14 @@ export default function Subforums({ auth, subforums, filters }) {
                                             href={route('subforums.show', subforum.slug)}
                                             className="shrink-0 rounded-full border border-indigo-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-50"
                                         >
-                                            Open
+                                            {t('Open')}
                                         </Link>
                                     </div>
                                 ))}
                             </div>
                         ) : (
                             <div className="p-12 text-center text-slate-500">
-                                No categories yet.
+                                {t('No categories yet.')}
                             </div>
                         )}
                     </div>

@@ -1,27 +1,29 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import MarkdownText from '@/Components/MarkdownText';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function MyPosts({ auth, posts }) {
+    const { t } = useI18n();
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                        My Posts
+                        {t('My Posts')}
                     </h2>
                     <Link
                         href={route('forum.index')}
                         className="rounded bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition duration-150 hover:bg-indigo-700"
                     >
-                        Back to Forum
+                        {t('Back to Forum')}
                     </Link>
                 </div>
             }
         >
-            <Head title="My Posts" />
+            <Head title={t('My Posts')} />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -55,7 +57,7 @@ export default function MyPosts({ auth, posts }) {
 
                                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                                         <span>
-                                            Posted{' '}
+                                            {t('Posted')}{' '}
                                             {formatDistanceToNow(
                                                 new Date(post.created_at),
                                                 {
@@ -65,7 +67,7 @@ export default function MyPosts({ auth, posts }) {
                                         </span>
                                         {post.edited_at && (
                                             <span>
-                                                Edited{' '}
+                                                {t('Edited')}{' '}
                                                 {formatDistanceToNow(
                                                     new Date(post.edited_at),
                                                     { addSuffix: true },
@@ -73,7 +75,7 @@ export default function MyPosts({ auth, posts }) {
                                             </span>
                                         )}
                                         <span>
-                                            Score:{' '}
+                                            {t('Score')}:{' '}
                                             <span className="font-semibold text-gray-700 dark:text-gray-200">
                                                 {post.score}
                                             </span>
@@ -85,13 +87,13 @@ export default function MyPosts({ auth, posts }) {
                                             ])}
                                             className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                                         >
-                                            Edit
+                                            {t('Edit')}
                                         </Link>
                                         <Link
                                             href={route('threads.show', post.thread.slug)}
                                             className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                                         >
-                                            Open Thread
+                                            {t('Open Thread')}
                                         </Link>
                                     </div>
                                 </article>
@@ -100,11 +102,10 @@ export default function MyPosts({ auth, posts }) {
                     ) : (
                         <div className="rounded-lg bg-white p-10 text-center shadow-sm dark:bg-gray-800">
                             <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                You have not posted anything yet.
+                                {t('You have not posted anything yet.')}
                             </p>
                             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                Join a discussion and your comments will appear
-                                here.
+                                {t('Join a discussion and your comments will appear here.')}
                             </p>
                         </div>
                     )}

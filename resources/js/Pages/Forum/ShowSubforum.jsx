@@ -1,10 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import MarkdownText from '@/Components/MarkdownText';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 export default function ShowSubforum({ auth, subforum, subforums, filters }) {
+    const { t } = useI18n();
     const [search, setSearch] = useState(filters?.search ?? '');
     const [order, setOrder] = useState(filters?.order ?? 'latest');
     const isFirstRender = useRef(true);
@@ -41,7 +43,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                             href={route('forum.index')}
                             className="text-sm text-indigo-600 hover:text-indigo-800"
                         >
-                            ← Back to Forum
+                            ← {t('Back to Forum')}
                         </Link>
                     </div>
 
@@ -49,7 +51,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                         <aside className="order-2 lg:order-1 lg:col-span-3">
                             <div className="rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur lg:sticky lg:top-4">
                                 <h3 className="mb-4 border-b border-slate-200 pb-2 text-lg font-bold text-slate-900">
-                                    Categories
+                                    {t('Categories')}
                                 </h3>
                                 <nav className="space-y-2">
                                     {subforums.map((item) => (
@@ -68,8 +70,8 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                             <div className="text-sm text-slate-500">
                                                 {item.threads_count}{' '}
                                                 {item.threads_count === 1
-                                                    ? 'discussion'
-                                                    : 'discussions'}
+                                                    ? t('discussion')
+                                                    : t('discussions')}
                                             </div>
                                             {item.description && (
                                                 <MarkdownText
@@ -92,7 +94,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                 htmlFor="order"
                                                 className="text-sm font-semibold text-slate-700"
                                             >
-                                                Order by
+                                                {t('Order by')}
                                             </label>
                                             <select
                                                 id="order"
@@ -103,13 +105,13 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                 className="rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             >
                                                 <option value="latest">
-                                                    Newest
+                                                    {t('Newest')}
                                                 </option>
                                                 <option value="oldest">
-                                                    Oldest
+                                                    {t('Oldest')}
                                                 </option>
                                                 <option value="most_commented">
-                                                    Most Commented
+                                                    {t('Most Commented')}
                                                 </option>
                                             </select>
                                         </div>
@@ -120,7 +122,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                 onChange={(e) =>
                                                     setSearch(e.target.value)
                                                 }
-                                                placeholder="Search discussions..."
+                                                placeholder={t('Search discussions...')}
                                                 className="w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64"
                                             />
                                         </div>
@@ -142,7 +144,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                 </Link>
                                                 <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-500">
                                                     <span>
-                                                        by{' '}
+                                                        {t('by')}{' '}
                                                         <span className="font-medium text-slate-700">
                                                             {thread.user.name}
                                                         </span>
@@ -150,8 +152,8 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                     <span>
                                                         {thread.posts_count}{' '}
                                                         {thread.posts_count === 1
-                                                            ? 'comment'
-                                                            : 'comments'}
+                                                            ? t('comment')
+                                                            : t('comments')}
                                                     </span>
                                                     <span>
                                                         {formatDistanceToNow(
@@ -168,11 +170,10 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                 ) : (
                                     <div className="p-12 text-center text-slate-500">
                                         <p className="text-lg">
-                                            No discussions in this category yet
+                                            {t('No discussions in this category yet')}
                                         </p>
                                         <p className="mt-2 text-sm">
-                                            Start the first one to get this
-                                            category active.
+                                            {t('Start the first one to get this category active.')}
                                         </p>
                                     </div>
                                 )}
@@ -187,7 +188,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                     </h3>
                                     {subforum.is_moderator && (
                                         <div className="mb-2 inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-700">
-                                            You are a moderator in this category
+                                            {t('You are a moderator in this category')}
                                         </div>
                                     )}
                                     <MarkdownText
@@ -199,7 +200,7 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                     />
                                     <div className="mt-3">
                                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                            Moderators
+                                            {t('Moderators')}
                                         </p>
                                         {subforum.moderators.length > 0 ? (
                                             <div className="mt-2 flex flex-wrap gap-2">
@@ -216,16 +217,16 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                             </div>
                                         ) : (
                                             <p className="mt-1 text-xs text-slate-500">
-                                                No moderators assigned.
+                                                {t('No moderators assigned.')}
                                             </p>
                                         )}
                                     </div>
                                     <div className="mt-4 text-xs text-slate-500">
                                         {subforum.threads.length}{' '}
                                         {subforum.threads.length === 1
-                                            ? 'discussion'
-                                            : 'discussions'}{' '}
-                                        shown
+                                            ? t('discussion')
+                                            : t('discussions')}{' '}
+                                        {t('shown')}
                                     </div>
                                 </div>
 
@@ -235,14 +236,14 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                             href={route('threads.create')}
                                             className="w-full rounded-full bg-indigo-600 px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-indigo-500"
                                         >
-                                            + Create Discussion
+                                            + {t('Create Discussion')}
                                         </Link>
                                         {auth.user.role === 'admin' && (
                                             <Link
                                                 href={route('subforums.edit', subforum.slug)}
                                                 className="w-full rounded-full border border-slate-300 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                                             >
-                                                Edit Category
+                                                {t('Edit Category')}
                                             </Link>
                                         )}
                                     </div>

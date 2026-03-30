@@ -7,8 +7,10 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 import VoteButtons from '@/Components/VoteButtons';
+import useI18n from '@/hooks/useI18n';
 
 export default function ShowThread({ auth, thread, filters }) {
+    const { t } = useI18n();
     const { data, setData, post, processing, errors, reset } = useForm({
         body: '',
         image: null,
@@ -93,7 +95,7 @@ export default function ShowThread({ auth, thread, filters }) {
                             {thread.title}
                         </h2>
                         <p className="mt-1 text-sm text-slate-500">
-                            in{' '}
+                            {t('in')}{' '}
                             <Link
                                 href={route('subforums.show', thread.subforum.slug)}
                                 className="font-medium text-indigo-600 hover:text-indigo-800"
@@ -115,7 +117,7 @@ export default function ShowThread({ auth, thread, filters }) {
                                 href={route('subforums.show', thread.subforum.slug)}
                                 className="text-sm text-indigo-600 hover:text-indigo-800"
                             >
-                                ← Back to {thread.subforum.name}
+                                ← {t('Back to')} {thread.subforum.name}
                             </Link>
 
                             {(auth.user.id === thread.user.id ||
@@ -125,7 +127,7 @@ export default function ShowThread({ auth, thread, filters }) {
                                         href={route('threads.edit', thread.slug)}
                                         className="rounded-lg px-3 py-1.5 text-xs font-medium text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-700"
                                     >
-                                        Edit Discussion
+                                        {t('Edit Discussion')}
                                     </Link>
                                     <button
                                         type="button"
@@ -136,7 +138,7 @@ export default function ShowThread({ auth, thread, filters }) {
                                         }
                                         className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700"
                                     >
-                                        Delete Discussion
+                                        {t('Delete Discussion')}
                                     </button>
                                 </div>
                             )}
@@ -160,7 +162,7 @@ export default function ShowThread({ auth, thread, filters }) {
 
             <div className="mb-3 flex items-center gap-3 text-sm text-slate-500">
                 <span>
-                    by{' '}
+                    {t('by')}{' '}
                     <span className="font-medium text-slate-700">
                         {thread.user.name}
                     </span>
@@ -188,11 +190,11 @@ export default function ShowThread({ auth, thread, filters }) {
 
             {thread.edited_at && (
                 <p className="mt-3 text-xs text-slate-500">
-                    Edited by{' '}
+                    {t('Edited by')}{' '}
                     {thread.edited_by?.role === 'admin'
-                        ? 'admin'
-                        : 'user'}{' '}
-                    {thread.edited_by?.name ?? 'unknown'}{' '}
+                        ? t('admin')
+                        : t('user')}{' '}
+                    {thread.edited_by?.name ?? t('unknown')}{' '}
                     {formatDistanceToNow(
                         new Date(thread.edited_at),
                         { addSuffix: true },
@@ -207,7 +209,7 @@ export default function ShowThread({ auth, thread, filters }) {
 
                         <div className="mt-8 px-6 pb-6">
                             <h3 className="mb-4 text-lg font-bold text-slate-900">
-                                Add a Comment
+                                {t('Add a Comment')}
                             </h3>
                             {canComment ? (
                                 <form onSubmit={submit}>
@@ -220,7 +222,7 @@ export default function ShowThread({ auth, thread, filters }) {
                                                 }
                                                 rows={5}
                                                 textareaClassName="border-slate-300"
-                                                placeholder="Join the conversation"
+                                                placeholder={t('Join the conversation')}
                                                 autoFocus
                                             />
                                             <InputError
@@ -261,12 +263,12 @@ export default function ShowThread({ auth, thread, filters }) {
                                                     }}
                                                     className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
                                                 >
-                                                    Cancel
+                                                    {t('Cancel')}
                                                 </button>
                                                 <PrimaryButton
                                                     disabled={processing}
                                                 >
-                                                    Comment
+                                                    {t('Comment')}
                                                 </PrimaryButton>
                                             </div>
                                         </>
@@ -278,14 +280,14 @@ export default function ShowThread({ auth, thread, filters }) {
                                             }
                                             className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-left text-sm text-slate-500 shadow-sm transition hover:border-slate-400"
                                         >
-                                            Join the conversation
+                                            {t('Join the conversation')}
                                         </button>
                                     )}
                                 </form>
                             ) : (
                                 <p className="text-sm text-slate-600">
-                                    This discussion is creator-only. Only{' '}
-                                    {thread.user.name} can comment.
+                                    {t('This discussion is creator-only. Only')}{' '}
+                                    {thread.user.name} {t('can comment.')}
                                 </p>
                             )}
                         </div>
@@ -293,7 +295,7 @@ export default function ShowThread({ auth, thread, filters }) {
                         <div className="border-b border-slate-200 p-6">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <h3 className="text-lg font-bold text-slate-900">
-                                    Comments ({thread.posts_count})
+                                    {t('Comments')} ({thread.posts_count})
                                 </h3>
                                 <div className="flex flex-wrap items-center gap-2">
                                     <input
@@ -302,14 +304,14 @@ export default function ShowThread({ auth, thread, filters }) {
                                         onChange={(e) =>
                                             setReplySearch(e.target.value)
                                         }
-                                        placeholder="Search replies..."
+                                        placeholder={t('Search replies...')}
                                         className="w-full rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-56"
                                     />
                                     <label
                                         htmlFor="reply-order"
                                         className="text-sm font-medium text-slate-600"
                                     >
-                                        Order by
+                                        {t('Order by')}
                                     </label>
                                     <select
                                         id="reply-order"
@@ -319,10 +321,10 @@ export default function ShowThread({ auth, thread, filters }) {
                                         }
                                         className="rounded-lg border-slate-300 bg-white text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     >
-                                        <option value="oldest">Oldest</option>
-                                        <option value="latest">Newest</option>
+                                        <option value="oldest">{t('Oldest')}</option>
+                                        <option value="latest">{t('Newest')}</option>
                                         <option value="top_voted">
-                                            Top voted
+                                            {t('Top voted')}
                                         </option>
                                     </select>
                                 </div>
@@ -365,7 +367,7 @@ export default function ShowThread({ auth, thread, filters }) {
                         href={route('posts.edit', [thread.slug, reply.id])}
                         className="text-xs text-indigo-600 hover:text-indigo-800"
                     >
-                        Edit
+                        {t('Edit')}
                     </Link>
 
                     <button
@@ -377,7 +379,7 @@ export default function ShowThread({ auth, thread, filters }) {
                         }
                         className="text-xs text-red-600 hover:text-red-700"
                     >
-                        Delete
+                        {t('Delete')}
                     </button>
                 </div>
             )}
@@ -401,7 +403,7 @@ export default function ShowThread({ auth, thread, filters }) {
                             </div>
                         ) : (
                             <div className="p-6 text-sm text-slate-500">
-                                No replies yet. Be the first to comment.
+                                {t('No replies yet. Be the first to comment.')}
                             </div>
                         )}
                     </article>
@@ -412,12 +414,12 @@ export default function ShowThread({ auth, thread, filters }) {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
                     <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
                         <h4 className="text-lg font-semibold text-slate-900">
-                            Confirm Deletion
+                            {t('Confirm Deletion')}
                         </h4>
                         <p className="mt-2 text-sm text-slate-600">
                             {deleteTarget.type === 'discussion'
-                                ? 'Are you sure you want to delete this discussion? This action cannot be undone.'
-                                : 'Are you sure you want to delete this comment? This action cannot be undone.'}
+                                ? t('Are you sure you want to delete this discussion? This action cannot be undone.')
+                                : t('Are you sure you want to delete this comment? This action cannot be undone.')}
                         </p>
 
                         <div className="mt-6 flex justify-end gap-3">
@@ -426,14 +428,14 @@ export default function ShowThread({ auth, thread, filters }) {
                                 onClick={() => setDeleteTarget(null)}
                                 className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                             >
-                                Cancel
+                                {t('Cancel')}
                             </button>
                             <button
                                 type="button"
                                 onClick={confirmDelete}
                                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
                             >
-                                Delete
+                                {t('Delete')}
                             </button>
                         </div>
                     </div>

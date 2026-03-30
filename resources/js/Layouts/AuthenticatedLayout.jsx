@@ -1,12 +1,15 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import useI18n from '@/hooks/useI18n';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AuthenticatedLayout({ children }) {
     const user = usePage().props.auth.user;
+    const { t } = useI18n();
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -30,32 +33,33 @@ export default function AuthenticatedLayout({ children }) {
                                     href={route('forum.index')}
                                     active={route().current('forum.index')}
                                 >
-                                    Forum
+                                    {t('Forum')}
                                 </NavLink>
                                 <NavLink
                                     href={route('subforums.index')}
                                     active={route().current('subforums.index')}
                                 >
-                                    Categories
+                                    {t('Categories')}
                                 </NavLink>
                                 <NavLink
                                     href={route('private-discussions.index')}
                                     active={route().current('private-discussions.*')}
                                 >
-                                    Private Discussions
+                                    {t('Private Discussions')}
                                 </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('admin.users.index')}
                                         active={route().current('admin.users.*')}
                                     >
-                                        Administration
+                                        {t('Administration')}
                                     </NavLink>
                                 )}
                             </div>
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
+                            <LanguageSwitcher />
                             <div className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -64,7 +68,7 @@ export default function AuthenticatedLayout({ children }) {
                                                 type="button"
                                                 className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold leading-4 text-blue-700 transition duration-150 ease-in-out hover:border-amber-400 hover:bg-white hover:text-blue-800 focus:outline-none"
                                             >
-                                                My Account
+                                                {t('My Account')}
 
                                                 <svg
                                                     className="-me-0.5 ms-2 h-4 w-4"
@@ -86,19 +90,19 @@ export default function AuthenticatedLayout({ children }) {
                                         <Dropdown.Link
                                             href={route('posts.mine')}
                                         >
-                                            My Posts
+                                            {t('My Posts')}
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            {t('Profile')}
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            {t('Log Out')}
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -155,30 +159,33 @@ export default function AuthenticatedLayout({ children }) {
                     }
                 >
                     <div className="space-y-1 border-t border-sky-200 bg-white px-3 pb-3 pt-2">
+                        <div className="px-2 pb-2">
+                            <LanguageSwitcher compact />
+                        </div>
                         <ResponsiveNavLink
                             href={route('forum.index')}
                             active={route().current('forum.index')}
                         >
-                            Forum
+                            {t('Forum')}
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('subforums.index')}
                             active={route().current('subforums.index')}
                         >
-                            Categories
+                            {t('Categories')}
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('private-discussions.index')}
                             active={route().current('private-discussions.*')}
                         >
-                            Private Discussions
+                            {t('Private Discussions')}
                         </ResponsiveNavLink>
                         {user.role === 'admin' && (
                             <ResponsiveNavLink
                                 href={route('admin.users.index')}
                                 active={route().current('admin.users.*')}
                             >
-                                Administration
+                                {t('Administration')}
                             </ResponsiveNavLink>
                         )}
                     </div>
@@ -198,17 +205,17 @@ export default function AuthenticatedLayout({ children }) {
                                 href={route('posts.mine')}
                                 active={route().current('posts.mine')}
                             >
-                                My Posts
+                                {t('My Posts')}
                             </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
+                                {t('Profile')}
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
                                 href={route('logout')}
                                 as="button"
                             >
-                                Log Out
+                                {t('Log Out')}
                             </ResponsiveNavLink>
                         </div>
                     </div>

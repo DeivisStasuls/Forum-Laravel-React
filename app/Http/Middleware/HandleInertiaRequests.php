@@ -34,6 +34,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'locale' => app()->getLocale(),
+            'translations' => trans('messages'),
             'recentSubforums' => $request->session()->get('recent_subforums', []),
             'recentThreads' => $request->session()->get('recent_threads', []),
         ];

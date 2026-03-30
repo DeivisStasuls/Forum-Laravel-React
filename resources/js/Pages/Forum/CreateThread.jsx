@@ -3,9 +3,11 @@ import MarkdownEditor from '@/Components/MarkdownEditor';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function CreateThread({ auth, subforums }) {
+    const { t } = useI18n();
     const { data, setData, post, processing, errors } = useForm({
         title: '',
         subforum_id: subforums.length > 0 ? String(subforums[0].id) : '',
@@ -26,26 +28,25 @@ export default function CreateThread({ auth, subforums }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-slate-900">
-                    Start a New Discussion
+                    {t('Start a New Discussion')}
                 </h2>
             }
         >
-            <Head title="New Discussion" />
+            <Head title={t('New Discussion')} />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/90 p-6 shadow-sm backdrop-blur sm:rounded-2xl">
                         {subforums.length === 0 ? (
                             <div className="text-sm text-slate-600">
-                                You need at least one category before creating
-                                a discussion.
+                                {t('You need at least one category before creating a discussion.')}
                             </div>
                         ) : (
                             <form onSubmit={submit}>
                                 <div>
                                     <InputLabel
                                         htmlFor="title"
-                                        value="Discussion Title"
+                                        value={t('Discussion Title')}
                                     />
                                     <input
                                         id="title"
@@ -55,7 +56,7 @@ export default function CreateThread({ auth, subforums }) {
                                             setData('title', e.target.value)
                                         }
                                         className="mt-1 block w-full rounded-lg border-slate-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        placeholder="What do you want to discuss?"
+                                        placeholder={t('What do you want to discuss?')}
                                     />
                                     <InputError
                                         message={errors.title}
@@ -66,7 +67,7 @@ export default function CreateThread({ auth, subforums }) {
                                 <div className="mt-4">
                                     <InputLabel
                                         htmlFor="subforum_id"
-                                        value="Category"
+                                        value={t('Category')}
                                     />
                                     <select
                                         id="subforum_id"
@@ -97,7 +98,7 @@ export default function CreateThread({ auth, subforums }) {
                                 <div className="mt-4">
                                     <InputLabel
                                         htmlFor="body"
-                                        value="Discussion Content"
+                                        value={t('Discussion Content')}
                                     />
                                     <MarkdownEditor
                                         id="body"
@@ -107,7 +108,7 @@ export default function CreateThread({ auth, subforums }) {
                                             setData('body', value)
                                         }
                                         className="mt-1"
-                                        placeholder="Share details, context, and your question..."
+                                        placeholder={t('Share details, context, and your question...')}
                                     />
                                     <InputError
                                         message={errors.body}
@@ -118,7 +119,7 @@ export default function CreateThread({ auth, subforums }) {
                                 <div className="mt-4">
                                     <InputLabel
                                         htmlFor="image"
-                                        value="Attachment (optional)"
+                                        value={t('Attachment (optional)')}
                                     />
                                     <input
                                         id="image"
@@ -152,8 +153,7 @@ export default function CreateThread({ auth, subforums }) {
                                             className="rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                         />
                                         <span className="text-sm text-slate-700">
-                                            Only I can comment on this
-                                            discussion
+                                            {t('Only I can comment on this discussion')}
                                         </span>
                                     </label>
                                 </div>
@@ -163,10 +163,10 @@ export default function CreateThread({ auth, subforums }) {
                                         href={route('forum.index')}
                                         className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
                                     >
-                                        Cancel
+                                        {t('Cancel')}
                                     </Link>
                                     <PrimaryButton disabled={processing}>
-                                        Post Discussion
+                                        {t('Post Discussion')}
                                     </PrimaryButton>
                                 </div>
                             </form>

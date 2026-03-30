@@ -3,9 +3,11 @@ import InputLabel from '@/Components/InputLabel';
 import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function EditSubforum({ auth, subforum }) {
+    const { t } = useI18n();
     const { data, setData, patch, processing, errors } = useForm({
         name: subforum.name ?? '',
         description: subforum.description ?? '',
@@ -24,18 +26,18 @@ export default function EditSubforum({ auth, subforum }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Edit Category
+                    {t('Edit Category')}
                 </h2>
             }
         >
-            <Head title="Edit Category" />
+            <Head title={t('Edit Category')} />
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                         <form onSubmit={submit}>
                             <div>
-                                <InputLabel htmlFor="name" value="Category Name" />
+                                <InputLabel htmlFor="name" value={t('Category Name')} />
                                 <input
                                     id="name"
                                     type="text"
@@ -54,7 +56,7 @@ export default function EditSubforum({ auth, subforum }) {
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="description"
-                                    value="Description (optional)"
+                                    value={t('Description (optional)')}
                                 />
                                 <MarkdownEditor
                                     id="description"
@@ -86,8 +88,7 @@ export default function EditSubforum({ auth, subforum }) {
                                         className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                     />
                                     <span className="text-sm text-gray-700 dark:text-gray-200">
-                                        Restrict discussion creation (only admins
-                                        and category moderators can post)
+                                        {t('Restrict discussion creation (only admins and category moderators can post)')}
                                     </span>
                                 </label>
                                 <InputError
@@ -101,10 +102,10 @@ export default function EditSubforum({ auth, subforum }) {
                                     href={route('subforums.show', subforum.slug)}
                                     className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </Link>
                                 <PrimaryButton disabled={processing}>
-                                    Save Changes
+                                    {t('Save Changes')}
                                 </PrimaryButton>
                             </div>
                         </form>

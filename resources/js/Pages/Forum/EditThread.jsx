@@ -3,9 +3,11 @@ import MarkdownEditor from '@/Components/MarkdownEditor';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 
 export default function EditThread({ auth, thread, subforums }) {
+    const { t } = useI18n();
     const { data, setData, processing, errors } = useForm({
         title: thread.title ?? '',
         subforum_id: thread.subforum_id ? String(thread.subforum_id) : '',
@@ -29,11 +31,11 @@ export default function EditThread({ auth, thread, subforums }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Edit Discussion
+                    {t('Edit Discussion')}
                 </h2>
             }
         >
-            <Head title="Edit Discussion" />
+            <Head title={t('Edit Discussion')} />
 
             <div className="min-h-screen bg-gray-200 py-6">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
@@ -42,7 +44,7 @@ export default function EditThread({ auth, thread, subforums }) {
                             <div>
                                 <InputLabel
                                     htmlFor="title"
-                                    value="Discussion Title"
+                                    value={t('Discussion Title')}
                                 />
                                 <input
                                     id="title"
@@ -62,7 +64,7 @@ export default function EditThread({ auth, thread, subforums }) {
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="subforum_id"
-                                    value="Category"
+                                    value={t('Category')}
                                 />
                                 <select
                                     id="subforum_id"
@@ -90,7 +92,7 @@ export default function EditThread({ auth, thread, subforums }) {
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="body"
-                                    value="Discussion Content"
+                                    value={t('Discussion Content')}
                                 />
                                 <MarkdownEditor
                                     id="body"
@@ -111,7 +113,7 @@ export default function EditThread({ auth, thread, subforums }) {
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="image"
-                                    value="Attachment (optional)"
+                                    value={t('Attachment (optional)')}
                                 />
                                 {thread.image_url && !data.remove_image && (
                                     <img
@@ -149,7 +151,7 @@ export default function EditThread({ auth, thread, subforums }) {
                                             }
                                             className="rounded border-slate-300 text-indigo-600"
                                         />
-                                        Remove current image
+                                        {t('Remove current image')}
                                     </label>
                                 )}
                             </div>
@@ -159,10 +161,10 @@ export default function EditThread({ auth, thread, subforums }) {
                                     href={route('threads.show', thread.slug)}
                                     className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </Link>
                                 <PrimaryButton disabled={processing}>
-                                    Save Changes
+                                    {t('Save Changes')}
                                 </PrimaryButton>
                             </div>
                         </form>

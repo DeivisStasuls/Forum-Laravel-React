@@ -2,11 +2,13 @@ import InputError from '@/Components/InputError';
 import MarkdownText from '@/Components/MarkdownText';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useI18n from '@/hooks/useI18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useMemo, useState } from 'react';
 
 export default function PrivateDiscussionsIndex({ auth, groups, users }) {
+    const { t } = useI18n();
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         member_ids: [],
@@ -56,23 +58,23 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
             user={auth.user}
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Private Discussions
+                    {t('Private Discussions')}
                 </h2>
             }
         >
-            <Head title="Private Discussions" />
+            <Head title={t('Private Discussions')} />
 
             <div className="min-h-screen bg-sky-100/60 py-6">
                 <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 lg:grid-cols-12">
                     <aside className="lg:col-span-4">
                         <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                Create Group
+                                    {t('Create Group')}
                             </h3>
                             <form onSubmit={submit} className="mt-4 space-y-4">
                                 <div>
                                     <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                                        Group Name (optional)
+                                        {t('Group Name (optional)')}
                                     </label>
                                     <input
                                         type="text"
@@ -81,7 +83,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                             setData('name', e.target.value)
                                         }
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                        placeholder="Study Team / Project Group"
+                                        placeholder={t('Study Team / Project Group')}
                                     />
                                     <InputError
                                         message={errors.name}
@@ -91,7 +93,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
 
                                 <div>
                                     <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                                        Add Members
+                                        {t('Add Members')}
                                     </p>
                                     <input
                                         type="text"
@@ -100,7 +102,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                             setSearch(e.target.value)
                                         }
                                         className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
-                                        placeholder="Search users by name or email..."
+                                        placeholder={t('Search users by name or email...')}
                                     />
                                     <div className="mt-2 max-h-64 space-y-2 overflow-y-auto rounded border border-gray-200 p-3 dark:border-gray-700">
                                         {filteredUsers.length > 0 ? (
@@ -109,7 +111,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                     0 && (
                                                     <div>
                                                         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-purple-600">
-                                                            Admins
+                                                            {t('Admins')}
                                                         </p>
                                                         <div className="space-y-2">
                                                             {categorizedUsers.admins.map(
@@ -153,7 +155,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                     .length > 0 && (
                                                     <div className="pt-2">
                                                         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                            Members
+                                                            {t('Members')}
                                                         </p>
                                                         <div className="space-y-2">
                                                             {categorizedUsers.members.map(
@@ -195,7 +197,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                             </>
                                         ) : (
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                No users match your search.
+                                                {t('No users match your search.')}
                                             </p>
                                         )}
                                     </div>
@@ -208,7 +210,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                 <PrimaryButton
                                     disabled={processing || users.length === 0}
                                 >
-                                    Create Private Group
+                                    {t('Create Private Group')}
                                 </PrimaryButton>
                             </form>
                         </div>
@@ -218,7 +220,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                         <div className="rounded-lg bg-white shadow-sm dark:bg-gray-800">
                             <div className="border-b border-gray-200 p-6 dark:border-gray-700">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                    Your Groups
+                                    {t('Your Groups')}
                                 </h3>
                             </div>
                             {groups.length > 0 ? (
@@ -239,7 +241,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                         .join(', ')}`}
                                             </h4>
                                             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                                Members:{' '}
+                                                {t('Members')}:{' '}
                                                 {group.members
                                                     .map((m) => m.name)
                                                     .join(', ')}
@@ -260,20 +262,19 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                                         />
                                                     ) : (
                                                         <p>
-                                                            {group.latest_message
-                                                                .image_url
-                                                                ? '[Image attachment]'
+                                                            {group.latest_message.image_url
+                                                                ? t('[Image attachment]')
                                                                 : ''}
                                                         </p>
                                                     )}
                                                 </div>
                                             ) : (
                                                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                                    No messages yet.
+                                                    {t('No messages yet.')}
                                                 </p>
                                             )}
                                             <p className="mt-2 text-xs text-gray-400">
-                                                Updated{' '}
+                                                {t('Updated')}{' '}
                                                 {formatDistanceToNow(
                                                     new Date(group.updated_at),
                                                     { addSuffix: true },
@@ -284,7 +285,7 @@ export default function PrivateDiscussionsIndex({ auth, groups, users }) {
                                 </div>
                             ) : (
                                 <div className="p-10 text-center text-gray-500 dark:text-gray-400">
-                                    No private groups yet.
+                                    {t('No private groups yet.')}
                                 </div>
                             )}
                         </div>
