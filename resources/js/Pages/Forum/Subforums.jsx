@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import MarkdownText from '@/Components/MarkdownText';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -90,9 +91,10 @@ export default function Subforums({ auth, subforums, filters }) {
                                                     : 'discussions'}
                                             </p>
                                             {subforum.description && (
-                                                <p className="mt-2 text-sm text-slate-600">
-                                                    {subforum.description}
-                                                </p>
+                                                <MarkdownText
+                                                    content={subforum.description}
+                                                    className="mt-2 text-sm text-slate-600"
+                                                />
                                             )}
                                         </div>
                                         <Link

@@ -3,10 +3,10 @@ import MarkdownEditor from '@/Components/MarkdownEditor';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 
 export default function EditThread({ auth, thread, subforums }) {
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, processing, errors } = useForm({
         title: thread.title ?? '',
         subforum_id: thread.subforum_id ? String(thread.subforum_id) : '',
         body: thread.body ?? '',
@@ -16,7 +16,10 @@ export default function EditThread({ auth, thread, subforums }) {
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route('threads.update', thread.slug), {
+        router.post(route('threads.update', thread.slug), {
+            ...data,
+            _method: 'patch',
+        }, {
             forceFormData: true,
         });
     };

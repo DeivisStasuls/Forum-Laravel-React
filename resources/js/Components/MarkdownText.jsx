@@ -1,30 +1,22 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import DOMPurify from 'dompurify';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
 const baseTextClass = 'text-inherit';
 
 export default function MarkdownText({ content, className = '' }) {
     const text = content || '';
-    const hasHtml = /<\/?[a-z][\s\S]*>/i.test(text);
-
-    if (hasHtml) {
-        const sanitizedHtml = DOMPurify.sanitize(text, {
-            USE_PROFILES: { html: true },
-        });
-
-        return (
-            <div
-                className={className}
-                dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-            />
-        );
-    }
+    const sanitizeSchema = {
+        ...defaultSchema,
+        tagNames: [...(defaultSchema.tagNames || []), 'u'],
+    };
 
     return (
         <div className={className}>
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                 components={{
                     // Neutralize heading size changes.
                     h1: ({ children }) => (
@@ -48,6 +40,7 @@ export default function MarkdownText({ content, className = '' }) {
                     p: ({ children }) => (
                         <p className={`my-2 ${baseTextClass}`}>{children}</p>
                     ),
+                    u: ({ children }) => <u>{children}</u>,
                     a: ({ href, children }) => (
                         <a
                             href={href}

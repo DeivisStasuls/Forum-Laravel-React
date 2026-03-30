@@ -2,10 +2,10 @@ import InputError from '@/Components/InputError';
 import MarkdownEditor from '@/Components/MarkdownEditor';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 
 export default function EditPost({ auth, thread, post }) {
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, processing, errors } = useForm({
         body: post.body ?? '',
         image: null,
         remove_image: false,
@@ -13,7 +13,10 @@ export default function EditPost({ auth, thread, post }) {
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route('posts.update', [thread.slug, post.id]), {
+        router.post(route('posts.update', [thread.slug, post.id]), {
+            ...data,
+            _method: 'patch',
+        }, {
             forceFormData: true,
         });
     };

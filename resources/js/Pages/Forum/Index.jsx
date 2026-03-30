@@ -67,9 +67,10 @@ export default function ForumIndex({
                                                     : 'discussions'}
                                             </div>
                                             {subforum.description && (
-                                                <div className="mt-1 text-xs text-slate-400">
-                                                    {subforum.description}
-                                                </div>
+                                                <MarkdownText
+                                                    content={subforum.description}
+                                                    className="mt-1 text-xs text-slate-400"
+                                                />
                                             )}
                                         </Link>
                                     ))}

@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import MarkdownText from '@/Components/MarkdownText';
 import { Head, Link, router } from '@inertiajs/react';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
@@ -71,9 +72,10 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                                     : 'discussions'}
                                             </div>
                                             {item.description && (
-                                                <div className="mt-1 text-xs text-slate-400">
-                                                    {item.description}
-                                                </div>
+                                                <MarkdownText
+                                                    content={item.description}
+                                                    className="mt-1 text-xs text-slate-400"
+                                                />
                                             )}
                                         </Link>
                                     ))}
@@ -188,9 +190,13 @@ export default function ShowSubforum({ auth, subforum, subforums, filters }) {
                                             You are a moderator in this category
                                         </div>
                                     )}
-                                    <p className="text-sm text-slate-600">
-                                        {subforum.description || 'No description provided yet.'}
-                                    </p>
+                                    <MarkdownText
+                                        content={
+                                            subforum.description ||
+                                            'No description provided yet.'
+                                        }
+                                        className="text-sm text-slate-600"
+                                    />
                                     <div className="mt-3">
                                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                             Moderators
