@@ -11,6 +11,7 @@ export default function AdminUsers({
     forumStats,
 }) {
     const [search, setSearch] = useState('');
+    const [subforumsState, setSubforumsState] = useState(subforums);
     const [banTarget, setBanTarget] = useState(null);
     const [banReason, setBanReason] = useState('');
     const [banError, setBanError] = useState('');
@@ -18,7 +19,6 @@ export default function AdminUsers({
     const {
         data: moderatorData,
         setData: setModeratorData,
-        post: postModerator,
         processing: assigningModerator,
         errors: moderatorErrors,
     } = useForm({
@@ -68,11 +68,76 @@ export default function AdminUsers({
     const submitModerator = (e) => {
         e.preventDefault();
 
-        postModerator(route('admin.moderators.assign'), {
+        if (!moderatorData.subforum_id || !moderatorData.user_id) {
+            return;
+        }
+
+        const selectedUser = assignableUsers.find(
+            (user) => String(user.id) === String(moderatorData.user_id),
+        );
+
+        router.post(route('admin.moderators.assign'), moderatorData, {
+            preserveState: true,
             preserveScroll: true,
             onSuccess: () => {
+                if (selectedUser) {
+                    setSubforumsState((previous) =>
+                        previous.map((subforum) => {
+                            if (
+                                String(subforum.id) !==
+                                String(moderatorData.subforum_id)
+                            ) {
+                                return subforum;
+                            }
+
+                            const alreadyExists = subforum.moderators.some(
+                                (moderator) =>
+                                    String(moderator.id) ===
+                                    String(selectedUser.id),
+                            );
+
+                            if (alreadyExists) {
+                                return subforum;
+                            }
+
+                            return {
+                                ...subforum,
+                                moderators: [
+                                    ...subforum.moderators,
+                                    selectedUser,
+                                ],
+                            };
+                        }),
+                    );
+                }
+
                 setModeratorData('user_id', '');
                 setModeratorUserSearch('');
+            },
+        });
+    };
+
+    const handleRemoveModerator = (subforumId, moderatorId) => {
+        router.delete(route('admin.moderators.remove', [subforumId, moderatorId]), {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setSubforumsState((previous) =>
+                    previous.map((subforum) => {
+                        if (String(subforum.id) !== String(subforumId)) {
+                            return subforum;
+                        }
+
+                        return {
+                            ...subforum,
+                            moderators: subforum.moderators.filter(
+                                (moderator) =>
+                                    String(moderator.id) !==
+                                    String(moderatorId),
+                            ),
+                        };
+                    }),
+                );
             },
         });
     };
@@ -186,7 +251,7 @@ export default function AdminUsers({
                                 className="block h-11 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-100"
                             >
                                 <option value="">Select category...</option>
-                                {subforums.map((subforum) => (
+                                {subforumsState.map((subforum) => (
                                     <option key={subforum.id} value={subforum.id}>
                                         {subforum.name}
                                     </option>
@@ -256,7 +321,7 @@ export default function AdminUsers({
                         )}
 
                         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {subforums.map((subforum) => (
+                            {subforumsState.map((subforum) => (
                                 <div
                                     key={subforum.id}
                                     className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
@@ -275,20 +340,18 @@ export default function AdminUsers({
                                                         <span className="text-gray-700 dark:text-gray-200">
                                                             {moderator.name}
                                                         </span>
-                                                        <Link
-                                                            href={route(
-                                                                'admin.moderators.remove',
-                                                                [
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleRemoveModerator(
                                                                     subforum.id,
                                                                     moderator.id,
-                                                                ],
-                                                            )}
-                                                            method="delete"
-                                                            as="button"
+                                                                )
+                                                            }
                                                             className="text-xs font-semibold text-red-600 transition hover:text-red-700"
                                                         >
                                                             Remove
-                                                        </Link>
+                                                        </button>
                                                     </div>
                                                 ),
                                             )}
