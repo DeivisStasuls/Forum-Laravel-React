@@ -48,6 +48,47 @@ class ThreadTest extends TestCase
     }
 
     #[Test]
+    public function moderator_can_create_thread_in_restricted_subforum()
+    {
+        $moderator = User::factory()->create();
+        $subforum = Subforum::factory()->create([
+            'restricted_thread_creation' => true,
+        ]);
+        $subforum->moderators()->sync([$moderator->id]);
+
+        $this->actingAs($moderator)
+            ->post(route('threads.store'), [
+                'title' => 'Moderator thread',
+                'body' => 'Allowed because moderator has privileges.',
+                'subforum_id' => $subforum->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('threads', [
+            'title' => 'Moderator thread',
+            'user_id' => $moderator->id,
+            'subforum_id' => $subforum->id,
+        ]);
+    }
+
+    #[Test]
+    public function non_moderator_cannot_create_thread_in_restricted_subforum()
+    {
+        $user = User::factory()->create();
+        $subforum = Subforum::factory()->create([
+            'restricted_thread_creation' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('threads.store'), [
+                'title' => 'Blocked thread',
+                'body' => 'This should be denied for a normal user.',
+                'subforum_id' => $subforum->id,
+            ])
+            ->assertStatus(403);
+    }
+
+    #[Test]
     public function thread_author_can_update_thread()
     {
         $user = User::factory()->create();
@@ -111,6 +152,27 @@ class ThreadTest extends TestCase
 
         $this->assertDatabaseHas('threads', [
             'id' => $thread->id,
+        ]);
+    }
+
+    #[Test]
+    public function admin_can_update_another_users_thread()
+    {
+        $author = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $thread = Thread::factory()->for($author)->create();
+
+        $this->actingAs($admin)
+            ->patch(route('threads.update', $thread->slug), [
+                'title' => 'Admin updated title',
+                'body' => 'Admin updated body content.',
+                'subforum_id' => $thread->subforum_id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('threads', [
+            'id' => $thread->id,
+            'title' => 'Admin updated title',
         ]);
     }
 

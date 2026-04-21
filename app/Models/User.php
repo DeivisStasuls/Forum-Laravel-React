@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isModeratorOf(Subforum $subforum): bool
+    {
+        return $subforum->moderators()->where('users.id', $this->id)->exists();
+    }
+
     public function isBanned(): bool
     {
         return ! is_null($this->banned_at);

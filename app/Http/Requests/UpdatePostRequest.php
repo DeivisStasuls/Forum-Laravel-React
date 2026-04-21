@@ -19,8 +19,7 @@ class UpdatePostRequest extends FormRequest
 
         $post = Post::query()->find($this->route('post'));
 
-        return $post
-            && ($user->id === $post->user_id || $user->isAdmin());
+        return $post && $user->can('update', $post);
     }
 
     /**

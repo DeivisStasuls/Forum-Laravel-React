@@ -85,6 +85,41 @@ class PostTest extends TestCase
         ]);
     }
 
+    public function test_non_owner_cannot_update_comment()
+    {
+        $owner = User::factory()->create(['email_verified_at' => now()]);
+        $otherUser = User::factory()->create(['email_verified_at' => now()]);
+        $thread = Thread::factory()->for($owner)->create();
+        $post = Post::factory()->for($thread)->for($owner)->create();
+
+        $this->actingAs($otherUser)->patch(
+            route('posts.update', [$thread->slug, $post->id]),
+            [
+                'body' => 'Unauthorized edit',
+            ]
+        )->assertStatus(403);
+    }
+
+    public function test_admin_can_update_another_users_comment()
+    {
+        $owner = User::factory()->create(['email_verified_at' => now()]);
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $thread = Thread::factory()->for($owner)->create();
+        $post = Post::factory()->for($thread)->for($owner)->create();
+
+        $this->actingAs($admin)->patch(
+            route('posts.update', [$thread->slug, $post->id]),
+            [
+                'body' => 'Admin updated comment',
+            ]
+        )->assertRedirect();
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'body' => 'Admin updated comment',
+        ]);
+    }
+
    public function test_author_can_delete_comment()
     {
         $user = User::factory()->create();
@@ -98,5 +133,54 @@ class PostTest extends TestCase
         $this->assertDatabaseMissing('posts', [
             'id' => $post->id,
         ]);
+    }
+
+    public function test_non_owner_cannot_delete_comment()
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $thread = Thread::factory()->for($owner)->create();
+        $post = Post::factory()->for($thread)->for($owner)->create();
+
+        $this->actingAs($otherUser)
+            ->delete(route('posts.destroy', [$thread->slug, $post->id]))
+            ->assertStatus(403);
+    }
+
+    public function test_admin_can_delete_another_users_comment()
+    {
+        $owner = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $thread = Thread::factory()->for($owner)->create();
+        $post = Post::factory()->for($thread)->for($owner)->create();
+
+        $this->actingAs($admin)
+            ->delete(route('posts.destroy', [$thread->slug, $post->id]))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('posts', [
+            'id' => $post->id,
+        ]);
+    }
+
+    public function test_only_thread_owner_can_comment_when_creator_only_comments_enabled()
+    {
+        $owner = User::factory()->create(['email_verified_at' => now()]);
+        $otherUser = User::factory()->create(['email_verified_at' => now()]);
+        $thread = Thread::factory()->for($owner)->create([
+            'creator_only_comments' => true,
+        ]);
+
+        $this->actingAs($otherUser)
+            ->post(route('posts.store', $thread->slug), [
+                'body' => 'I should not be able to comment',
+            ])
+            ->assertStatus(403);
+
+        $this->actingAs($owner)
+            ->post(route('posts.store', $thread->slug), [
+                'body' => 'Thread owner can comment',
+            ])
+            ->assertRedirect();
     }
 }

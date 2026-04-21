@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Subforum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,8 +13,7 @@ class StoreSubforumRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Only admins can create subforums
-        return $this->user() && $this->user()->isAdmin();
+        return $this->user()?->can('create', Subforum::class) ?? false;
     }
 
     /**

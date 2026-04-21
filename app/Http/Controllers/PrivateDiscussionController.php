@@ -11,6 +11,7 @@ use App\Models\PrivateMessage;
 use App\Models\User;
 use App\Services\MediaStorageService;
 use App\Services\PrivateDiscussionQueryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +23,8 @@ use Inertia\Response;
 
 class PrivateDiscussionController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         private readonly PrivateDiscussionQueryService $privateDiscussionQueryService,
         private readonly MediaStorageService $mediaStorageService
@@ -66,7 +69,7 @@ class PrivateDiscussionController extends Controller
 
     public function show(Request $request, PrivateGroup $privateGroup): Response
     {
-        $this->authorizeMember($request, $privateGroup);
+        $this->authorize('view', $privateGroup);
 
         $privateGroup->load([
             'members:id,name',
@@ -85,7 +88,7 @@ class PrivateDiscussionController extends Controller
 
     public function messages(Request $request, PrivateGroup $privateGroup): JsonResponse
     {
-        $this->authorizeMember($request, $privateGroup);
+        $this->authorize('viewMessages', $privateGroup);
 
         $afterId = (int) $request->query('after_id', 0);
 
@@ -98,7 +101,7 @@ class PrivateDiscussionController extends Controller
 
     public function storeMessage(Request $request, PrivateGroup $privateGroup): RedirectResponse
     {
-        $this->authorizeMember($request, $privateGroup);
+        $this->authorize('createMessage', $privateGroup);
 
         $data = $request->validate([
             'body' => ['nullable', 'string', 'max:2000', 'required_without:image'],
@@ -121,7 +124,7 @@ class PrivateDiscussionController extends Controller
 
     public function update(Request $request, PrivateGroup $privateGroup): RedirectResponse
     {
-        $this->authorizeCreator($request, $privateGroup);
+        $this->authorize('update', $privateGroup);
 
         $data = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
@@ -137,7 +140,7 @@ class PrivateDiscussionController extends Controller
 
     public function addMember(Request $request, PrivateGroup $privateGroup): RedirectResponse
     {
-        $this->authorizeCreator($request, $privateGroup);
+        $this->authorize('addMember', $privateGroup);
 
         $data = $request->validate([
             'user_id' => ['required', 'integer', 'exists:users,id'],
@@ -152,7 +155,7 @@ class PrivateDiscussionController extends Controller
 
     public function removeMember(Request $request, PrivateGroup $privateGroup, User $user): RedirectResponse
     {
-        $this->authorizeCreator($request, $privateGroup);
+        $this->authorize('removeMember', $privateGroup);
 
         if ($user->id === $privateGroup->created_by) {
             return back()->withErrors([
@@ -168,7 +171,7 @@ class PrivateDiscussionController extends Controller
 
     public function leave(Request $request, PrivateGroup $privateGroup): RedirectResponse
     {
-        $this->authorizeMember($request, $privateGroup);
+        $this->authorize('leave', $privateGroup);
 
         $currentUserId = $request->user()->id;
 
@@ -197,7 +200,7 @@ class PrivateDiscussionController extends Controller
 
     public function destroy(Request $request, PrivateGroup $privateGroup): RedirectResponse
     {
-        $this->authorizeCreator($request, $privateGroup);
+        $this->authorize('delete', $privateGroup);
 
         $privateGroup->delete();
 
@@ -205,17 +208,4 @@ class PrivateDiscussionController extends Controller
             ->with('success', 'Private discussion deleted.');
     }
 
-    private function authorizeMember(Request $request, PrivateGroup $privateGroup): void
-    {
-        if (! $privateGroup->members()->where('users.id', $request->user()->id)->exists()) {
-            abort(403, 'Unauthorized action.');
-        }
-    }
-
-    private function authorizeCreator(Request $request, PrivateGroup $privateGroup): void
-    {
-        if ($privateGroup->created_by !== $request->user()->id) {
-            abort(403, 'Unauthorized action.');
-        }
-    }
 }

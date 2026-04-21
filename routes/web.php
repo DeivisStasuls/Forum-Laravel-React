@@ -33,12 +33,13 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::get('/subforums', [SubforumController::class, 'index'])->name('subforums.index');
     
     // Admin-only subforum management routes
-    // Note: Authorization is also checked in the controller
-    Route::get('/subforums/create', [SubforumController::class, 'create'])->name('subforums.create');
-    Route::post('/subforums', [SubforumController::class, 'store'])->name('subforums.store');
-    Route::get('/subforums/{slug}/edit', [SubforumController::class, 'edit'])->name('subforums.edit');
-    Route::patch('/subforums/{slug}', [SubforumController::class, 'update'])->name('subforums.update');
-    Route::delete('/subforums/{slug}', [SubforumController::class, 'destroy'])->name('subforums.destroy');
+    Route::middleware('can:manageUsers,App\Models\User')->group(function () {
+        Route::get('/subforums/create', [SubforumController::class, 'create'])->name('subforums.create');
+        Route::post('/subforums', [SubforumController::class, 'store'])->name('subforums.store');
+        Route::get('/subforums/{slug}/edit', [SubforumController::class, 'edit'])->name('subforums.edit');
+        Route::patch('/subforums/{slug}', [SubforumController::class, 'update'])->name('subforums.update');
+        Route::delete('/subforums/{slug}', [SubforumController::class, 'destroy'])->name('subforums.destroy');
+    });
     Route::get('/subforums/{slug}', [SubforumController::class, 'show'])->name('subforums.show');
     
     // Thread Routes
@@ -57,15 +58,17 @@ Route::middleware(['auth', 'verified', 'not_banned'])->group(function () {
     Route::delete('/threads/{threadSlug}/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     // Admin user management
-    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-    Route::patch('/admin/users/{user}/promote', [AdminUserController::class, 'promote'])->name('admin.users.promote');
-    Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demote'])->name('admin.users.demote');
-    Route::patch('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->name('admin.users.ban');
-    Route::patch('/admin/users/{user}/unban', [AdminUserController::class, 'unban'])->name('admin.users.unban');
-    Route::patch('/admin/users/{user}/warn', [AdminUserController::class, 'warn'])->name('admin.users.warn');
-    Route::patch('/admin/users/{user}/warnings/remove', [AdminUserController::class, 'removeWarning'])->name('admin.users.warnings.remove');
-    Route::post('/admin/moderators', [AdminUserController::class, 'assignModerator'])->name('admin.moderators.assign');
-    Route::delete('/admin/subforums/{subforum}/moderators/{user}', [AdminUserController::class, 'removeModerator'])->name('admin.moderators.remove');
+    Route::middleware('can:manageUsers,App\Models\User')->group(function () {
+        Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+        Route::patch('/admin/users/{user}/promote', [AdminUserController::class, 'promote'])->name('admin.users.promote');
+        Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demote'])->name('admin.users.demote');
+        Route::patch('/admin/users/{user}/ban', [AdminUserController::class, 'ban'])->name('admin.users.ban');
+        Route::patch('/admin/users/{user}/unban', [AdminUserController::class, 'unban'])->name('admin.users.unban');
+        Route::patch('/admin/users/{user}/warn', [AdminUserController::class, 'warn'])->name('admin.users.warn');
+        Route::patch('/admin/users/{user}/warnings/remove', [AdminUserController::class, 'removeWarning'])->name('admin.users.warnings.remove');
+        Route::post('/admin/moderators', [AdminUserController::class, 'assignModerator'])->name('admin.moderators.assign');
+        Route::delete('/admin/subforums/{subforum}/moderators/{user}', [AdminUserController::class, 'removeModerator'])->name('admin.moderators.remove');
+    });
 
     // Private discussion groups
     Route::get('/private-discussions', [PrivateDiscussionController::class, 'index'])->name('private-discussions.index');
