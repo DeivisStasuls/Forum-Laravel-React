@@ -10,12 +10,15 @@ use App\Http\Requests\UpdateSubforumRequest;
 use App\Services\ForumQueryService;
 use App\Services\RecentItemsService;
 use App\Services\SlugService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class SubforumController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         private readonly ForumQueryService $forumQueryService,
         private readonly SlugService $slugService,
@@ -44,9 +47,7 @@ class SubforumController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorize('create', Subforum::class);
 
         return Inertia::render('Forum/CreateSubforum');
     }
@@ -104,6 +105,7 @@ class SubforumController extends Controller
     public function edit(string $slug)
     {
         $subforum = Subforum::where('slug', $slug)->firstOrFail();
+        $this->authorize('update', $subforum);
 
         return Inertia::render('Forum/EditSubforum', [
             'subforum' => [
@@ -146,6 +148,7 @@ class SubforumController extends Controller
     public function destroy(string $slug)
     {
         $subforum = Subforum::where('slug', $slug)->firstOrFail();
+        $this->authorize('delete', $subforum);
         $subforum->delete();
         $this->forumQueryService->bumpForumCacheVersion();
 

@@ -9,7 +9,6 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Services\ForumQueryService;
 use App\Services\MediaStorageService;
-use App\Services\OwnershipAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
@@ -21,8 +20,7 @@ class PostController extends Controller
 
     public function __construct(
         private readonly ForumQueryService $forumQueryService,
-        private readonly MediaStorageService $mediaStorageService,
-        private readonly OwnershipAuthorizationService $ownershipAuthorizationService
+        private readonly MediaStorageService $mediaStorageService
     ) {
     }
 
@@ -65,12 +63,7 @@ class PostController extends Controller
     public function store(StorePostRequest $request, string $threadSlug)
     {
         $thread = Thread::findThread($threadSlug, true);
-
-        if ($thread->creator_only_comments && $request->user()->id !== $thread->user_id) {
-            return Redirect::route('threads.show', $thread->slug)->withErrors([
-                'body' => 'Only the discussion creator can comment on this discussion.',
-            ]);
-        }
+        $this->authorize('createInThread', [Post::class, $thread]);
 
         $imagePath = $this->mediaStorageService->storeFromRequest($request, 'image', 'post-images');
 
@@ -93,8 +86,7 @@ class PostController extends Controller
     public function edit(string $threadSlug, int $postId)
 {
     [$thread, $post] = $this->getPost($threadSlug, $postId);
-
-    $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($post->user_id, auth()->user());
+    $this->authorize('update', $post);
 
     return Inertia::render('Forum/EditPost', [
         'thread' => [
@@ -117,8 +109,7 @@ class PostController extends Controller
     public function update(UpdatePostRequest $request, string $threadSlug, int $postId)
 {
     [$thread, $post] = $this->getPost($threadSlug, $postId);
-
-    $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($post->user_id, auth()->user());
+    $this->authorize('update', $post);
     $post->image_path = $this->mediaStorageService->resolveImagePathForUpdate(
         $request,
         'image',

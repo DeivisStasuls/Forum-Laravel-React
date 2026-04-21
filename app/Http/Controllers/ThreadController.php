@@ -12,19 +12,20 @@ use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
 use App\Services\ForumQueryService;
 use App\Services\MediaStorageService;
-use App\Services\OwnershipAuthorizationService;
 use App\Services\RecentItemsService;
 use App\Services\SlugService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class ThreadController extends Controller
-{ 
+{
+    use AuthorizesRequests;
+
     public function __construct(
         private readonly ForumQueryService $forumQueryService,
         private readonly MediaStorageService $mediaStorageService,
-        private readonly OwnershipAuthorizationService $ownershipAuthorizationService,
         private readonly SlugService $slugService,
         private readonly RecentItemsService $recentItemsService
     ) {
@@ -79,16 +80,7 @@ class ThreadController extends Controller
         $subforum = Subforum::query()
             ->with('moderators:id')
             ->findOrFail((int) $request->subforum_id);
-
-        if (
-            $subforum->restricted_thread_creation
-            && ! $request->user()->isAdmin()
-            && ! $subforum->moderators->contains('id', $request->user()->id)
-        ) {
-            return back()->withErrors([
-                'subforum_id' => 'You cannot create discussions in this category.',
-            ]);
-        }
+        $this->authorize('createInSubforum', [Thread::class, $subforum]);
 
         $imagePath = $this->mediaStorageService->storeFromRequest($request, 'image', 'thread-images');
 
@@ -156,9 +148,7 @@ class ThreadController extends Controller
     public function edit(string $slug)
     {
         $thread = Thread::findThread($slug, true);
-
-
-        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
+        $this->authorize('update', $thread);
 
         $subforums = $this->forumQueryService->getThreadCreateSubforums();
 
@@ -181,7 +171,7 @@ class ThreadController extends Controller
     public function update(UpdateThreadRequest $request, string $slug)
     {
         $thread = Thread::findThread($slug, true);
-        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
+        $this->authorize('update', $thread);
         $thread->image_path = $this->mediaStorageService->resolveImagePathForUpdate(
             $request,
             'image',
@@ -215,8 +205,7 @@ class ThreadController extends Controller
     public function destroy(string $slug)
     {
         $thread = Thread::findThread($slug, true);
-
-        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
+        $this->authorize('delete', $thread);
 
         $subforumSlug = $thread->subforum->slug;
         $this->mediaStorageService->deletePublicFile($thread->image_path);

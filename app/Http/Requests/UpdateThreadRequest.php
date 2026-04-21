@@ -21,8 +21,7 @@ class UpdateThreadRequest extends FormRequest
             ->where('slug', (string) $this->route('slug'))
             ->first();
 
-        return $thread
-            && ($user->id === $thread->user_id || $user->isAdmin());
+        return $thread && $user->can('update', $thread);
     }
 
     /**

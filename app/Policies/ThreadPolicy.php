@@ -2,69 +2,38 @@
 
 namespace App\Policies;
 
+use App\Models\Subforum;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ThreadPolicy
 {
-    public function vote(User $user, Thread $thread): bool
-{
-    return $user->id !== $thread->user_id;
-}
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Thread $thread): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return ! $user->isBanned();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
+    public function createInSubforum(User $user, Subforum $subforum): bool
+    {
+        if (! $subforum->restricted_thread_creation) {
+            return true;
+        }
+
+        return $user->isAdmin() || $subforum->moderators()->where('users.id', $user->id)->exists();
+    }
+
     public function update(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->id === $thread->user_id || $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Thread $thread): bool
     {
-        return false;
+        return $user->id === $thread->user_id || $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Thread $thread): bool
+    public function vote(User $user, Thread $thread): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Thread $thread): bool
-    {
-        return false;
+        return $user->id !== $thread->user_id;
     }
 }

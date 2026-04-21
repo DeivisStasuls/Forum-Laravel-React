@@ -9,6 +9,7 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Services\AdminUserQueryService;
 use App\Services\ForumQueryService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +17,8 @@ use Inertia\Response;
 
 class AdminUserController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         private readonly AdminUserQueryService $adminUserQueryService,
         private readonly ForumQueryService $forumQueryService
@@ -24,7 +27,7 @@ class AdminUserController extends Controller
 
     public function index(Request $request): Response
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
         $users = $this->adminUserQueryService->getUsersForManagement();
         $subforums = Subforum::query()
             ->with(['moderators:id,name,email'])
@@ -63,7 +66,7 @@ class AdminUserController extends Controller
 
     public function promote(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         $user->update(['role' => 'admin']);
 
@@ -72,7 +75,7 @@ class AdminUserController extends Controller
 
     public function demote(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         if ($request->user()->id === $user->id) {
             return back()->withErrors(['email' => 'You cannot demote yourself.']);
@@ -85,7 +88,7 @@ class AdminUserController extends Controller
 
     public function ban(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         if ($request->user()->id === $user->id) {
             return back()->withErrors(['email' => 'You cannot ban yourself.']);
@@ -105,7 +108,7 @@ class AdminUserController extends Controller
 
     public function unban(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         $user->update([
             'banned_at' => null,
@@ -117,7 +120,7 @@ class AdminUserController extends Controller
 
     public function warn(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         if ($request->user()->id === $user->id) {
             return back()->withErrors(['email' => 'You cannot warn yourself.']);
@@ -130,7 +133,7 @@ class AdminUserController extends Controller
 
     public function removeWarning(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         if ($request->user()->id === $user->id) {
             return back()->withErrors(['email' => 'You cannot modify your own warnings.']);
@@ -151,7 +154,7 @@ class AdminUserController extends Controller
 
     public function assignModerator(Request $request): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         $validated = $request->validate([
             'subforum_id' => ['required', 'integer', 'exists:subforums,id'],
@@ -171,18 +174,11 @@ class AdminUserController extends Controller
 
     public function removeModerator(Request $request, Subforum $subforum, User $user): RedirectResponse
     {
-        $this->authorizeAdmin($request);
+        $this->authorize('manageUsers', User::class);
 
         $subforum->moderators()->detach($user->id);
         $this->forumQueryService->bumpForumCacheVersion();
 
         return back()->with('success', 'Moderator removed successfully.');
-    }
-
-    private function authorizeAdmin(Request $request): void
-    {
-        if (! $request->user() || ! $request->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
     }
 }

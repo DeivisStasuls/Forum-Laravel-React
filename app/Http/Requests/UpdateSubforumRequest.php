@@ -13,8 +13,11 @@ class UpdateSubforumRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Only admins can update subforums
-        return $this->user() && $this->user()->isAdmin();
+        $subforum = Subforum::query()
+            ->where('slug', (string) $this->route('slug'))
+            ->first();
+
+        return $subforum && ($this->user()?->can('update', $subforum) ?? false);
     }
 
     /**
