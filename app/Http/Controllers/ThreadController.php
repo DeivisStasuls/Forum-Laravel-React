@@ -67,7 +67,7 @@ class ThreadController extends Controller
                 'restricted_thread_creation' => (bool) $subforum->restricted_thread_creation,
                 'can_create_threads' => ! $subforum->restricted_thread_creation
                     || $user?->isAdmin()
-                    || $subforum->moderators->contains('id', $user?->id),
+                    || ($user && $user->isModeratorOf($subforum)),
             ])->values()->all(),
         ]);
     }

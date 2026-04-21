@@ -19,7 +19,7 @@ class ThreadPolicy
             return true;
         }
 
-        return $user->isAdmin() || $subforum->moderators()->where('users.id', $user->id)->exists();
+        return $user->isAdmin() || $user->isModeratorOf($subforum);
     }
 
     public function update(User $user, Thread $thread): bool

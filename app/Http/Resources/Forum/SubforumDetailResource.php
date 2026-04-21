@@ -14,9 +14,7 @@ class SubforumDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $isModerator = $request->user()
-            ? $this->moderators->contains('id', $request->user()->id)
-            : false;
+        $isModerator = $request->user()?->isModeratorOf($this->resource) ?? false;
 
         return [
             'id' => $this->id,
