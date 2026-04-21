@@ -8,9 +8,10 @@ use App\Models\Thread;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Services\ForumQueryService;
+use App\Services\MediaStorageService;
+use App\Services\OwnershipAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -19,7 +20,9 @@ class PostController extends Controller
     use AuthorizesRequests;
 
     public function __construct(
-        private readonly ForumQueryService $forumQueryService
+        private readonly ForumQueryService $forumQueryService,
+        private readonly MediaStorageService $mediaStorageService,
+        private readonly OwnershipAuthorizationService $ownershipAuthorizationService
     ) {
     }
 
@@ -69,9 +72,7 @@ class PostController extends Controller
             ]);
         }
 
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('post-images', 'public')
-            : null;
+        $imagePath = $this->mediaStorageService->storeFromRequest($request, 'image', 'post-images');
 
         Post::create([
             'body' => $request->body,
@@ -93,10 +94,7 @@ class PostController extends Controller
 {
     [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-    // Authorization
-    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-        abort(403, 'Unauthorized action.');
-    }
+    $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($post->user_id, auth()->user());
 
     return Inertia::render('Forum/EditPost', [
         'thread' => [
@@ -120,21 +118,13 @@ class PostController extends Controller
 {
     [$thread, $post] = $this->getPost($threadSlug, $postId);
 
-    if ($post->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-        abort(403, 'Unauthorized action.');
-    }
-
-    if ($request->boolean('remove_image') && $post->image_path) {
-        Storage::disk('public')->delete($post->image_path);
-        $post->image_path = null;
-    }
-
-    if ($request->hasFile('image')) {
-        if ($post->image_path) {
-            Storage::disk('public')->delete($post->image_path);
-        }
-        $post->image_path = $request->file('image')->store('post-images', 'public');
-    }
+    $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($post->user_id, auth()->user());
+    $post->image_path = $this->mediaStorageService->resolveImagePathForUpdate(
+        $request,
+        'image',
+        'post-images',
+        $post->image_path
+    );
 
     $post->update([
         'body' => $request->body,
@@ -155,9 +145,7 @@ public function destroy(string $threadSlug, int $postId)
         // Use policy to check authorization
         $this->authorize('delete', $post);
 
-        if ($post->image_path) {
-            Storage::disk('public')->delete($post->image_path);
-        }
+        $this->mediaStorageService->deletePublicFile($post->image_path);
 
         $post->delete();
         $this->forumQueryService->bumpForumCacheVersion();

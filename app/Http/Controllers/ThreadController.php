@@ -11,15 +11,22 @@ use App\Models\Thread;
 use App\Http\Requests\StoreThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
 use App\Services\ForumQueryService;
+use App\Services\MediaStorageService;
+use App\Services\OwnershipAuthorizationService;
+use App\Services\RecentItemsService;
+use App\Services\SlugService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 
 class ThreadController extends Controller
 { 
     public function __construct(
-        private readonly ForumQueryService $forumQueryService
+        private readonly ForumQueryService $forumQueryService,
+        private readonly MediaStorageService $mediaStorageService,
+        private readonly OwnershipAuthorizationService $ownershipAuthorizationService,
+        private readonly SlugService $slugService,
+        private readonly RecentItemsService $recentItemsService
     ) {
     }
 
@@ -83,9 +90,7 @@ class ThreadController extends Controller
             ]);
         }
 
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('thread-images', 'public')
-            : null;
+        $imagePath = $this->mediaStorageService->storeFromRequest($request, 'image', 'thread-images');
 
         $thread = Thread::create([
             'title' => $request->title,
@@ -125,7 +130,16 @@ class ThreadController extends Controller
         $post->score = $post->score;
     });
 
-    $this->rememberRecentThread($request, $thread);
+    $this->recentItemsService->remember(
+        $request,
+        'recent_threads',
+        [
+            'id' => $thread->id,
+            'title' => $thread->title,
+            'slug' => $thread->slug,
+        ],
+        $thread->id
+    );
 
     return Inertia::render('Forum/ShowThread', [
         'thread' => (new ThreadDetailResource($thread))->resolve(),
@@ -136,25 +150,6 @@ class ThreadController extends Controller
     ]);
 }
 
-    private function rememberRecentThread(Request $request, Thread $thread): void
-    {
-        $existing = collect($request->session()->get('recent_threads', []))
-            ->reject(fn ($item) => (int) ($item['id'] ?? 0) === $thread->id)
-            ->values();
-
-        $updated = $existing
-            ->prepend([
-                'id' => $thread->id,
-                'title' => $thread->title,
-                'slug' => $thread->slug,
-            ])
-            ->take(5)
-            ->values()
-            ->all();
-
-        $request->session()->put('recent_threads', $updated);
-    }
-
     /**
      * Show the form for editing the specified thread.
      */
@@ -163,10 +158,7 @@ class ThreadController extends Controller
         $thread = Thread::findThread($slug, true);
 
 
-        // Check authorization
-        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
 
         $subforums = $this->forumQueryService->getThreadCreateSubforums();
 
@@ -189,22 +181,13 @@ class ThreadController extends Controller
     public function update(UpdateThreadRequest $request, string $slug)
     {
         $thread = Thread::findThread($slug, true);
-        // Check authorization
-        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        if ($request->boolean('remove_image') && $thread->image_path) {
-            Storage::disk('public')->delete($thread->image_path);
-            $thread->image_path = null;
-        }
-
-        if ($request->hasFile('image')) {
-            if ($thread->image_path) {
-                Storage::disk('public')->delete($thread->image_path);
-            }
-            $thread->image_path = $request->file('image')->store('thread-images', 'public');
-        }
+        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
+        $thread->image_path = $this->mediaStorageService->resolveImagePathForUpdate(
+            $request,
+            'image',
+            'thread-images',
+            $thread->image_path
+        );
 
         $thread->update([
             'title' => $request->title,
@@ -215,11 +198,11 @@ class ThreadController extends Controller
             'edited_at' => now(),
         ]);
 
-        // Regenerate slug if title changed
-        if ($thread->wasChanged('title')) {
-            $thread->slug = Thread::generateSlug($request->title);
-            $thread->save();
-        }
+        $this->slugService->refreshSlugIfChanged(
+            $thread,
+            'title',
+            Thread::generateSlug($request->title)
+        );
         $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('threads.show', $thread->slug)
@@ -233,15 +216,10 @@ class ThreadController extends Controller
     {
         $thread = Thread::findThread($slug, true);
 
-        // Check authorization - only author or admin can delete
-        if ($thread->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->ownershipAuthorizationService->authorizeOwnerOrAdmin($thread->user_id, auth()->user());
 
         $subforumSlug = $thread->subforum->slug;
-        if ($thread->image_path) {
-            Storage::disk('public')->delete($thread->image_path);
-        }
+        $this->mediaStorageService->deletePublicFile($thread->image_path);
         $thread->delete();
         $this->forumQueryService->bumpForumCacheVersion();
 

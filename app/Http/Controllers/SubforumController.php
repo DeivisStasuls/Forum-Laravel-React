@@ -8,6 +8,8 @@ use App\Models\Subforum;
 use App\Http\Requests\StoreSubforumRequest;
 use App\Http\Requests\UpdateSubforumRequest;
 use App\Services\ForumQueryService;
+use App\Services\RecentItemsService;
+use App\Services\SlugService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -15,7 +17,9 @@ use Illuminate\Support\Facades\Redirect;
 class SubforumController extends Controller
 {
     public function __construct(
-        private readonly ForumQueryService $forumQueryService
+        private readonly ForumQueryService $forumQueryService,
+        private readonly SlugService $slugService,
+        private readonly RecentItemsService $recentItemsService
     ) {
     }
 
@@ -73,7 +77,16 @@ class SubforumController extends Controller
         $subforums = $this->forumQueryService->getForumSubforums();
         $subforum = $this->forumQueryService->getSubforumForShow($slug, $search, $order);
 
-        $this->rememberRecentSubforum($request, $subforum);
+        $this->recentItemsService->remember(
+            $request,
+            'recent_subforums',
+            [
+                'id' => $subforum->id,
+                'name' => $subforum->name,
+                'slug' => $subforum->slug,
+            ],
+            $subforum->id
+        );
 
         return Inertia::render('Forum/ShowSubforum', [
             'subforums' => SubforumResource::collection($subforums)->resolve(),
@@ -83,25 +96,6 @@ class SubforumController extends Controller
                 'order' => $order,
             ],
         ]);
-    }
-
-    private function rememberRecentSubforum(Request $request, Subforum $subforum): void
-    {
-        $existing = collect($request->session()->get('recent_subforums', []))
-            ->reject(fn ($item) => (int) ($item['id'] ?? 0) === $subforum->id)
-            ->values();
-
-        $updated = $existing
-            ->prepend([
-                'id' => $subforum->id,
-                'name' => $subforum->name,
-                'slug' => $subforum->slug,
-            ])
-            ->take(5)
-            ->values()
-            ->all();
-
-        $request->session()->put('recent_subforums', $updated);
     }
 
     /**
@@ -135,11 +129,11 @@ class SubforumController extends Controller
             'restricted_thread_creation' => $request->boolean('restricted_thread_creation'),
         ]);
 
-        // Regenerate slug if name changed
-        if ($subforum->wasChanged('name')) {
-            $subforum->slug = Subforum::generateSlug($request->name);
-            $subforum->save();
-        }
+        $this->slugService->refreshSlugIfChanged(
+            $subforum,
+            'name',
+            Subforum::generateSlug($request->name)
+        );
         $this->forumQueryService->bumpForumCacheVersion();
 
         return Redirect::route('subforums.show', $subforum->slug)

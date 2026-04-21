@@ -9,6 +9,7 @@ use App\Http\Resources\UserSummaryResource;
 use App\Models\PrivateGroup;
 use App\Models\PrivateMessage;
 use App\Models\User;
+use App\Services\MediaStorageService;
 use App\Services\PrivateDiscussionQueryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,8 @@ use Inertia\Response;
 class PrivateDiscussionController extends Controller
 {
     public function __construct(
-        private readonly PrivateDiscussionQueryService $privateDiscussionQueryService
+        private readonly PrivateDiscussionQueryService $privateDiscussionQueryService,
+        private readonly MediaStorageService $mediaStorageService
     ) {
     }
 
@@ -107,9 +109,11 @@ class PrivateDiscussionController extends Controller
             'private_group_id' => $privateGroup->id,
             'user_id' => $request->user()->id,
             'body' => Str::of((string) ($data['body'] ?? ''))->trim()->value(),
-            'image_path' => $request->hasFile('image')
-                ? $request->file('image')->store('private-message-images', 'public')
-                : null,
+            'image_path' => $this->mediaStorageService->storeFromRequest(
+                $request,
+                'image',
+                'private-message-images'
+            ),
         ]);
 
         return Redirect::route('private-discussions.show', $privateGroup->id);
